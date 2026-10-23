@@ -5,10 +5,14 @@ description = "Minimal starter for an individual LLM/VLM agent project"
 readme = "README.md"
 requires-python = ">=3.12,<3.15"
 dependencies = [
+    "icalendar>=6,<8",
     "openai>=1.100,<3",
     "pydantic>=2.11,<3",
     "python-dotenv>=1.1,<2",
 ]
+
+[project.scripts]
+calendar-agent = "agent_project.cli:main"
 
 [dependency-groups]
 dev = [
