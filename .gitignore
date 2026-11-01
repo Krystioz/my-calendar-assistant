@@ -13,3 +13,4 @@ traces/*
 !traces/.gitkeep
 .cache/
 .idea
+docs/
