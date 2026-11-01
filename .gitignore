@@ -12,3 +12,4 @@ build/
 traces/*
 !traces/.gitkeep
 .cache/
+.idea
