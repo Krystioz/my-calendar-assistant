@@ -2,7 +2,12 @@ from pathlib import Path
 
 import pytest
 
-from agent_project.tools import CalendarTools, execute_tool_call, tool_schemas
+from agent_project.tools import (
+    CalendarTools,
+    execute_tool_call,
+    tool_schemas,
+    working_copy,
+)
 
 CALENDAR = Path(__file__).parents[1] / "data" / "calendar.ics"
 
@@ -72,7 +77,7 @@ def test_free_busy_ignores_all_day_events(tools) -> None:
 @pytest.mark.parametrize(
     ("name", "arguments", "code"),
     [
-        ("delete_event", {}, "unknown_tool"),
+        ("send_invitation", {}, "unknown_tool"),
         ("search_events", "{not json", "invalid_json"),
         ("search_events", "[1, 2]", "invalid_json"),
         ("search_events", {}, "invalid_arguments"),
@@ -97,5 +102,105 @@ def test_invalid_requests_are_rejected(tools, name, arguments, code) -> None:
 
 def test_tool_schemas_are_function_definitions() -> None:
     names = [schema["function"]["name"] for schema in tool_schemas()]
-    assert names == ["search_events", "free_busy"]
+    assert names == ["search_events", "free_busy", "create_event", "delete_event"]
     assert "query" in tool_schemas()[0]["function"]["parameters"]["required"]
+
+
+@pytest.fixture
+def writable(tmp_path) -> CalendarTools:
+    return CalendarTools.from_file(working_copy(CALENDAR, tmp_path / "calendar.ics"))
+
+
+def test_working_copy_leaves_the_source_untouched(tmp_path, writable) -> None:
+    before = CALENDAR.read_bytes()
+    execute_tool_call(
+        writable,
+        "create_event",
+        {"title": "Test", "start": "2026-11-01T10:00", "end": "2026-11-01T11:00"},
+    )
+    assert CALENDAR.read_bytes() == before
+    saved = CalendarTools.from_file(tmp_path / "calendar.ics")
+    assert any(e.title == "Test" for e in saved.events)
+
+
+def test_create_event_reports_conflicts(writable) -> None:
+    result = execute_tool_call(
+        writable,
+        "create_event",
+        {
+            "title": "Python Meetup",
+            "start": "2026-10-23T18:00",
+            "end": "2026-10-23T20:00",
+        },
+    )
+    assert result["ok"]
+    assert result["result"]["created"]["id"].startswith("agent-")
+    assert [c["id"] for c in result["result"]["conflicts"]] == [
+        "evt-018@calendar.local"
+    ]
+
+
+def test_create_event_rejects_duplicate(writable) -> None:
+    result = execute_tool_call(
+        writable,
+        "create_event",
+        {"title": "SILOWNIA", "start": "2026-10-19T18:00", "end": "2026-10-19T19:00"},
+    )
+    assert result["error"]["code"] == "already_exists"
+    assert result["error"]["existing"]["id"] == "evt-013@calendar.local"
+
+
+@pytest.mark.parametrize(
+    "arguments",
+    [
+        {"title": "", "start": "2026-11-01T10:00", "end": "2026-11-01T11:00"},
+        {"title": "X", "start": "2026-11-01T11:00", "end": "2026-11-01T10:00"},
+        {"title": "X", "start": "2026-11-01T10:00", "end": "2026-11-03T10:00"},
+    ],
+)
+def test_create_event_validates_arguments(writable, arguments) -> None:
+    result = execute_tool_call(writable, "create_event", arguments)
+    assert result["error"]["code"] == "invalid_arguments"
+
+
+def test_delete_unknown_event_is_not_found_before_asking(writable) -> None:
+    asked = []
+    result = execute_tool_call(
+        writable, "delete_event", {"id": "nope"}, confirm=asked.append
+    )
+    assert result["error"]["code"] == "not_found"
+    assert asked == []
+
+
+def test_create_event_catches_translated_duplicate_in_same_slot(writable) -> None:
+    # Regression: a live run added "Gym" next to "Siłownia" (evidence/m2-*).
+    result = execute_tool_call(
+        writable,
+        "create_event",
+        {"title": "Gym", "start": "2026-10-19T18:00", "end": "2026-10-19T19:30"},
+    )
+    assert result["error"]["code"] == "already_exists"
+    assert result["error"]["existing"]["title"] == "Siłownia"
+
+
+def test_time_zone_suffix_from_the_model_is_treated_as_local(writable) -> None:
+    # Regression: "...T18:00:00Z" from a live run crashed the naive comparison.
+    result = execute_tool_call(
+        writable,
+        "create_event",
+        {
+            "title": "Python Meetup",
+            "start": "2026-10-23T18:00:00Z",
+            "end": "2026-10-23T20:00:00Z",
+        },
+    )
+    assert result["ok"]
+    assert result["result"]["created"]["start"] == "2026-10-23T18:00"
+
+
+@pytest.mark.parametrize("query", ["*|*", "**", "dentysta *"])
+def test_wildcard_query_is_rejected_with_free_busy_hint(tools, query) -> None:
+    # Regression: a live run searched "*|*" and answered "no events that day".
+    result = execute_tool_call(tools, "search_events", {"query": query})
+    assert result["error"]["code"] == "invalid_arguments"
+    assert "free_busy" in result["error"]["message"]

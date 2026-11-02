@@ -13,3 +13,8 @@ traces/*
 !traces/.gitkeep
 .cache/
 .idea
+
+# Local working copy of the calendar and local notes
+workspace/
+docs/
+.idea/

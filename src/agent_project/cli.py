@@ -7,13 +7,25 @@ from pathlib import Path
 
 from agent_project.agent import run_agent
 from agent_project.llm import OpenRouterClient
-from agent_project.tools import CalendarTools
+from agent_project.tools import WORKING_CALENDAR, CalendarTools, working_copy
+
+
+def ask_user(question: str) -> bool:
+    """Real confirmation: only an explicit yes typed in the terminal counts."""
+    answer = input(f"\n{question} [y/N] ").strip().lower()
+    return answer in ("y", "yes", "t", "tak")
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Ask the calendar agent a question.")
-    parser.add_argument("goal", help="What you want to know about your calendar.")
-    parser.add_argument("--calendar", type=Path, default=Path("data/calendar.ics"))
+    parser.add_argument("goal", help="What you want to know or change.")
+    parser.add_argument(
+        "--calendar",
+        type=Path,
+        default=WORKING_CALENDAR,
+        help="Working calendar the agent reads and changes; created from "
+        "data/calendar.ics if missing. Delete it to start over.",
+    )
     parser.add_argument(
         "--today",
         type=date.fromisoformat,
@@ -30,14 +42,15 @@ def main(argv: list[str] | None = None) -> int:
     trace_path = args.trace or Path(
         "traces", f"run-{datetime.now():%Y%m%d-%H%M%S}.jsonl"
     )
+    sys.stdout.reconfigure(encoding="utf-8")
     result = run_agent(
         goal=args.goal,
         client=OpenRouterClient(),
-        tools=CalendarTools.from_file(args.calendar),
+        tools=CalendarTools.from_file(working_copy(target=args.calendar)),
         trace_path=trace_path,
         today=args.today,
+        confirm=ask_user,
     )
-    sys.stdout.reconfigure(encoding="utf-8")
     print(result.answer)
     print(
         f"\n[status={result.status} steps={result.steps} "
