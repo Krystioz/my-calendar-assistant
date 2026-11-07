@@ -4,10 +4,11 @@ from pathlib import Path
 
 from agent_project import MockClient
 from agent_project.agent import run_agent
-from agent_project.tools import CalendarTools
+from agent_project.tools import CalendarTools, working_copy
 
 CALENDAR = Path(__file__).parents[1] / "data" / "calendar.ics"
 TODAY = date(2026, 10, 16)
+LAB_ID = "evt-018@calendar.local"
 
 
 def reply(*calls, text=None, cost=0.0001):
@@ -27,10 +28,11 @@ def reply(*calls, text=None, cost=0.0001):
 
 def run(responses, tmp_path, **kwargs):
     trace = tmp_path / "trace.jsonl"
+    calendar = working_copy(CALENDAR, tmp_path / "calendar.ics")
     result = run_agent(
         goal="test goal",
         client=MockClient(responses),
-        tools=CalendarTools.from_file(CALENDAR),
+        tools=CalendarTools.from_file(calendar),
         trace_path=trace,
         today=TODAY,
         **kwargs,
@@ -111,7 +113,7 @@ def test_invalid_request_is_returned_to_model_and_run_recovers(tmp_path) -> None
 
 
 def test_repeated_rejections_stop_the_run(tmp_path) -> None:
-    bad = reply(("delete_event", {"id": "evt-001"}))
+    bad = reply(("send_invitation", {"id": "evt-001"}))
     result, _ = run([bad, bad, bad, reply(text="never reached")], tmp_path)
     assert result.status == "error"
     assert result.steps == 3
@@ -147,3 +149,79 @@ def test_model_failure_ends_run_with_error(tmp_path) -> None:
     result, events = run([], tmp_path)  # empty mock queue raises
     assert result.status == "error"
     assert events[-1]["payload"]["status"] == "error"
+
+
+def test_already_exists_changes_the_plan(tmp_path) -> None:
+    result, events = run(
+        [
+            reply(
+                (
+                    "create_event",
+                    {
+                        "title": "Siłownia",
+                        "start": "2026-10-19T18:00",
+                        "end": "2026-10-19T19:30",
+                    },
+                )
+            ),
+            reply(("finish", {"outcome": "answered", "answer": "Already there."})),
+        ],
+        tmp_path,
+    )
+    assert result.status == "success"
+    observation = next(e["payload"] for e in events if e["event"] == "tool_result")
+    assert observation["error"]["code"] == "already_exists"
+    titles = [
+        e.title for e in CalendarTools.from_file(tmp_path / "calendar.ics").events
+    ]
+    assert titles.count("Siłownia") == 2  # 14.10 and 19.10, no third copy
+
+
+def test_declined_delete_changes_nothing_and_is_traced(tmp_path) -> None:
+    questions = []
+    result, events = run(
+        [
+            reply(("delete_event", {"id": LAB_ID})),
+            reply(("finish", {"outcome": "answered", "answer": "Not deleted."})),
+        ],
+        tmp_path,
+        confirm=lambda question: questions.append(question) or False,
+    )
+    assert result.status == "success"
+    assert questions == [
+        "Delete 'Laboratorium — Systemy operacyjne (gr. 2)' (2026-10-23 17:30-19:00)?"
+    ]
+    confirmation = next(e["payload"] for e in events if e["event"] == "confirmation")
+    assert confirmation["approved"] is False
+    observation = next(e["payload"] for e in events if e["event"] == "tool_result")
+    assert observation["error"]["code"] == "declined_by_user"
+    ids = [e.uid for e in CalendarTools.from_file(tmp_path / "calendar.ics").events]
+    assert LAB_ID in ids
+
+
+def test_confirmed_delete_removes_the_event(tmp_path) -> None:
+    result, _ = run(
+        [
+            reply(("delete_event", {"id": LAB_ID})),
+            reply(("finish", {"outcome": "answered", "answer": "Deleted."})),
+        ],
+        tmp_path,
+        confirm=lambda question: True,
+    )
+    assert result.status == "success"
+    ids = [e.uid for e in CalendarTools.from_file(tmp_path / "calendar.ics").events]
+    assert LAB_ID not in ids
+
+
+def test_delete_without_confirm_channel_is_blocked(tmp_path) -> None:
+    _, events = run(
+        [
+            reply(("delete_event", {"id": LAB_ID})),
+            reply(("finish", {"outcome": "answered", "answer": "Needs approval."})),
+        ],
+        tmp_path,
+    )
+    observation = next(e["payload"] for e in events if e["event"] == "tool_result")
+    assert observation["error"]["code"] == "confirmation_required"
+    ids = [e.uid for e in CalendarTools.from_file(tmp_path / "calendar.ics").events]
+    assert LAB_ID in ids
