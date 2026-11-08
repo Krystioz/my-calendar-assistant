@@ -70,8 +70,11 @@ def test_trace_records_provider_tokens_cost_and_latency(tmp_path) -> None:
     assert [e["event"] for e in events] == [
         "run_start",
         "model_call",
+        "graph_node",
         "tool_result",
+        "graph_node",
         "model_call",
+        "graph_node",
         "run_end",
     ]
     call = events[1]["payload"]
@@ -82,6 +85,14 @@ def test_trace_records_provider_tokens_cost_and_latency(tmp_path) -> None:
     assert end["status"] == "success"
     assert end["cost_usd"] == 0.0002
     assert end["prompt_tokens"] == 200
+    visits = [e["payload"] for e in events if e["event"] == "graph_node"]
+    assert [v["node"] for v in visits] == [
+        "call_model",
+        "use_calendar_tools",
+        "call_model",
+    ]
+    assert visits[0]["next_node"] == "use_calendar_tools"
+    assert visits[-1]["next_node"] == "end"
 
 
 def test_not_found_outcome(tmp_path) -> None:

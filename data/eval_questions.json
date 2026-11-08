@@ -1,0 +1,89 @@
+[
+  {
+    "id": "q01_dune_conflict_and_makeup",
+    "question": "Czy mogę iść do Kina Muza na 'Diunę: Część drugą' w piątek 23.10 o 18:00? Jeśli mam wtedy zajęcia, sprawdź w sylabusie i kalendarzu, kiedy i na jakich zasadach mogę je odrobić.",
+    "expected_outcome": "answered",
+    "expected_sources": [
+      "repertuar_kina.md#chunk-2",
+      "sylabus_systemy_operacyjne.md#chunk-2",
+      "evt-018@calendar.local"
+    ],
+    "retrieval_query": "Diuna październik pokaz specjalny Kino Muza"
+  },
+  {
+    "id": "q02_crypto_exam_notes",
+    "question": "Jakich materiałów można używać na egzaminie z Kryptografii i jaki warunek trzeba spełnić do 15 grudnia, żeby podejść w pierwszym terminie?",
+    "expected_outcome": "answered",
+    "expected_sources": [
+      "sylabus_kryptografia.md#chunk-2"
+    ],
+    "retrieval_query": "egzamin Kryptografia materiały dozwolone kartka A4 warunek grudzień"
+  },
+  {
+    "id": "q03_os_passing_threshold",
+    "question": "Ile punktów trzeba zdobyć, żeby zaliczyć laboratorium z Systemów operacyjnych na ocenę 3.0, a ile na 5.0?",
+    "expected_outcome": "answered",
+    "expected_sources": [
+      "sylabus_systemy_operacyjne.md#chunk-3"
+    ],
+    "retrieval_query": "zasady zaliczenia próg punktowy laboratorium systemy operacyjne"
+  },
+  {
+    "id": "q04_physio_cancellation_fee",
+    "question": "Mam wizytę w FizjoActive w środę 28.10. Na ile godzin przed wizytą mogę ją bezpłatnie odwołać i ile wynosi opłata, jeśli spóźnię się z odwołaniem?",
+    "expected_outcome": "answered",
+    "expected_sources": [
+      "notatki_organizacyjne.md#chunk-1",
+      "evt-020@calendar.local"
+    ],
+    "retrieval_query": "FizjoActive odwołanie wizyty opłata rezerwacyjna"
+  },
+  {
+    "id": "q05_seminars_november",
+    "question": "Jakie są tematy seminarium dyplomowego u prof. Marka Kowalskiego w listopadzie 2026 i w której sali się odbywają?",
+    "expected_outcome": "answered",
+    "expected_sources": [
+      "plan_studiow_i_seminaria.md#chunk-2"
+    ],
+    "retrieval_query": "seminarium dyplomowe listopad 2026 Marek Kowalski"
+  },
+  {
+    "id": "q06_ai_club_hackathon",
+    "question": "Kiedy odbywa się hackathon koła naukowego Golem AI i do kiedy trzeba się zarejestrować?",
+    "expected_outcome": "answered",
+    "expected_sources": [
+      "plan_studiow_i_seminaria.md#chunk-3"
+    ],
+    "retrieval_query": "Koło Naukowe Golem AI hackathon Agentic Workflows rejestracja"
+  },
+  {
+    "id": "q07_ambiguous_wednesday_movie",
+    "question": "Czy w środę 21 października mam wolny czas w kalendarzu na seans 'Łowcy androidów 2049' w Kinie Muza?",
+    "expected_outcome": "clarify",
+    "expected_sources": [
+      "repertuar_kina.md#chunk-2"
+    ],
+    "retrieval_query": "Łowca androidów 2049 środa 21 października godziny seansu"
+  },
+  {
+    "id": "q08_unanswerable_cinema_popcorn",
+    "question": "Ile kosztuje duży popcorn solony i cola w barze Kina Muza?",
+    "expected_outcome": "not_found",
+    "expected_sources": [],
+    "retrieval_query": "cennik baru kinowego popcorn napoje Kino Muza"
+  },
+  {
+    "id": "q09_unanswerable_instructor_phone",
+    "question": "Jaki jest prywatny numer telefonu komórkowego do mgr. Piotra Wiśniewskiego prowadzącego laboratorium z Systemów operacyjnych?",
+    "expected_outcome": "not_found",
+    "expected_sources": [],
+    "retrieval_query": "numer telefonu kontakt Piotr Wiśniewski systemy operacyjne"
+  },
+  {
+    "id": "q10_unanswerable_parking_fee",
+    "question": "Ile kosztuje miesięczna karta parkingowa dla studentów na parking podziemny pod wydziałem WMI UAM?",
+    "expected_outcome": "not_found",
+    "expected_sources": [],
+    "retrieval_query": "opłata karta parkingowa parking studencki WMI UAM"
+  }
+]

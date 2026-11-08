@@ -40,7 +40,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     trace_path = args.trace or Path(
-        "traces", f"run-{datetime.now():%Y%m%d-%H%M%S}.jsonl"
+        "traces", f"run-{datetime.now():%Y%m%d-%H%M%S-%f}.jsonl"
     )
     sys.stdout.reconfigure(encoding="utf-8")
     result = run_agent(
@@ -56,6 +56,9 @@ def main(argv: list[str] | None = None) -> int:
         f"\n[status={result.status} steps={result.steps} "
         f"cost=${result.cost_usd:.5f} trace={result.trace_path.as_posix()}]"
     )
+    if result.diagram_paths:
+        svg, mermaid = result.diagram_paths
+        print(f"[diagram={svg.as_posix()} mermaid={mermaid.as_posix()}]")
     return 0 if result.status == "success" else 1
 
 

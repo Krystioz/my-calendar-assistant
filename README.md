@@ -46,6 +46,33 @@ The exit code is `0` only when the run ends with status `success`.
 `data/calendar.ics` never changes; delete `workspace/calendar.ics` to start
 over from the original.
 
+### Visual run debugging
+
+At the end of every agent run, diagrams are generated automatically in a
+`diagrams/` folder beside the JSONL trace (normally `traces/diagrams/`):
+an `.svg` file that opens in a browser, and an editable Mermaid `.mmd` file.
+They share the trace's filename stem. This also works when calling `run_agent`
+directly from Python, including runs ending in abstention, errors, or limits.
+No separate command is needed.
+Both include a legend, model requests, tool results, human confirmations,
+graph node visits, and the final outcome. Repeated searches stay separate,
+so their order is visible. This shows the executed path, rather than every
+possible branch of the workflow. No additional dependencies or API calls are used.
+
+For older logs only, you can also export without running the agent:
+
+```powershell
+.venv\Scripts\python.exe -m agent_project.trace_graph evidence/m3-abstention.jsonl
+```
+
+Use `--output traces/presentation` to choose the output stem. Open the SVG
+directly in a browser, or edit the MMD in an editor with Mermaid support.
+Older traces show only the events they actually recorded; new traces also
+include `graph_node` events with the next node, source count, and status.
+Partial traces are marked incomplete. One input file must contain one run.
+Diagram text is abbreviated; JSONL retains full details. Diagrams contain
+user questions and tool data, so review them before sharing.
+
 ### MCP server
 
 The same tools are available to any MCP host (Claude Code, Claude Desktop,

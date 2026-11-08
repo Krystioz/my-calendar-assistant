@@ -203,19 +203,44 @@ class DeleteEventArgs(BaseModel):
     id: str = Field(min_length=1, max_length=200, description="Event id from a search.")
 
 
+class SearchDocsArgs(BaseModel):
+    """Search local documents (syllabi, regulations, cinema, study plan, notes)."""
+
+    query: str = Field(
+        min_length=2,
+        max_length=200,
+        description="Natural language query or keywords to search in the documents.",
+    )
+    top_k: int = Field(
+        3, ge=1, le=8, description="Number of document fragments to return."
+    )
+
+    @model_validator(mode="after")
+    def _check_query(self) -> "SearchDocsArgs":
+        if not any(ch.isalnum() for ch in self.query):
+            raise ValueError("query must contain alphanumeric characters")
+        return self
+
+
 class CalendarTools:
-    """One calendar file exposed to the model as tools.
+    """One calendar file and optional document index exposed to the model as tools.
 
     Without a path the tools work in memory only (used by tests of read tools).
     """
 
-    def __init__(self, events: list[Event], path: Path | None = None) -> None:
+    def __init__(
+        self,
+        events: list[Event],
+        path: Path | None = None,
+        doc_index: Any | None = None,
+    ) -> None:
         self.events = events
         self.path = path
+        self.doc_index = doc_index
 
     @classmethod
-    def from_file(cls, path: Path) -> "CalendarTools":
-        return cls(load_events(path), path)
+    def from_file(cls, path: Path, doc_index: Any | None = None) -> "CalendarTools":
+        return cls(load_events(path), path, doc_index=doc_index)
 
     def _save(self) -> None:
         self.events.sort(key=lambda event: event.start)
@@ -314,6 +339,13 @@ class CalendarTools:
         self._save()
         return {"deleted": event.to_dict()}
 
+    def search_docs(self, args: SearchDocsArgs) -> dict[str, Any]:
+        if self.doc_index is None:
+            from agent_project.rag import DocumentIndex
+
+            self.doc_index = DocumentIndex.load_or_build()
+        return self.doc_index.search(args.query, top_k=args.top_k)
+
 
 @dataclass(frozen=True)
 class ToolSpec:
@@ -354,11 +386,22 @@ TOOL_SPECS = (
     ),
 )
 
+SEARCH_DOCS_SPEC = ToolSpec(
+    "search_docs",
+    SearchDocsArgs,
+    "Semantic search over local project documents (syllabi, WMI regulations, "
+    "cinema repertoire, study plan, seminars, organizational notes). Returns "
+    "fragments with their citable source id (e.g. 'repertuar_kina.md#chunk-2').",
+)
 
-def tool_schemas() -> list[dict[str, Any]]:
+ALL_TOOL_SPECS = (*TOOL_SPECS, SEARCH_DOCS_SPEC)
+
+
+def tool_schemas(include_docs: bool = False) -> list[dict[str, Any]]:
     """Tool definitions in the OpenAI / OpenRouter function-calling format."""
+    specs = ALL_TOOL_SPECS if include_docs else TOOL_SPECS
     schemas = []
-    for spec in TOOL_SPECS:
+    for spec in specs:
         parameters = spec.args_model.model_json_schema()
         parameters.pop("title", None)
         parameters.pop("description", None)
@@ -388,9 +431,9 @@ def execute_tool_call(
     Never raises: every problem becomes an error observation the model can read.
     """
     started = time.perf_counter()
-    spec = next((s for s in TOOL_SPECS if s.name == name), None)
+    spec = next((s for s in ALL_TOOL_SPECS if s.name == name), None)
     if spec is None:
-        allowed = ", ".join(s.name for s in TOOL_SPECS)
+        allowed = ", ".join(s.name for s in ALL_TOOL_SPECS)
         return _error("unknown_tool", f"No tool named {name!r}. Allowed: {allowed}.")
 
     try:
