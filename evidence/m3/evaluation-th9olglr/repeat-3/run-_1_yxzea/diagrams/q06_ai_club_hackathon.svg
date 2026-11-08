@@ -1,0 +1,273 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" width="880" height="6776" viewBox="0 0 880 6776"><title id="title">Przebieg agenta</title>
+<desc id="desc">Chronologiczna historia, nie mapa wszystkich możliwych ścieżek. Treści są skrócone; pełne dane pozostają w logu JSONL.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#64748b"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<g font-family="Segoe UI, sans-serif" fill="#172033">
+<text x="28" y="36" font-size="22">Przebieg agenta</text>
+<text x="28" y="62" font-size="14">Przebieg chronologiczny · strzałki = kolejność zdarzeń</text>
+<text x="28" y="84" font-size="13">Numer zdarzenia ≠ tura LLM. Sterowanie LangGraph = zakończony węzeł i wybrane przejście.</text>
+<rect x="28" y="102" width="16" height="16" fill="#edf2f7" stroke="#475569"/><text x="52" y="115" font-size="13">Start / koniec</text>
+<rect x="306" y="102" width="16" height="16" fill="#dbeafe" stroke="#1d4ed8"/><text x="330" y="115" font-size="13">Komunikacja z LLM</text>
+<rect x="584" y="102" width="16" height="16" fill="#dcfce7" stroke="#15803d"/><text x="608" y="115" font-size="13">Narzędzie</text>
+<rect x="28" y="132" width="16" height="16" fill="#f3e8ff" stroke="#7e22ce"/><text x="52" y="145" font-size="13">Sterowanie LangGraph</text>
+<rect x="306" y="132" width="16" height="16" fill="#fef3c7" stroke="#92400e"/><text x="330" y="145" font-size="13">Decyzja człowieka</text>
+<rect x="584" y="132" width="16" height="16" fill="#fee2e2" stroke="#b91c1c"/><text x="608" y="145" font-size="13">Błąd / odrzucenie</text>
+<rect x="28" y="175" width="824" height="113" rx="10" fill="#edf2f7" stroke="#475569"/><text x="46" y="197" font-size="12">Start / koniec</text>
+<text x="46" y="222" font-size="17" font-weight="600">1. START · komenda użytkownika</text>
+<text x="46" y="245" font-size="14">Kiedy odbywa się hackathon koła naukowego Golem AI i do kiedy trzeba się zarejestrować?</text>
+<text x="46" y="264" font-size="14">2026-11-08T22:28:00.833791+00:00</text>
+<line x1="440" y1="292" x2="440" y2="314" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="318" width="824" height="170" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="340" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="365" font-size="17" font-weight="600">2. Tura LLM 1 · odebrano odpowiedź LLM</text>
+<text x="46" y="388" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="407" font-size="14">Czas żądania: 432 ms · koszt narastająco: $0.00007</text>
+<text x="46" y="426" font-size="14">Propozycja wywołania narzędzia: search_docs {&quot;query&quot;: &quot;hackathon koło naukowe Golem AI</text>
+<text x="46" y="445" font-size="14">rejestracja termin&quot;}</text>
+<text x="46" y="464" font-size="14">2026-11-08T22:28:01.270384+00:00</text>
+<line x1="440" y1="492" x2="440" y2="514" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="518" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="540" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="565" font-size="17" font-weight="600">3. Tura LLM 1 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="588" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="607" font-size="14">Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)</text>
+<text x="46" y="626" font-size="14">Zebrane źródła: 0 · status: w toku</text>
+<text x="46" y="645" font-size="14">2026-11-08T22:28:01.270384+00:00</text>
+<line x1="440" y1="673" x2="440" y2="695" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="699" width="824" height="189" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="721" font-size="12">Narzędzie</text>
+<text x="46" y="746" font-size="17" font-weight="600">4. Tura LLM 1 · wynik obsługi narzędzia: search_docs</text>
+<text x="46" y="769" font-size="14">Argumenty: {&quot;query&quot;: &quot;hackathon koło naukowe Golem AI rejestracja termin&quot;}</text>
+<text x="46" y="788" font-size="14">Znaleziono fragmentów: 3</text>
+<text x="46" y="807" font-size="14">notatki_organizacyjne.md#chunk-3 · score=0.4196</text>
+<text x="46" y="826" font-size="14">sylabus_systemy_operacyjne.md#chunk-3 · score=0.3988</text>
+<text x="46" y="845" font-size="14">sylabus_kryptografia.md#chunk-1 · score=0.3895</text>
+<text x="46" y="864" font-size="14">2026-11-08T22:28:01.273903+00:00</text>
+<line x1="440" y1="892" x2="440" y2="914" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="918" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="940" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="965" font-size="17" font-weight="600">5. Tura LLM 1 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów</text>
+<text x="46" y="988" font-size="14">Identyfikator w kodzie: retrieve_docs</text>
+<text x="46" y="1007" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="1026" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="1045" font-size="14">2026-11-08T22:28:01.275410+00:00</text>
+<line x1="440" y1="1073" x2="440" y2="1095" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1099" width="824" height="151" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="1121" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="1146" font-size="17" font-weight="600">6. Tura LLM 2 · odebrano odpowiedź LLM</text>
+<text x="46" y="1169" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="1188" font-size="14">Czas żądania: 482 ms · koszt narastająco: $0.00020</text>
+<text x="46" y="1207" font-size="14">Propozycja wywołania narzędzia: search_docs {&quot;query&quot;: &quot;Golem AI hackathon&quot;}</text>
+<text x="46" y="1226" font-size="14">2026-11-08T22:28:01.758510+00:00</text>
+<line x1="440" y1="1254" x2="440" y2="1276" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1280" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="1302" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="1327" font-size="17" font-weight="600">7. Tura LLM 2 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="1350" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="1369" font-size="14">Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)</text>
+<text x="46" y="1388" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="1407" font-size="14">2026-11-08T22:28:01.758510+00:00</text>
+<line x1="440" y1="1435" x2="440" y2="1457" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1461" width="824" height="189" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="1483" font-size="12">Narzędzie</text>
+<text x="46" y="1508" font-size="17" font-weight="600">8. Tura LLM 2 · wynik obsługi narzędzia: search_docs</text>
+<text x="46" y="1531" font-size="14">Argumenty: {&quot;query&quot;: &quot;Golem AI hackathon&quot;}</text>
+<text x="46" y="1550" font-size="14">Znaleziono fragmentów: 3</text>
+<text x="46" y="1569" font-size="14">sylabus_systemy_operacyjne.md#chunk-3 · score=0.2727</text>
+<text x="46" y="1588" font-size="14">notatki_organizacyjne.md#chunk-3 · score=0.2581</text>
+<text x="46" y="1607" font-size="14">sylabus_kryptografia.md#chunk-3 · score=0.2445</text>
+<text x="46" y="1626" font-size="14">2026-11-08T22:28:01.763388+00:00</text>
+<line x1="440" y1="1654" x2="440" y2="1676" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1680" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="1702" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="1727" font-size="17" font-weight="600">9. Tura LLM 2 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów</text>
+<text x="46" y="1750" font-size="14">Identyfikator w kodzie: retrieve_docs</text>
+<text x="46" y="1769" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="1788" font-size="14">Zebrane źródła: 4 · status: w toku</text>
+<text x="46" y="1807" font-size="14">2026-11-08T22:28:01.763388+00:00</text>
+<line x1="440" y1="1835" x2="440" y2="1857" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1861" width="824" height="151" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="1883" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="1908" font-size="17" font-weight="600">10. Tura LLM 3 · odebrano odpowiedź LLM</text>
+<text x="46" y="1931" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="1950" font-size="14">Czas żądania: 1139 ms · koszt narastająco: $0.00040</text>
+<text x="46" y="1969" font-size="14">Propozycja wywołania narzędzia: search_docs {&quot;query&quot;: &quot;hackathon Golem AI&quot;}</text>
+<text x="46" y="1988" font-size="14">2026-11-08T22:28:02.903413+00:00</text>
+<line x1="440" y1="2016" x2="440" y2="2038" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2042" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="2064" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="2089" font-size="17" font-weight="600">11. Tura LLM 3 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="2112" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="2131" font-size="14">Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)</text>
+<text x="46" y="2150" font-size="14">Zebrane źródła: 4 · status: w toku</text>
+<text x="46" y="2169" font-size="14">2026-11-08T22:28:02.903413+00:00</text>
+<line x1="440" y1="2197" x2="440" y2="2219" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2223" width="824" height="189" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="2245" font-size="12">Narzędzie</text>
+<text x="46" y="2270" font-size="17" font-weight="600">12. Tura LLM 3 · wynik obsługi narzędzia: search_docs</text>
+<text x="46" y="2293" font-size="14">Argumenty: {&quot;query&quot;: &quot;hackathon Golem AI&quot;}</text>
+<text x="46" y="2312" font-size="14">Znaleziono fragmentów: 3</text>
+<text x="46" y="2331" font-size="14">sylabus_systemy_operacyjne.md#chunk-3 · score=0.2789</text>
+<text x="46" y="2350" font-size="14">notatki_organizacyjne.md#chunk-3 · score=0.2621</text>
+<text x="46" y="2369" font-size="14">sylabus_kryptografia.md#chunk-3 · score=0.252</text>
+<text x="46" y="2388" font-size="14">2026-11-08T22:28:02.908447+00:00</text>
+<line x1="440" y1="2416" x2="440" y2="2438" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2442" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="2464" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="2489" font-size="17" font-weight="600">13. Tura LLM 3 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów</text>
+<text x="46" y="2512" font-size="14">Identyfikator w kodzie: retrieve_docs</text>
+<text x="46" y="2531" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="2550" font-size="14">Zebrane źródła: 4 · status: w toku</text>
+<text x="46" y="2569" font-size="14">2026-11-08T22:28:02.909446+00:00</text>
+<line x1="440" y1="2597" x2="440" y2="2619" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2623" width="824" height="151" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="2645" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="2670" font-size="17" font-weight="600">14. Tura LLM 4 · odebrano odpowiedź LLM</text>
+<text x="46" y="2693" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="2712" font-size="14">Czas żądania: 827 ms · koszt narastająco: $0.00059</text>
+<text x="46" y="2731" font-size="14">Propozycja wywołania narzędzia: search_events {&quot;query&quot;: &quot;hackathon&quot;}</text>
+<text x="46" y="2750" font-size="14">2026-11-08T22:28:03.736991+00:00</text>
+<line x1="440" y1="2778" x2="440" y2="2800" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2804" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="2826" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="2851" font-size="17" font-weight="600">15. Tura LLM 4 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="2874" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="2893" font-size="14">Przejście do: obsługa żądań narzędzi kalendarza (use_calendar_tools)</text>
+<text x="46" y="2912" font-size="14">Zebrane źródła: 4 · status: w toku</text>
+<text x="46" y="2931" font-size="14">2026-11-08T22:28:03.737996+00:00</text>
+<line x1="440" y1="2959" x2="440" y2="2981" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2985" width="824" height="132" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="3007" font-size="12">Narzędzie</text>
+<text x="46" y="3032" font-size="17" font-weight="600">16. Tura LLM 4 · wynik obsługi narzędzia: search_events</text>
+<text x="46" y="3055" font-size="14">Argumenty: {&quot;query&quot;: &quot;hackathon&quot;}</text>
+<text x="46" y="3074" font-size="14">Wynik: {&quot;total_matches&quot;: 0, &quot;returned&quot;: 0, &quot;events&quot;: []}</text>
+<text x="46" y="3093" font-size="14">2026-11-08T22:28:03.737996+00:00</text>
+<line x1="440" y1="3121" x2="440" y2="3143" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="3147" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="3169" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="3194" font-size="17" font-weight="600">17. Tura LLM 4 · zakończono węzeł: obsługa żądań narzędzi kalendarza</text>
+<text x="46" y="3217" font-size="14">Identyfikator w kodzie: use_calendar_tools</text>
+<text x="46" y="3236" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="3255" font-size="14">Zebrane źródła: 4 · status: w toku</text>
+<text x="46" y="3274" font-size="14">2026-11-08T22:28:03.738996+00:00</text>
+<line x1="440" y1="3302" x2="440" y2="3324" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="3328" width="824" height="151" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="3350" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="3375" font-size="17" font-weight="600">18. Tura LLM 5 · odebrano odpowiedź LLM</text>
+<text x="46" y="3398" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="3417" font-size="14">Czas żądania: 1286 ms · koszt narastająco: $0.00075</text>
+<text x="46" y="3436" font-size="14">Propozycja wywołania narzędzia: search_events {&quot;query&quot;: &quot;Golem&quot;}</text>
+<text x="46" y="3455" font-size="14">2026-11-08T22:28:05.024638+00:00</text>
+<line x1="440" y1="3483" x2="440" y2="3505" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="3509" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="3531" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="3556" font-size="17" font-weight="600">19. Tura LLM 5 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="3579" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="3598" font-size="14">Przejście do: obsługa żądań narzędzi kalendarza (use_calendar_tools)</text>
+<text x="46" y="3617" font-size="14">Zebrane źródła: 4 · status: w toku</text>
+<text x="46" y="3636" font-size="14">2026-11-08T22:28:05.025637+00:00</text>
+<line x1="440" y1="3664" x2="440" y2="3686" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="3690" width="824" height="132" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="3712" font-size="12">Narzędzie</text>
+<text x="46" y="3737" font-size="17" font-weight="600">20. Tura LLM 5 · wynik obsługi narzędzia: search_events</text>
+<text x="46" y="3760" font-size="14">Argumenty: {&quot;query&quot;: &quot;Golem&quot;}</text>
+<text x="46" y="3779" font-size="14">Wynik: {&quot;total_matches&quot;: 0, &quot;returned&quot;: 0, &quot;events&quot;: []}</text>
+<text x="46" y="3798" font-size="14">2026-11-08T22:28:05.026144+00:00</text>
+<line x1="440" y1="3826" x2="440" y2="3848" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="3852" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="3874" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="3899" font-size="17" font-weight="600">21. Tura LLM 5 · zakończono węzeł: obsługa żądań narzędzi kalendarza</text>
+<text x="46" y="3922" font-size="14">Identyfikator w kodzie: use_calendar_tools</text>
+<text x="46" y="3941" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="3960" font-size="14">Zebrane źródła: 4 · status: w toku</text>
+<text x="46" y="3979" font-size="14">2026-11-08T22:28:05.026144+00:00</text>
+<line x1="440" y1="4007" x2="440" y2="4029" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="4033" width="824" height="151" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="4055" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="4080" font-size="17" font-weight="600">22. Tura LLM 6 · odebrano odpowiedź LLM</text>
+<text x="46" y="4103" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="4122" font-size="14">Czas żądania: 622 ms · koszt narastająco: $0.00092</text>
+<text x="46" y="4141" font-size="14">Propozycja wywołania narzędzia: search_docs {&quot;query&quot;: &quot;koło naukowe Golem AI&quot;}</text>
+<text x="46" y="4160" font-size="14">2026-11-08T22:28:05.649592+00:00</text>
+<line x1="440" y1="4188" x2="440" y2="4210" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="4214" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="4236" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="4261" font-size="17" font-weight="600">23. Tura LLM 6 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="4284" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="4303" font-size="14">Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)</text>
+<text x="46" y="4322" font-size="14">Zebrane źródła: 4 · status: w toku</text>
+<text x="46" y="4341" font-size="14">2026-11-08T22:28:05.649592+00:00</text>
+<line x1="440" y1="4369" x2="440" y2="4391" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="4395" width="824" height="189" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="4417" font-size="12">Narzędzie</text>
+<text x="46" y="4442" font-size="17" font-weight="600">24. Tura LLM 6 · wynik obsługi narzędzia: search_docs</text>
+<text x="46" y="4465" font-size="14">Argumenty: {&quot;query&quot;: &quot;koło naukowe Golem AI&quot;}</text>
+<text x="46" y="4484" font-size="14">Znaleziono fragmentów: 3</text>
+<text x="46" y="4503" font-size="14">sylabus_systemy_operacyjne.md#chunk-3 · score=0.4299</text>
+<text x="46" y="4522" font-size="14">plan_studiow_i_seminaria.md#chunk-1 · score=0.3633</text>
+<text x="46" y="4541" font-size="14">notatki_organizacyjne.md#chunk-3 · score=0.3571</text>
+<text x="46" y="4560" font-size="14">2026-11-08T22:28:05.654308+00:00</text>
+<line x1="440" y1="4588" x2="440" y2="4610" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="4614" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="4636" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="4661" font-size="17" font-weight="600">25. Tura LLM 6 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów</text>
+<text x="46" y="4684" font-size="14">Identyfikator w kodzie: retrieve_docs</text>
+<text x="46" y="4703" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="4722" font-size="14">Zebrane źródła: 5 · status: w toku</text>
+<text x="46" y="4741" font-size="14">2026-11-08T22:28:05.654825+00:00</text>
+<line x1="440" y1="4769" x2="440" y2="4791" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="4795" width="824" height="151" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="4817" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="4842" font-size="17" font-weight="600">26. Tura LLM 7 · odebrano odpowiedź LLM</text>
+<text x="46" y="4865" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="4884" font-size="14">Czas żądania: 871 ms · koszt narastająco: $0.00118</text>
+<text x="46" y="4903" font-size="14">Propozycja wywołania narzędzia: search_docs {&quot;query&quot;: &quot;Golem AI hackathon rejestracja&quot;}</text>
+<text x="46" y="4922" font-size="14">2026-11-08T22:28:06.526409+00:00</text>
+<line x1="440" y1="4950" x2="440" y2="4972" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="4976" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="4998" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="5023" font-size="17" font-weight="600">27. Tura LLM 7 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="5046" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="5065" font-size="14">Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)</text>
+<text x="46" y="5084" font-size="14">Zebrane źródła: 5 · status: w toku</text>
+<text x="46" y="5103" font-size="14">2026-11-08T22:28:06.526934+00:00</text>
+<line x1="440" y1="5131" x2="440" y2="5153" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="5157" width="824" height="189" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="5179" font-size="12">Narzędzie</text>
+<text x="46" y="5204" font-size="17" font-weight="600">28. Tura LLM 7 · wynik obsługi narzędzia: search_docs</text>
+<text x="46" y="5227" font-size="14">Argumenty: {&quot;query&quot;: &quot;Golem AI hackathon rejestracja&quot;}</text>
+<text x="46" y="5246" font-size="14">Znaleziono fragmentów: 3</text>
+<text x="46" y="5265" font-size="14">notatki_organizacyjne.md#chunk-3 · score=0.3188</text>
+<text x="46" y="5284" font-size="14">plan_studiow_i_seminaria.md#chunk-3 · score=0.2721</text>
+<text x="46" y="5303" font-size="14">sylabus_systemy_operacyjne.md#chunk-3 · score=0.2664</text>
+<text x="46" y="5322" font-size="14">2026-11-08T22:28:06.531655+00:00</text>
+<line x1="440" y1="5350" x2="440" y2="5372" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="5376" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="5398" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="5423" font-size="17" font-weight="600">29. Tura LLM 7 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów</text>
+<text x="46" y="5446" font-size="14">Identyfikator w kodzie: retrieve_docs</text>
+<text x="46" y="5465" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="5484" font-size="14">Zebrane źródła: 6 · status: w toku</text>
+<text x="46" y="5503" font-size="14">2026-11-08T22:28:06.532172+00:00</text>
+<line x1="440" y1="5531" x2="440" y2="5553" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="5557" width="824" height="189" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="5579" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="5604" font-size="17" font-weight="600">30. Tura LLM 8 · odebrano odpowiedź LLM</text>
+<text x="46" y="5627" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="5646" font-size="14">Czas żądania: 1194 ms · koszt narastająco: $0.00149</text>
+<text x="46" y="5665" font-size="14">Tekst odpowiedzi LLM: Hackathon koła naukowego Golem AI pt. *Agentic Workflows* odbędzie się w</text>
+<text x="46" y="5684" font-size="14">**sobotę, 14 listopada 2026 roku, w godzinach 09:00–20:00** w Auli B. Rejestracja na to</text>
+<text x="46" y="5703" font-size="14">wydarzenie jest wymagana do **10 listopada**. [source: plan_studiow_i_seminari…</text>
+<text x="46" y="5722" font-size="14">2026-11-08T22:28:07.726613+00:00</text>
+<line x1="440" y1="5750" x2="440" y2="5772" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="5776" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="5798" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="5823" font-size="17" font-weight="600">31. Tura LLM 8 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="5846" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="5865" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="5884" font-size="14">Zebrane źródła: 6 · status: w toku</text>
+<text x="46" y="5903" font-size="14">2026-11-08T22:28:07.727609+00:00</text>
+<line x1="440" y1="5931" x2="440" y2="5953" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="5957" width="824" height="208" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="5979" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="6004" font-size="17" font-weight="600">32. Tura LLM 9 · odebrano odpowiedź LLM</text>
+<text x="46" y="6027" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="6046" font-size="14">Czas żądania: 1354 ms · koszt narastająco: $0.00178</text>
+<text x="46" y="6065" font-size="14">Propozycja wywołania narzędzia: finish {&quot;answer&quot;: &quot;Hackathon koła naukowego Golem AI pt.</text>
+<text x="46" y="6084" font-size="14">*Agentic Workflows* odbędzie się w sobotę, 14 listopada 2026 roku, w godzinach 09:00–20:00 w</text>
+<text x="46" y="6103" font-size="14">Auli B. Rejestracja na wydarzenie jest wymagana do 10 listopada.&quot;, &quot;citations&quot;:</text>
+<text x="46" y="6122" font-size="14">[&quot;plan_studiow_i…</text>
+<text x="46" y="6141" font-size="14">2026-11-08T22:28:09.082453+00:00</text>
+<line x1="440" y1="6169" x2="440" y2="6191" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="6195" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="6217" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="6242" font-size="17" font-weight="600">33. Tura LLM 9 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="6265" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="6284" font-size="14">Przejście do: weryfikacja cytowań (verify_citations)</text>
+<text x="46" y="6303" font-size="14">Zebrane źródła: 6 · status: w toku</text>
+<text x="46" y="6322" font-size="14">2026-11-08T22:28:09.083453+00:00</text>
+<line x1="440" y1="6350" x2="440" y2="6372" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="6376" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="6398" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="6423" font-size="17" font-weight="600">34. Tura LLM 9 · zakończono węzeł: weryfikacja cytowań</text>
+<text x="46" y="6446" font-size="14">Identyfikator w kodzie: verify_citations</text>
+<text x="46" y="6465" font-size="14">Przejście do: zakończenie przebiegu (end)</text>
+<text x="46" y="6484" font-size="14">Zebrane źródła: 6 · status: success</text>
+<text x="46" y="6503" font-size="14">2026-11-08T22:28:09.084452+00:00</text>
+<line x1="440" y1="6531" x2="440" y2="6553" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="6557" width="824" height="189" rx="10" fill="#edf2f7" stroke="#475569"/><text x="46" y="6579" font-size="12">Start / koniec</text>
+<text x="46" y="6604" font-size="17" font-weight="600">35. KONIEC · success</text>
+<text x="46" y="6627" font-size="14">Hackathon koła naukowego Golem AI pt. *Agentic Workflows* odbędzie się w sobotę, 14 listopada</text>
+<text x="46" y="6646" font-size="14">2026 roku, w godzinach 09:00–20:00 w Auli B. Rejestracja na wydarzenie jest wymagana do 10</text>
+<text x="46" y="6665" font-size="14">listopada.</text>
+<text x="46" y="6684" font-size="14">Liczba tur LLM: 9 · koszt: $0.00178 · czas: 8251 ms</text>
+<text x="46" y="6703" font-size="14">Cytowania: plan_studiow_i_seminaria.md#chunk-3</text>
+<text x="46" y="6722" font-size="14">2026-11-08T22:28:09.084452+00:00</text>
+</g></svg>

@@ -1,0 +1,83 @@
+{
+  "calendar_keyword_false_negative": {
+    "query": "zajęcia",
+    "matches": 0,
+    "free_busy_same_day": {
+      "is_free": false,
+      "busy": [
+        {
+          "id": "evt-018@calendar.local",
+          "title": "Laboratorium — Systemy operacyjne (gr. 2)",
+          "start": "2026-10-23T17:30",
+          "end": "2026-10-23T19:00",
+          "duration_min": 90,
+          "all_day": false,
+          "location": "WMI UAM, sala A2-21",
+          "description": "Odrabianie możliwe z grupą 1: środa 21.10, 12:00–13:30, sala A2-21, po wcześniejszym mailu do prowadzącego."
+        }
+      ],
+      "free_slots": [
+        {
+          "start": "2026-10-23T19:00",
+          "end": "2026-10-23T20:45"
+        }
+      ]
+    },
+    "conclusion": "Empty keyword results do not establish calendar availability."
+  },
+  "generation_interval_error": {
+    "film": [
+      "2026-10-21T16:00",
+      "2026-10-21T18:45"
+    ],
+    "dinner": [
+      "2026-10-21T18:30",
+      "2026-10-21T21:00"
+    ],
+    "overlap_minutes": 15.0
+  },
+  "retrieval_failure": [
+    {
+      "query": "Koło Naukowe Golem AI hackathon Agentic Workflows rejestracja",
+      "top4": [
+        {
+          "id": "sylabus_systemy_operacyjne.md#chunk-3",
+          "score": 0.3464
+        },
+        {
+          "id": "notatki_organizacyjne.md#chunk-3",
+          "score": 0.3226
+        },
+        {
+          "id": "sylabus_systemy_operacyjne.md#chunk-1",
+          "score": 0.2902
+        },
+        {
+          "id": "sylabus_kryptografia.md#chunk-1",
+          "score": 0.2839
+        }
+      ]
+    },
+    {
+      "query": "Koło Naukowe Golem AI hackathon",
+      "top4": [
+        {
+          "id": "sylabus_systemy_operacyjne.md#chunk-3",
+          "score": 0.433
+        },
+        {
+          "id": "notatki_organizacyjne.md#chunk-3",
+          "score": 0.3604
+        },
+        {
+          "id": "plan_studiow_i_seminaria.md#chunk-3",
+          "score": 0.3434
+        },
+        {
+          "id": "sylabus_systemy_operacyjne.md#chunk-1",
+          "score": 0.3236
+        }
+      ]
+    }
+  ]
+}

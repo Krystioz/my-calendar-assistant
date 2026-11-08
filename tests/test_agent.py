@@ -2,6 +2,8 @@ import json
 from datetime import date
 from pathlib import Path
 
+import pytest
+
 from agent_project import MockClient
 from agent_project.agent import run_agent
 from agent_project.tools import CalendarTools, working_copy
@@ -64,7 +66,10 @@ def test_conflict_leads_to_second_check_and_answer(tmp_path) -> None:
 
 def test_trace_records_provider_tokens_cost_and_latency(tmp_path) -> None:
     _, events = run(
-        [reply(("search_events", {"query": "dentysta"})), reply(text="Done.")],
+        [
+            reply(("search_events", {"query": "dentysta"})),
+            reply(("finish", {"outcome": "answered", "answer": "Done."})),
+        ],
         tmp_path,
     )
     assert [e["event"] for e in events] == [
@@ -74,6 +79,7 @@ def test_trace_records_provider_tokens_cost_and_latency(tmp_path) -> None:
         "tool_result",
         "graph_node",
         "model_call",
+        "graph_node",
         "graph_node",
         "run_end",
     ]
@@ -90,6 +96,7 @@ def test_trace_records_provider_tokens_cost_and_latency(tmp_path) -> None:
         "call_model",
         "use_calendar_tools",
         "call_model",
+        "verify_citations",
     ]
     assert visits[0]["next_node"] == "use_calendar_tools"
     assert visits[-1]["next_node"] == "end"
@@ -106,6 +113,62 @@ def test_not_found_outcome(tmp_path) -> None:
     assert result.status == "not_found"
 
 
+@pytest.mark.parametrize(
+    ("text", "outcome"),
+    [
+        ("Nie wiem, brak informacji o terminie egzaminu.", "not_found"),
+        ("O który egzamin chodzi?", "clarify"),
+    ],
+)
+def test_plain_text_requires_explicit_finish(tmp_path, text, outcome) -> None:
+    result, _ = run(
+        [reply(text=text), reply(("finish", {"outcome": outcome, "answer": text}))],
+        tmp_path,
+    )
+    assert result.status == outcome
+    assert result.answer == text
+    assert result.steps == 2
+
+
+def test_repeated_plain_text_stops_at_step_limit(tmp_path) -> None:
+    result, events = run([reply(text="Nie wiem.")] * 4, tmp_path, max_steps=3)
+    assert result.status == "step_limit"
+    assert result.steps == 3
+    assert sum(e["event"] == "model_call" for e in events) == 3
+
+
+def test_plain_text_retry_retains_tool_context(tmp_path, monkeypatch) -> None:
+    original_complete = MockClient.complete
+    history = []
+
+    def capture(self, messages, tools=None):
+        history.append(messages)
+        return original_complete(self, messages, tools)
+
+    monkeypatch.setattr(MockClient, "complete", capture)
+    result, _ = run(
+        [
+            reply(("search_events", {"query": "egzamin kryptografia"})),
+            reply(text="Brak informacji o egzaminie."),
+            reply(
+                (
+                    "finish",
+                    {"outcome": "not_found", "answer": "Brak terminu egzaminu."},
+                )
+            ),
+        ],
+        tmp_path,
+    )
+    assert result.status == "not_found"
+    assert history[2][:-2] == history[1]
+    assert history[2][-2] == {
+        "role": "assistant",
+        "content": "Brak informacji o egzaminie.",
+    }
+    assert "`finish`" in history[2][-1]["content"]
+    assert any(message["role"] == "tool" for message in history[2])
+
+
 def test_invalid_request_is_returned_to_model_and_run_recovers(tmp_path) -> None:
     result, events = run(
         [
@@ -113,7 +176,12 @@ def test_invalid_request_is_returned_to_model_and_run_recovers(tmp_path) -> None
             reply(
                 ("free_busy", {"start": "2026-10-19T08:00", "end": "2026-10-19T12:00"})
             ),
-            reply(text="You are busy 10:00-11:30."),
+            reply(
+                (
+                    "finish",
+                    {"outcome": "answered", "answer": "You are busy 10:00-11:30."},
+                )
+            ),
         ],
         tmp_path,
     )

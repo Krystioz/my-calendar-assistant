@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" width="880" height="3251" viewBox="0 0 880 3251"><title id="title">Przebieg agenta</title>
+<desc id="desc">Chronologiczna historia, nie mapa wszystkich możliwych ścieżek. Treści są skrócone; pełne dane pozostają w logu JSONL.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#64748b"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<g font-family="Segoe UI, sans-serif" fill="#172033">
+<text x="28" y="36" font-size="22">Przebieg agenta</text>
+<text x="28" y="62" font-size="14">Przebieg chronologiczny · strzałki = kolejność zdarzeń</text>
+<text x="28" y="84" font-size="13">Numer zdarzenia ≠ tura LLM. Sterowanie LangGraph = zakończony węzeł i wybrane przejście.</text>
+<rect x="28" y="102" width="16" height="16" fill="#edf2f7" stroke="#475569"/><text x="52" y="115" font-size="13">Start / koniec</text>
+<rect x="306" y="102" width="16" height="16" fill="#dbeafe" stroke="#1d4ed8"/><text x="330" y="115" font-size="13">Komunikacja z LLM</text>
+<rect x="584" y="102" width="16" height="16" fill="#dcfce7" stroke="#15803d"/><text x="608" y="115" font-size="13">Narzędzie</text>
+<rect x="28" y="132" width="16" height="16" fill="#f3e8ff" stroke="#7e22ce"/><text x="52" y="145" font-size="13">Sterowanie LangGraph</text>
+<rect x="306" y="132" width="16" height="16" fill="#fef3c7" stroke="#92400e"/><text x="330" y="145" font-size="13">Decyzja człowieka</text>
+<rect x="584" y="132" width="16" height="16" fill="#fee2e2" stroke="#b91c1c"/><text x="608" y="145" font-size="13">Błąd / odrzucenie</text>
+<rect x="28" y="175" width="824" height="132" rx="10" fill="#edf2f7" stroke="#475569"/><text x="46" y="197" font-size="12">Start / koniec</text>
+<text x="46" y="222" font-size="17" font-weight="600">1. START · komenda użytkownika</text>
+<text x="46" y="245" font-size="14">Czy mogę iść do Kina Muza na &#x27;Diunę: Część drugą&#x27; w piątek 23.10 o 18:00? Jeśli mam wtedy</text>
+<text x="46" y="264" font-size="14">zajęcia, sprawdź w sylabusie i kalendarzu, kiedy i na jakich zasadach mogę je odrobić.</text>
+<text x="46" y="283" font-size="14">2026-11-08T22:26:37.055100+00:00</text>
+<line x1="440" y1="311" x2="440" y2="333" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="337" width="824" height="208" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="359" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="384" font-size="17" font-weight="600">2. Tura LLM 1 · odebrano odpowiedź LLM</text>
+<text x="46" y="407" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="426" font-size="14">Czas żądania: 1531 ms · koszt narastająco: $0.00013</text>
+<text x="46" y="445" font-size="14">Propozycja wywołania narzędzia: search_events {&quot;query&quot;: &quot;Diuna&quot;, &quot;start&quot;: &quot;2026-10-23&quot;}</text>
+<text x="46" y="464" font-size="14">Propozycja wywołania narzędzia: search_docs {&quot;query&quot;: &quot;Diuna: Część druga Kino Muza 23.10.2026&quot;}</text>
+<text x="46" y="483" font-size="14">Propozycja wywołania narzędzia: free_busy {&quot;end&quot;: &quot;2026-10-23T19:00&quot;, &quot;start&quot;:</text>
+<text x="46" y="502" font-size="14">&quot;2026-10-23T18:00&quot;}</text>
+<text x="46" y="521" font-size="14">2026-11-08T22:26:38.591283+00:00</text>
+<line x1="440" y1="549" x2="440" y2="571" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="575" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="597" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="622" font-size="17" font-weight="600">3. Tura LLM 1 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="645" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="664" font-size="14">Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)</text>
+<text x="46" y="683" font-size="14">Zebrane źródła: 0 · status: w toku</text>
+<text x="46" y="702" font-size="14">2026-11-08T22:26:38.593785+00:00</text>
+<line x1="440" y1="730" x2="440" y2="752" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="756" width="824" height="132" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="778" font-size="12">Narzędzie</text>
+<text x="46" y="803" font-size="17" font-weight="600">4. Tura LLM 1 · wynik obsługi narzędzia: search_events</text>
+<text x="46" y="826" font-size="14">Argumenty: {&quot;query&quot;: &quot;Diuna&quot;, &quot;start&quot;: &quot;2026-10-23&quot;}</text>
+<text x="46" y="845" font-size="14">Wynik: {&quot;total_matches&quot;: 0, &quot;returned&quot;: 0, &quot;events&quot;: []}</text>
+<text x="46" y="864" font-size="14">2026-11-08T22:26:38.594790+00:00</text>
+<line x1="440" y1="892" x2="440" y2="914" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="918" width="824" height="189" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="940" font-size="12">Narzędzie</text>
+<text x="46" y="965" font-size="17" font-weight="600">5. Tura LLM 1 · wynik obsługi narzędzia: search_docs</text>
+<text x="46" y="988" font-size="14">Argumenty: {&quot;query&quot;: &quot;Diuna: Część druga Kino Muza 23.10.2026&quot;}</text>
+<text x="46" y="1007" font-size="14">Znaleziono fragmentów: 3</text>
+<text x="46" y="1026" font-size="14">repertuar_kina.md#chunk-2 · score=0.6217</text>
+<text x="46" y="1045" font-size="14">repertuar_kina.md#chunk-4 · score=0.6085</text>
+<text x="46" y="1064" font-size="14">repertuar_kina.md#chunk-3 · score=0.5905</text>
+<text x="46" y="1083" font-size="14">2026-11-08T22:26:38.599337+00:00</text>
+<line x1="440" y1="1111" x2="440" y2="1133" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1137" width="824" height="170" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="1159" font-size="12">Narzędzie</text>
+<text x="46" y="1184" font-size="17" font-weight="600">6. Tura LLM 1 · wynik obsługi narzędzia: free_busy</text>
+<text x="46" y="1207" font-size="14">Argumenty: {&quot;end&quot;: &quot;2026-10-23T19:00&quot;, &quot;start&quot;: &quot;2026-10-23T18:00&quot;}</text>
+<text x="46" y="1226" font-size="14">Wynik: {&quot;is_free&quot;: false, &quot;busy&quot;: [{&quot;id&quot;: &quot;evt-018@calendar.local&quot;, &quot;title&quot;: &quot;Laboratorium —</text>
+<text x="46" y="1245" font-size="14">Systemy operacyjne (gr. 2)&quot;, &quot;start&quot;: &quot;2026-10-23T17:30&quot;, &quot;end&quot;: &quot;2026-10-23T19:00&quot;,</text>
+<text x="46" y="1264" font-size="14">&quot;duration_min&quot;: 90, &quot;all_day&quot;: false, &quot;location&quot;: &quot;WMI UAM, sala A2-…</text>
+<text x="46" y="1283" font-size="14">2026-11-08T22:26:38.599337+00:00</text>
+<line x1="440" y1="1311" x2="440" y2="1333" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1337" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="1359" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="1384" font-size="17" font-weight="600">7. Tura LLM 1 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów</text>
+<text x="46" y="1407" font-size="14">Identyfikator w kodzie: retrieve_docs</text>
+<text x="46" y="1426" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="1445" font-size="14">Zebrane źródła: 4 · status: w toku</text>
+<text x="46" y="1464" font-size="14">2026-11-08T22:26:38.600337+00:00</text>
+<line x1="440" y1="1492" x2="440" y2="1514" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1518" width="824" height="170" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="1540" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="1565" font-size="17" font-weight="600">8. Tura LLM 2 · odebrano odpowiedź LLM</text>
+<text x="46" y="1588" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="1607" font-size="14">Czas żądania: 649 ms · koszt narastająco: $0.00033</text>
+<text x="46" y="1626" font-size="14">Propozycja wywołania narzędzia: search_docs {&quot;query&quot;: &quot;zasady odrabiania zajęć laboratoriów</text>
+<text x="46" y="1645" font-size="14">systemy operacyjne&quot;}</text>
+<text x="46" y="1664" font-size="14">2026-11-08T22:26:39.250182+00:00</text>
+<line x1="440" y1="1692" x2="440" y2="1714" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1718" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="1740" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="1765" font-size="17" font-weight="600">9. Tura LLM 2 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="1788" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="1807" font-size="14">Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)</text>
+<text x="46" y="1826" font-size="14">Zebrane źródła: 4 · status: w toku</text>
+<text x="46" y="1845" font-size="14">2026-11-08T22:26:39.250696+00:00</text>
+<line x1="440" y1="1873" x2="440" y2="1895" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1899" width="824" height="189" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="1921" font-size="12">Narzędzie</text>
+<text x="46" y="1946" font-size="17" font-weight="600">10. Tura LLM 2 · wynik obsługi narzędzia: search_docs</text>
+<text x="46" y="1969" font-size="14">Argumenty: {&quot;query&quot;: &quot;zasady odrabiania zajęć laboratoriów systemy operacyjne&quot;}</text>
+<text x="46" y="1988" font-size="14">Znaleziono fragmentów: 3</text>
+<text x="46" y="2007" font-size="14">sylabus_systemy_operacyjne.md#chunk-3 · score=0.6512</text>
+<text x="46" y="2026" font-size="14">sylabus_systemy_operacyjne.md#chunk-2 · score=0.5708</text>
+<text x="46" y="2045" font-size="14">regulamin_studiow_wmi.md#chunk-1 · score=0.5367</text>
+<text x="46" y="2064" font-size="14">2026-11-08T22:26:39.255430+00:00</text>
+<line x1="440" y1="2092" x2="440" y2="2114" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2118" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="2140" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="2165" font-size="17" font-weight="600">11. Tura LLM 2 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów</text>
+<text x="46" y="2188" font-size="14">Identyfikator w kodzie: retrieve_docs</text>
+<text x="46" y="2207" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="2226" font-size="14">Zebrane źródła: 7 · status: w toku</text>
+<text x="46" y="2245" font-size="14">2026-11-08T22:26:39.255952+00:00</text>
+<line x1="440" y1="2273" x2="440" y2="2295" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2299" width="824" height="246" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="2321" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="2346" font-size="17" font-weight="600">12. Tura LLM 3 · odebrano odpowiedź LLM</text>
+<text x="46" y="2369" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="2388" font-size="14">Czas żądania: 8125 ms · koszt narastająco: $0.00069</text>
+<text x="46" y="2407" font-size="14">Propozycja wywołania narzędzia: finish {&quot;answer&quot;: &quot;Niestety nie możesz iść na seans o 18:00,</text>
+<text x="46" y="2426" font-size="14">ponieważ masz wtedy zajęcia.\n\n**Szczegóły:**\n* **Film:** \&quot;Diuna: Część druga\&quot; w Kinie Muza</text>
+<text x="46" y="2445" font-size="14">(pokaz specjalny IMAX/Muza) jest dostępny w piątek 23.10 o godzinie 18:00 [repertuar_kina…</text>
+<text x="46" y="2464" font-size="14">Tekst odpowiedzi LLM: Niestety nie możesz iść na seans o 18:00, ponieważ masz wtedy zajęcia.</text>
+<text x="46" y="2483" font-size="14">**Szczegóły:** * **Film:** &quot;Diuna: Część druga&quot; w Kinie Muza (pokaz specjalny IMAX/Muza) jest</text>
+<text x="46" y="2502" font-size="14">dostępny w piątek 23.10 o godzinie 18:00 [repertuar_kina.md#chunk-2]. * **…</text>
+<text x="46" y="2521" font-size="14">2026-11-08T22:26:47.381604+00:00</text>
+<line x1="440" y1="2549" x2="440" y2="2571" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2575" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="2597" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="2622" font-size="17" font-weight="600">13. Tura LLM 3 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="2645" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="2664" font-size="14">Przejście do: weryfikacja cytowań (verify_citations)</text>
+<text x="46" y="2683" font-size="14">Zebrane źródła: 7 · status: w toku</text>
+<text x="46" y="2702" font-size="14">2026-11-08T22:26:47.381604+00:00</text>
+<line x1="440" y1="2730" x2="440" y2="2752" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2756" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="2778" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="2803" font-size="17" font-weight="600">14. Tura LLM 3 · zakończono węzeł: weryfikacja cytowań</text>
+<text x="46" y="2826" font-size="14">Identyfikator w kodzie: verify_citations</text>
+<text x="46" y="2845" font-size="14">Przejście do: zakończenie przebiegu (end)</text>
+<text x="46" y="2864" font-size="14">Zebrane źródła: 7 · status: success</text>
+<text x="46" y="2883" font-size="14">2026-11-08T22:26:47.383112+00:00</text>
+<line x1="440" y1="2911" x2="440" y2="2933" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2937" width="824" height="284" rx="10" fill="#edf2f7" stroke="#475569"/><text x="46" y="2959" font-size="12">Start / koniec</text>
+<text x="46" y="2984" font-size="17" font-weight="600">15. KONIEC · success</text>
+<text x="46" y="3007" font-size="14">Niestety nie możesz iść na seans o 18:00, ponieważ masz wtedy zajęcia. **Szczegóły:** *</text>
+<text x="46" y="3026" font-size="14">**Film:** &quot;Diuna: Część druga&quot; w Kinie Muza (pokaz specjalny IMAX/Muza) jest dostępny w piątek</text>
+<text x="46" y="3045" font-size="14">23.10 o godzinie 18:00 [repertuar_kina.md#chunk-2]. * **Konflikt:** W tym samym czasie</text>
+<text x="46" y="3064" font-size="14">(17:30–19:00) masz zajęcia: **Laboratorium — Systemy operacyjne (gr. 2)** w sali A2-21</text>
+<text x="46" y="3083" font-size="14">[evt-018@calendar.local]. **Jak możesz odrobić te zajęcia?** Zgodnie z sylabusem, pojedynczą</text>
+<text x="46" y="3102" font-size="14">nieobecność grupy 2 możesz odrobić z grupą 1 [sylabus_systemy_operacyjne.md#chunk-2]: * **Termin</text>
+<text x="46" y="3121" font-size="14">odrabiania:** Środa, godz. 12:00–13:30 (sala A2-21).…</text>
+<text x="46" y="3140" font-size="14">Liczba tur LLM: 3 · koszt: $0.00069 · czas: 10328 ms</text>
+<text x="46" y="3159" font-size="14">Cytowania: repertuar_kina.md#chunk-2, evt-018@calendar.local,</text>
+<text x="46" y="3178" font-size="14">sylabus_systemy_operacyjne.md#chunk-2</text>
+<text x="46" y="3197" font-size="14">2026-11-08T22:26:47.383112+00:00</text>
+</g></svg>

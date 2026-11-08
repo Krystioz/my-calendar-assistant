@@ -1,0 +1,238 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" width="880" height="5823" viewBox="0 0 880 5823"><title id="title">Przebieg agenta</title>
+<desc id="desc">Chronologiczna historia, nie mapa wszystkich możliwych ścieżek. Treści są skrócone; pełne dane pozostają w logu JSONL.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#64748b"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<g font-family="Segoe UI, sans-serif" fill="#172033">
+<text x="28" y="36" font-size="22">Przebieg agenta</text>
+<text x="28" y="62" font-size="14">Przebieg chronologiczny · strzałki = kolejność zdarzeń</text>
+<text x="28" y="84" font-size="13">Numer zdarzenia ≠ tura LLM. Sterowanie LangGraph = zakończony węzeł i wybrane przejście.</text>
+<rect x="28" y="102" width="16" height="16" fill="#edf2f7" stroke="#475569"/><text x="52" y="115" font-size="13">Start / koniec</text>
+<rect x="306" y="102" width="16" height="16" fill="#dbeafe" stroke="#1d4ed8"/><text x="330" y="115" font-size="13">Komunikacja z LLM</text>
+<rect x="584" y="102" width="16" height="16" fill="#dcfce7" stroke="#15803d"/><text x="608" y="115" font-size="13">Narzędzie</text>
+<rect x="28" y="132" width="16" height="16" fill="#f3e8ff" stroke="#7e22ce"/><text x="52" y="145" font-size="13">Sterowanie LangGraph</text>
+<rect x="306" y="132" width="16" height="16" fill="#fef3c7" stroke="#92400e"/><text x="330" y="145" font-size="13">Decyzja człowieka</text>
+<rect x="584" y="132" width="16" height="16" fill="#fee2e2" stroke="#b91c1c"/><text x="608" y="145" font-size="13">Błąd / odrzucenie</text>
+<rect x="28" y="175" width="824" height="113" rx="10" fill="#edf2f7" stroke="#475569"/><text x="46" y="197" font-size="12">Start / koniec</text>
+<text x="46" y="222" font-size="17" font-weight="600">1. START · komenda użytkownika</text>
+<text x="46" y="245" font-size="14">Ile kosztuje duży popcorn solony i cola w barze Kina Muza?</text>
+<text x="46" y="264" font-size="14">2026-11-08T22:27:04.564300+00:00</text>
+<line x1="440" y1="292" x2="440" y2="314" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="318" width="824" height="151" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="340" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="365" font-size="17" font-weight="600">2. Tura LLM 1 · odebrano odpowiedź LLM</text>
+<text x="46" y="388" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="407" font-size="14">Czas żądania: 575 ms · koszt narastająco: $0.00007</text>
+<text x="46" y="426" font-size="14">Propozycja wywołania narzędzia: search_docs {&quot;query&quot;: &quot;popcorn cola cena Kina Muza&quot;}</text>
+<text x="46" y="445" font-size="14">2026-11-08T22:27:05.142951+00:00</text>
+<line x1="440" y1="473" x2="440" y2="495" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="499" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="521" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="546" font-size="17" font-weight="600">3. Tura LLM 1 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="569" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="588" font-size="14">Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)</text>
+<text x="46" y="607" font-size="14">Zebrane źródła: 0 · status: w toku</text>
+<text x="46" y="626" font-size="14">2026-11-08T22:27:05.144454+00:00</text>
+<line x1="440" y1="654" x2="440" y2="676" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="680" width="824" height="189" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="702" font-size="12">Narzędzie</text>
+<text x="46" y="727" font-size="17" font-weight="600">4. Tura LLM 1 · wynik obsługi narzędzia: search_docs</text>
+<text x="46" y="750" font-size="14">Argumenty: {&quot;query&quot;: &quot;popcorn cola cena Kina Muza&quot;}</text>
+<text x="46" y="769" font-size="14">Znaleziono fragmentów: 3</text>
+<text x="46" y="788" font-size="14">repertuar_kina.md#chunk-2 · score=0.4177</text>
+<text x="46" y="807" font-size="14">repertuar_kina.md#chunk-4 · score=0.4</text>
+<text x="46" y="826" font-size="14">repertuar_kina.md#chunk-1 · score=0.3925</text>
+<text x="46" y="845" font-size="14">2026-11-08T22:27:05.148462+00:00</text>
+<line x1="440" y1="873" x2="440" y2="895" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="899" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="921" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="946" font-size="17" font-weight="600">5. Tura LLM 1 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów</text>
+<text x="46" y="969" font-size="14">Identyfikator w kodzie: retrieve_docs</text>
+<text x="46" y="988" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="1007" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="1026" font-size="14">2026-11-08T22:27:05.149702+00:00</text>
+<line x1="440" y1="1054" x2="440" y2="1076" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1080" width="824" height="189" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="1102" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="1127" font-size="17" font-weight="600">6. Tura LLM 2 · odebrano odpowiedź LLM</text>
+<text x="46" y="1150" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="1169" font-size="14">Czas żądania: 727 ms · koszt narastająco: $0.00022</text>
+<text x="46" y="1188" font-size="14">Tekst odpowiedzi LLM: W dokumentach dotyczących repertuaru Kina Muza nie ma informacji o cenach</text>
+<text x="46" y="1207" font-size="14">produktów w barze (popcornu czy coli). Dokument zawiera jedynie informacje o cenach biletów.</text>
+<text x="46" y="1226" font-size="14">finish{outcome:&lt;|&quot;|&gt;not_found&lt;|&quot;|&gt;}</text>
+<text x="46" y="1245" font-size="14">2026-11-08T22:27:05.877047+00:00</text>
+<line x1="440" y1="1273" x2="440" y2="1295" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1299" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="1321" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="1346" font-size="17" font-weight="600">7. Tura LLM 2 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="1369" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="1388" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="1407" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="1426" font-size="14">2026-11-08T22:27:05.878053+00:00</text>
+<line x1="440" y1="1454" x2="440" y2="1476" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1480" width="824" height="189" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="1502" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="1527" font-size="17" font-weight="600">8. Tura LLM 3 · odebrano odpowiedź LLM</text>
+<text x="46" y="1550" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="1569" font-size="14">Czas żądania: 620 ms · koszt narastająco: $0.00035</text>
+<text x="46" y="1588" font-size="14">Tekst odpowiedzi LLM: finish{answer:&lt;|&quot;|&gt;Niestety, w dostępnych dokumentach nie ma informacji o</text>
+<text x="46" y="1607" font-size="14">cenach produktów w barze (popcornu czy coli) w Kinie Muza. Dokumenty zawierają jedynie</text>
+<text x="46" y="1626" font-size="14">informacje o cenach biletów.&lt;|&quot;|&gt;,outcome:&lt;|&quot;|&gt;not_found&lt;|&quot;|&gt;}</text>
+<text x="46" y="1645" font-size="14">2026-11-08T22:27:06.498539+00:00</text>
+<line x1="440" y1="1673" x2="440" y2="1695" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1699" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="1721" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="1746" font-size="17" font-weight="600">9. Tura LLM 3 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="1769" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="1788" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="1807" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="1826" font-size="14">2026-11-08T22:27:06.498539+00:00</text>
+<line x1="440" y1="1854" x2="440" y2="1876" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1880" width="824" height="189" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="1902" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="1927" font-size="17" font-weight="600">10. Tura LLM 4 · odebrano odpowiedź LLM</text>
+<text x="46" y="1950" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="1969" font-size="14">Czas żądania: 552 ms · koszt narastająco: $0.00048</text>
+<text x="46" y="1988" font-size="14">Tekst odpowiedzi LLM: finish{answer:&lt;|&quot;|&gt;Niestety, w dostępnych dokumentach nie ma informacji o</text>
+<text x="46" y="2007" font-size="14">cenach produktów w barze (popcornu czy coli) w Kinie Muza. Dokumenty zawierają jedynie</text>
+<text x="46" y="2026" font-size="14">informacje o cenach biletów.&lt;|&quot;|&gt;,outcome:&lt;|&quot;|&gt;not_found&lt;|&quot;|&gt;}</text>
+<text x="46" y="2045" font-size="14">2026-11-08T22:27:07.052165+00:00</text>
+<line x1="440" y1="2073" x2="440" y2="2095" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2099" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="2121" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="2146" font-size="17" font-weight="600">11. Tura LLM 4 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="2169" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="2188" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="2207" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="2226" font-size="14">2026-11-08T22:27:07.052165+00:00</text>
+<line x1="440" y1="2254" x2="440" y2="2276" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2280" width="824" height="189" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="2302" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="2327" font-size="17" font-weight="600">12. Tura LLM 5 · odebrano odpowiedź LLM</text>
+<text x="46" y="2350" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="2369" font-size="14">Czas żądania: 430 ms · koszt narastająco: $0.00066</text>
+<text x="46" y="2388" font-size="14">Tekst odpowiedzi LLM: finish{answer:&lt;|&quot;|&gt;Niestety, w dostępnych dokumentach nie ma informacji o</text>
+<text x="46" y="2407" font-size="14">cenach produktów w barze (popcornu czy coli) w Kinie Muza. Dokumenty zawierają jedynie</text>
+<text x="46" y="2426" font-size="14">informacje o cenach biletów.&lt;|&quot;|&gt;,outcome:&lt;|&quot;|&gt;not_found&lt;|&quot;|&gt;}</text>
+<text x="46" y="2445" font-size="14">2026-11-08T22:27:07.483277+00:00</text>
+<line x1="440" y1="2473" x2="440" y2="2495" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2499" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="2521" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="2546" font-size="17" font-weight="600">13. Tura LLM 5 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="2569" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="2588" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="2607" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="2626" font-size="14">2026-11-08T22:27:07.483277+00:00</text>
+<line x1="440" y1="2654" x2="440" y2="2676" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2680" width="824" height="189" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="2702" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="2727" font-size="17" font-weight="600">14. Tura LLM 6 · odebrano odpowiedź LLM</text>
+<text x="46" y="2750" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="2769" font-size="14">Czas żądania: 487 ms · koszt narastająco: $0.00081</text>
+<text x="46" y="2788" font-size="14">Tekst odpowiedzi LLM: finish{answer:&lt;|&quot;|&gt;Niestety, w dostępnych dokumentach nie ma informacji o</text>
+<text x="46" y="2807" font-size="14">cenach produktów w barze (popcornu czy coli) w Kinie Muza. Dokumenty zawierają jedynie</text>
+<text x="46" y="2826" font-size="14">informacje o cenach biletów.&lt;|&quot;|&gt;,outcome:&lt;|&quot;|&gt;not_found&lt;|&quot;|&gt;}</text>
+<text x="46" y="2845" font-size="14">2026-11-08T22:27:07.970400+00:00</text>
+<line x1="440" y1="2873" x2="440" y2="2895" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2899" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="2921" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="2946" font-size="17" font-weight="600">15. Tura LLM 6 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="2969" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="2988" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="3007" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="3026" font-size="14">2026-11-08T22:27:07.972018+00:00</text>
+<line x1="440" y1="3054" x2="440" y2="3076" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="3080" width="824" height="189" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="3102" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="3127" font-size="17" font-weight="600">16. Tura LLM 7 · odebrano odpowiedź LLM</text>
+<text x="46" y="3150" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="3169" font-size="14">Czas żądania: 481 ms · koszt narastająco: $0.00097</text>
+<text x="46" y="3188" font-size="14">Tekst odpowiedzi LLM: finish{answer:&lt;|&quot;|&gt;Niestety, w dostępnych dokumentach nie ma informacji o</text>
+<text x="46" y="3207" font-size="14">cenach produktów w barze (popcornu czy coli) w Kinie Muza. Dokumenty zawierają jedynie</text>
+<text x="46" y="3226" font-size="14">informacje o cenach biletów.&lt;|&quot;|&gt;,outcome:&lt;|&quot;|&gt;not_found&lt;|&quot;|&gt;}</text>
+<text x="46" y="3245" font-size="14">2026-11-08T22:27:08.454222+00:00</text>
+<line x1="440" y1="3273" x2="440" y2="3295" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="3299" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="3321" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="3346" font-size="17" font-weight="600">17. Tura LLM 7 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="3369" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="3388" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="3407" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="3426" font-size="14">2026-11-08T22:27:08.454738+00:00</text>
+<line x1="440" y1="3454" x2="440" y2="3476" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="3480" width="824" height="189" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="3502" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="3527" font-size="17" font-weight="600">18. Tura LLM 8 · odebrano odpowiedź LLM</text>
+<text x="46" y="3550" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="3569" font-size="14">Czas żądania: 609 ms · koszt narastająco: $0.00113</text>
+<text x="46" y="3588" font-size="14">Tekst odpowiedzi LLM: finish{answer:&lt;|&quot;|&gt;Niestety, w dostępnych dokumentach nie ma informacji o</text>
+<text x="46" y="3607" font-size="14">cenach produktów w barze (popcornu czy coli) w Kinie Muza. Dokumenty zawierają jedynie</text>
+<text x="46" y="3626" font-size="14">informacje o cenach biletów.&lt;|&quot;|&gt;,outcome:&lt;|&quot;|&gt;not_found&lt;|&quot;|&gt;}</text>
+<text x="46" y="3645" font-size="14">2026-11-08T22:27:09.064361+00:00</text>
+<line x1="440" y1="3673" x2="440" y2="3695" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="3699" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="3721" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="3746" font-size="17" font-weight="600">19. Tura LLM 8 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="3769" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="3788" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="3807" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="3826" font-size="14">2026-11-08T22:27:09.064361+00:00</text>
+<line x1="440" y1="3854" x2="440" y2="3876" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="3880" width="824" height="189" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="3902" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="3927" font-size="17" font-weight="600">20. Tura LLM 9 · odebrano odpowiedź LLM</text>
+<text x="46" y="3950" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="3969" font-size="14">Czas żądania: 521 ms · koszt narastająco: $0.00130</text>
+<text x="46" y="3988" font-size="14">Tekst odpowiedzi LLM: finish{answer:&lt;|&quot;|&gt;Niestety, w dostępnych dokumentach nie ma informacji o</text>
+<text x="46" y="4007" font-size="14">cenach produktów w barze (popcornu czy coli) w Kinie Muza. Dokumenty zawierają jedynie</text>
+<text x="46" y="4026" font-size="14">informacje o cenach biletów.&lt;|&quot;|&gt;,outcome:&lt;|&quot;|&gt;not_found&lt;|&quot;|&gt;}</text>
+<text x="46" y="4045" font-size="14">2026-11-08T22:27:09.587077+00:00</text>
+<line x1="440" y1="4073" x2="440" y2="4095" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="4099" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="4121" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="4146" font-size="17" font-weight="600">21. Tura LLM 9 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="4169" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="4188" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="4207" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="4226" font-size="14">2026-11-08T22:27:09.587077+00:00</text>
+<line x1="440" y1="4254" x2="440" y2="4276" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="4280" width="824" height="189" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="4302" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="4327" font-size="17" font-weight="600">22. Tura LLM 10 · odebrano odpowiedź LLM</text>
+<text x="46" y="4350" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="4369" font-size="14">Czas żądania: 537 ms · koszt narastająco: $0.00149</text>
+<text x="46" y="4388" font-size="14">Tekst odpowiedzi LLM: finish{answer:&lt;|&quot;|&gt;Niestety, w dostępnych dokumentach nie ma informacji o</text>
+<text x="46" y="4407" font-size="14">cenach produktów w barze (popcornu czy coli) w Kinie Muza. Dokumenty zawierają jedynie</text>
+<text x="46" y="4426" font-size="14">informacje o cenach biletów.&lt;|&quot;|&gt;,outcome:&lt;|&quot;|&gt;not_found&lt;|&quot;|&gt;}</text>
+<text x="46" y="4445" font-size="14">2026-11-08T22:27:10.124483+00:00</text>
+<line x1="440" y1="4473" x2="440" y2="4495" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="4499" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="4521" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="4546" font-size="17" font-weight="600">23. Tura LLM 10 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="4569" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="4588" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="4607" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="4626" font-size="14">2026-11-08T22:27:10.125488+00:00</text>
+<line x1="440" y1="4654" x2="440" y2="4676" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="4680" width="824" height="189" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="4702" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="4727" font-size="17" font-weight="600">24. Tura LLM 11 · odebrano odpowiedź LLM</text>
+<text x="46" y="4750" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="4769" font-size="14">Czas żądania: 518 ms · koszt narastająco: $0.00175</text>
+<text x="46" y="4788" font-size="14">Tekst odpowiedzi LLM: finish{answer:&lt;|&quot;|&gt;Niestety, w dostępnych dokumentach nie ma informacji o</text>
+<text x="46" y="4807" font-size="14">cenach produktów w barze (popcornu czy coli) w Kinie Muza. Dokumenty zawierają jedynie</text>
+<text x="46" y="4826" font-size="14">informacje o cenach biletów.&lt;|&quot;|&gt;,outcome:&lt;|&quot;|&gt;not_found&lt;|&quot;|&gt;}</text>
+<text x="46" y="4845" font-size="14">2026-11-08T22:27:10.645036+00:00</text>
+<line x1="440" y1="4873" x2="440" y2="4895" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="4899" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="4921" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="4946" font-size="17" font-weight="600">25. Tura LLM 11 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="4969" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="4988" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="5007" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="5026" font-size="14">2026-11-08T22:27:10.645554+00:00</text>
+<line x1="440" y1="5054" x2="440" y2="5076" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="5080" width="824" height="189" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="5102" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="5127" font-size="17" font-weight="600">26. Tura LLM 12 · odebrano odpowiedź LLM</text>
+<text x="46" y="5150" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="5169" font-size="14">Czas żądania: 549 ms · koszt narastająco: $0.00194</text>
+<text x="46" y="5188" font-size="14">Tekst odpowiedzi LLM: finish{answer:&lt;|&quot;|&gt;Niestety, w dostępnych dokumentach nie ma informacji o</text>
+<text x="46" y="5207" font-size="14">cenach produktów w barze (popcornu czy coli) w Kinie Muza. Dokumenty zawierają jedynie</text>
+<text x="46" y="5226" font-size="14">informacje o cenach biletów.&lt;|&quot;|&gt;,outcome:&lt;|&quot;|&gt;not_found&lt;|&quot;|&gt;}</text>
+<text x="46" y="5245" font-size="14">2026-11-08T22:27:11.194447+00:00</text>
+<line x1="440" y1="5273" x2="440" y2="5295" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="5299" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="5321" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="5346" font-size="17" font-weight="600">27. Tura LLM 12 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="5369" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="5388" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="5407" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="5426" font-size="14">2026-11-08T22:27:11.195630+00:00</text>
+<line x1="440" y1="5454" x2="440" y2="5476" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="5480" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="5502" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="5527" font-size="17" font-weight="600">28. Tura LLM 12 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="5550" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="5569" font-size="14">Przejście do: zakończenie przebiegu (end)</text>
+<text x="46" y="5588" font-size="14">Zebrane źródła: 3 · status: step_limit</text>
+<text x="46" y="5607" font-size="14">2026-11-08T22:27:11.195630+00:00</text>
+<line x1="440" y1="5635" x2="440" y2="5657" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="5661" width="824" height="132" rx="10" fill="#fee2e2" stroke="#b91c1c"/><text x="46" y="5683" font-size="12">Błąd / odrzucenie</text>
+<text x="46" y="5708" font-size="17" font-weight="600">29. KONIEC · step_limit</text>
+<text x="46" y="5731" font-size="14">Stopped: no answer within 12 steps.</text>
+<text x="46" y="5750" font-size="14">Liczba tur LLM: 12 · koszt: $0.00194 · czas: 6632 ms</text>
+<text x="46" y="5769" font-size="14">2026-11-08T22:27:11.196630+00:00</text>
+</g></svg>

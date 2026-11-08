@@ -1,0 +1,73 @@
+flowchart TD
+  subgraph legend["Legenda"]
+    legend_boundary["Start / koniec"]:::boundary
+    legend_model["Komunikacja z LLM"]:::model
+    legend_tool["Narzędzie"]:::tool
+    legend_graph["Sterowanie LangGraph"]:::graph
+    legend_decision["Decyzja człowieka"]:::decision
+    legend_error["Błąd / odrzucenie"]:::error
+  end
+  note["Przebieg chronologiczny · strzałki = kolejność zdarzeń"]
+  n0["START · komenda użytkownika<br/>Ile kosztuje duży popcorn solony i cola w barze Kina Muza?<br/>2026-11-08T22:27:04.564300+00:00"]:::boundary
+  n1["Tura LLM 1 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 575 ms · koszt narastająco: $0.00007<br/>Propozycja wywołania narzędzia: search_docs #123;#34;query#34;: #34;popcorn cola cena Kina Muza#34;#125;<br/>2026-11-08T22:27:05.142951+00:00"]:::model
+  n0 --> n1
+  n2["Tura LLM 1 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)<br/>Zebrane źródła: 0 · status: w toku<br/>2026-11-08T22:27:05.144454+00:00"]:::graph
+  n1 --> n2
+  n3["Tura LLM 1 · wynik obsługi narzędzia: search_docs<br/>Argumenty: #123;#34;query#34;: #34;popcorn cola cena Kina Muza#34;#125;<br/>Znaleziono fragmentów: 3<br/>repertuar_kina.md#35;chunk-2 · score=0.4177<br/>repertuar_kina.md#35;chunk-4 · score=0.4<br/>repertuar_kina.md#35;chunk-1 · score=0.3925<br/>2026-11-08T22:27:05.148462+00:00"]:::tool
+  n2 --> n3
+  n4["Tura LLM 1 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów<br/>Identyfikator w kodzie: retrieve_docs<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-08T22:27:05.149702+00:00"]:::graph
+  n3 --> n4
+  n5["Tura LLM 2 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 727 ms · koszt narastająco: $0.00022<br/>Tekst odpowiedzi LLM: W dokumentach dotyczących repertuaru Kina Muza nie ma informacji o cenach produktów w barze (popcornu czy coli). Dokument zawiera jedynie informacje o cenach biletów. finish#123;outcome:#60;#124;#34;#124;#62;not_found#60;#124;#34;#124;#62;#125;<br/>2026-11-08T22:27:05.877047+00:00"]:::model
+  n4 --> n5
+  n6["Tura LLM 2 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-08T22:27:05.878053+00:00"]:::graph
+  n5 --> n6
+  n7["Tura LLM 3 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 620 ms · koszt narastająco: $0.00035<br/>Tekst odpowiedzi LLM: finish#123;answer:#60;#124;#34;#124;#62;Niestety, w dostępnych dokumentach nie ma informacji o cenach produktów w barze (popcornu czy coli) w Kinie Muza. Dokumenty zawierają jedynie informacje o cenach biletów.#60;#124;#34;#124;#62;,outcome:#60;#124;#34;#124;#62;not_found#60;#124;#34;#124;#62;#125;<br/>2026-11-08T22:27:06.498539+00:00"]:::model
+  n6 --> n7
+  n8["Tura LLM 3 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-08T22:27:06.498539+00:00"]:::graph
+  n7 --> n8
+  n9["Tura LLM 4 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 552 ms · koszt narastająco: $0.00048<br/>Tekst odpowiedzi LLM: finish#123;answer:#60;#124;#34;#124;#62;Niestety, w dostępnych dokumentach nie ma informacji o cenach produktów w barze (popcornu czy coli) w Kinie Muza. Dokumenty zawierają jedynie informacje o cenach biletów.#60;#124;#34;#124;#62;,outcome:#60;#124;#34;#124;#62;not_found#60;#124;#34;#124;#62;#125;<br/>2026-11-08T22:27:07.052165+00:00"]:::model
+  n8 --> n9
+  n10["Tura LLM 4 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-08T22:27:07.052165+00:00"]:::graph
+  n9 --> n10
+  n11["Tura LLM 5 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 430 ms · koszt narastająco: $0.00066<br/>Tekst odpowiedzi LLM: finish#123;answer:#60;#124;#34;#124;#62;Niestety, w dostępnych dokumentach nie ma informacji o cenach produktów w barze (popcornu czy coli) w Kinie Muza. Dokumenty zawierają jedynie informacje o cenach biletów.#60;#124;#34;#124;#62;,outcome:#60;#124;#34;#124;#62;not_found#60;#124;#34;#124;#62;#125;<br/>2026-11-08T22:27:07.483277+00:00"]:::model
+  n10 --> n11
+  n12["Tura LLM 5 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-08T22:27:07.483277+00:00"]:::graph
+  n11 --> n12
+  n13["Tura LLM 6 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 487 ms · koszt narastająco: $0.00081<br/>Tekst odpowiedzi LLM: finish#123;answer:#60;#124;#34;#124;#62;Niestety, w dostępnych dokumentach nie ma informacji o cenach produktów w barze (popcornu czy coli) w Kinie Muza. Dokumenty zawierają jedynie informacje o cenach biletów.#60;#124;#34;#124;#62;,outcome:#60;#124;#34;#124;#62;not_found#60;#124;#34;#124;#62;#125;<br/>2026-11-08T22:27:07.970400+00:00"]:::model
+  n12 --> n13
+  n14["Tura LLM 6 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-08T22:27:07.972018+00:00"]:::graph
+  n13 --> n14
+  n15["Tura LLM 7 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 481 ms · koszt narastająco: $0.00097<br/>Tekst odpowiedzi LLM: finish#123;answer:#60;#124;#34;#124;#62;Niestety, w dostępnych dokumentach nie ma informacji o cenach produktów w barze (popcornu czy coli) w Kinie Muza. Dokumenty zawierają jedynie informacje o cenach biletów.#60;#124;#34;#124;#62;,outcome:#60;#124;#34;#124;#62;not_found#60;#124;#34;#124;#62;#125;<br/>2026-11-08T22:27:08.454222+00:00"]:::model
+  n14 --> n15
+  n16["Tura LLM 7 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-08T22:27:08.454738+00:00"]:::graph
+  n15 --> n16
+  n17["Tura LLM 8 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 609 ms · koszt narastająco: $0.00113<br/>Tekst odpowiedzi LLM: finish#123;answer:#60;#124;#34;#124;#62;Niestety, w dostępnych dokumentach nie ma informacji o cenach produktów w barze (popcornu czy coli) w Kinie Muza. Dokumenty zawierają jedynie informacje o cenach biletów.#60;#124;#34;#124;#62;,outcome:#60;#124;#34;#124;#62;not_found#60;#124;#34;#124;#62;#125;<br/>2026-11-08T22:27:09.064361+00:00"]:::model
+  n16 --> n17
+  n18["Tura LLM 8 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-08T22:27:09.064361+00:00"]:::graph
+  n17 --> n18
+  n19["Tura LLM 9 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 521 ms · koszt narastająco: $0.00130<br/>Tekst odpowiedzi LLM: finish#123;answer:#60;#124;#34;#124;#62;Niestety, w dostępnych dokumentach nie ma informacji o cenach produktów w barze (popcornu czy coli) w Kinie Muza. Dokumenty zawierają jedynie informacje o cenach biletów.#60;#124;#34;#124;#62;,outcome:#60;#124;#34;#124;#62;not_found#60;#124;#34;#124;#62;#125;<br/>2026-11-08T22:27:09.587077+00:00"]:::model
+  n18 --> n19
+  n20["Tura LLM 9 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-08T22:27:09.587077+00:00"]:::graph
+  n19 --> n20
+  n21["Tura LLM 10 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 537 ms · koszt narastająco: $0.00149<br/>Tekst odpowiedzi LLM: finish#123;answer:#60;#124;#34;#124;#62;Niestety, w dostępnych dokumentach nie ma informacji o cenach produktów w barze (popcornu czy coli) w Kinie Muza. Dokumenty zawierają jedynie informacje o cenach biletów.#60;#124;#34;#124;#62;,outcome:#60;#124;#34;#124;#62;not_found#60;#124;#34;#124;#62;#125;<br/>2026-11-08T22:27:10.124483+00:00"]:::model
+  n20 --> n21
+  n22["Tura LLM 10 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-08T22:27:10.125488+00:00"]:::graph
+  n21 --> n22
+  n23["Tura LLM 11 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 518 ms · koszt narastająco: $0.00175<br/>Tekst odpowiedzi LLM: finish#123;answer:#60;#124;#34;#124;#62;Niestety, w dostępnych dokumentach nie ma informacji o cenach produktów w barze (popcornu czy coli) w Kinie Muza. Dokumenty zawierają jedynie informacje o cenach biletów.#60;#124;#34;#124;#62;,outcome:#60;#124;#34;#124;#62;not_found#60;#124;#34;#124;#62;#125;<br/>2026-11-08T22:27:10.645036+00:00"]:::model
+  n22 --> n23
+  n24["Tura LLM 11 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-08T22:27:10.645554+00:00"]:::graph
+  n23 --> n24
+  n25["Tura LLM 12 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 549 ms · koszt narastająco: $0.00194<br/>Tekst odpowiedzi LLM: finish#123;answer:#60;#124;#34;#124;#62;Niestety, w dostępnych dokumentach nie ma informacji o cenach produktów w barze (popcornu czy coli) w Kinie Muza. Dokumenty zawierają jedynie informacje o cenach biletów.#60;#124;#34;#124;#62;,outcome:#60;#124;#34;#124;#62;not_found#60;#124;#34;#124;#62;#125;<br/>2026-11-08T22:27:11.194447+00:00"]:::model
+  n24 --> n25
+  n26["Tura LLM 12 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-08T22:27:11.195630+00:00"]:::graph
+  n25 --> n26
+  n27["Tura LLM 12 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: zakończenie przebiegu (end)<br/>Zebrane źródła: 3 · status: step_limit<br/>2026-11-08T22:27:11.195630+00:00"]:::graph
+  n26 --> n27
+  n28["KONIEC · step_limit<br/>Stopped: no answer within 12 steps.<br/>Liczba tur LLM: 12 · koszt: $0.00194 · czas: 6632 ms<br/>2026-11-08T22:27:11.196630+00:00"]:::error
+  n27 --> n28
+  classDef boundary fill:#edf2f7,stroke:#475569,color:#172033
+  classDef model fill:#dbeafe,stroke:#1d4ed8,color:#172033
+  classDef tool fill:#dcfce7,stroke:#15803d,color:#172033
+  classDef graph fill:#f3e8ff,stroke:#7e22ce,color:#172033
+  classDef decision fill:#fef3c7,stroke:#92400e,color:#172033
+  classDef error fill:#fee2e2,stroke:#b91c1c,color:#172033

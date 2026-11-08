@@ -1,0 +1,20 @@
+[
+  {
+    "id": "after-finish-bypass",
+    "question": "Czy mogę iść na siupa lupa?",
+    "actual_status": "clarify",
+    "answer": "Przepraszam, ale nie rozumiem Twojego pytania. Czy możesz doprecyzować, o co dokładnie pytasz?",
+    "steps": 1,
+    "cost_usd": 0.000496138,
+    "trace": "evidence/m3/after-finish-bypass.jsonl"
+  },
+  {
+    "id": "clarification-live",
+    "question": "Umów spotkanie z Tomkiem.",
+    "actual_status": "clarify",
+    "answer": "Chętnie pomogę Ci umówić spotkanie, ale potrzebuję więcej informacji.\n\nCzy chodzi o spotkanie z kimś o imieniu Tomek (np. dr Tomasz Zieliński, który prowadzi ćwiczenia z analizy matematycznej)? Jeśli tak, to kiedy chciałbyś się z nim spotkać?\n\nProszę, podaj:\n1. **Imię i nazwisko** osoby (jeśli to ktoś konkretny).\n2. **Datę i godzinę** spotkania.\n3. **Czas trwania** lub godzinę zakończenia.",
+    "steps": 4,
+    "cost_usd": 0.00046337600000000004,
+    "trace": "evidence/m3/clarification-live.jsonl"
+  }
+]

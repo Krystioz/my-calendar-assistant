@@ -8,7 +8,41 @@
       "sylabus_systemy_operacyjne.md#chunk-2",
       "evt-018@calendar.local"
     ],
-    "retrieval_query": "Diuna październik pokaz specjalny Kino Muza"
+    "retrieval_query": "Diuna październik pokaz specjalny Kino Muza",
+    "answer_rubric": [
+      {
+        "fact": "film_date",
+        "pattern": "23[. /-]10|23\\s+października"
+      },
+      {
+        "fact": "film_time",
+        "pattern": "18[:.]00"
+      },
+      {
+        "fact": "conflict",
+        "pattern": "konflikt|kolid|nakład|nie możesz|nie można"
+      },
+      {
+        "fact": "lab_hours",
+        "pattern": "17[:.]30.*19[:.]00"
+      },
+      {
+        "fact": "makeup_day",
+        "pattern": "środ|21[. /-]10"
+      },
+      {
+        "fact": "makeup_hours",
+        "pattern": "12[:.]00.*13[:.]30"
+      },
+      {
+        "fact": "email",
+        "pattern": "e-?mail|wiadomoś"
+      },
+      {
+        "fact": "advance_notice",
+        "pattern": "dzień przed|dnia poprzed|20[. /-]10|20\\s+października"
+      }
+    ]
   },
   {
     "id": "q02_crypto_exam_notes",
@@ -17,7 +51,33 @@
     "expected_sources": [
       "sylabus_kryptografia.md#chunk-2"
     ],
-    "retrieval_query": "egzamin Kryptografia materiały dozwolone kartka A4 warunek grudzień"
+    "retrieval_query": "egzamin Kryptografia materiały dozwolone kartka A4 warunek grudzień",
+    "answer_rubric": [
+      {
+        "fact": "one_A4",
+        "pattern": "jedn\\w*.*A4|1.*A4"
+      },
+      {
+        "fact": "signed",
+        "pattern": "podpis"
+      },
+      {
+        "fact": "double_sided",
+        "pattern": "dwustron"
+      },
+      {
+        "fact": "prohibited_devices",
+        "pattern": "kalkulator.*telefon.*laptop"
+      },
+      {
+        "fact": "project_pass",
+        "pattern": "zalicz\\w*.*projekt|projekt\\w*.*zalicz"
+      },
+      {
+        "fact": "deadline",
+        "pattern": "15[. /-]12|15\\s+grudnia"
+      }
+    ]
   },
   {
     "id": "q03_os_passing_threshold",
@@ -26,7 +86,17 @@
     "expected_sources": [
       "sylabus_systemy_operacyjne.md#chunk-3"
     ],
-    "retrieval_query": "zasady zaliczenia próg punktowy laboratorium systemy operacyjne"
+    "retrieval_query": "zasady zaliczenia próg punktowy laboratorium systemy operacyjne",
+    "answer_rubric": [
+      {
+        "fact": "grade_3_threshold",
+        "pattern": "55\\s*(?:punkt|pkt)|3[.,]0.{0,50}55"
+      },
+      {
+        "fact": "grade_5_threshold",
+        "pattern": "90\\s*(?:punkt|pkt)|5[.,]0.{0,50}90"
+      }
+    ]
   },
   {
     "id": "q04_physio_cancellation_fee",
@@ -36,7 +106,21 @@
       "notatki_organizacyjne.md#chunk-1",
       "evt-020@calendar.local"
     ],
-    "retrieval_query": "FizjoActive odwołanie wizyty opłata rezerwacyjna"
+    "retrieval_query": "FizjoActive odwołanie wizyty opłata rezerwacyjna",
+    "answer_rubric": [
+      {
+        "fact": "notice",
+        "pattern": "24\\s*(?:godzin|h\\b)"
+      },
+      {
+        "fact": "fee_percent",
+        "pattern": "50\\s*%"
+      },
+      {
+        "fact": "fee_amount",
+        "pattern": "90\\s*(?:zł|PLN)"
+      }
+    ]
   },
   {
     "id": "q05_seminars_november",
@@ -45,7 +129,37 @@
     "expected_sources": [
       "plan_studiow_i_seminaria.md#chunk-2"
     ],
-    "retrieval_query": "seminarium dyplomowe listopad 2026 Marek Kowalski"
+    "retrieval_query": "seminarium dyplomowe listopad 2026 Marek Kowalski",
+    "answer_rubric": [
+      {
+        "fact": "nov5",
+        "pattern": "5[. /-]11|5\\s+listopada"
+      },
+      {
+        "fact": "literature",
+        "pattern": "przegląd\\w* literatur"
+      },
+      {
+        "fact": "chapter_plan",
+        "pattern": "plan\\w* rozdział"
+      },
+      {
+        "fact": "nov19",
+        "pattern": "19[. /-]11|19\\s+listopada"
+      },
+      {
+        "fact": "side_channels",
+        "pattern": "kanał\\w* boczn"
+      },
+      {
+        "fact": "containers",
+        "pattern": "izolac\\w* kontener"
+      },
+      {
+        "fact": "room",
+        "pattern": "B1[-– ]20"
+      }
+    ]
   },
   {
     "id": "q06_ai_club_hackathon",
@@ -54,7 +168,21 @@
     "expected_sources": [
       "plan_studiow_i_seminaria.md#chunk-3"
     ],
-    "retrieval_query": "Koło Naukowe Golem AI hackathon Agentic Workflows rejestracja"
+    "retrieval_query": "Koło Naukowe Golem AI hackathon Agentic Workflows rejestracja",
+    "answer_rubric": [
+      {
+        "fact": "event_date",
+        "pattern": "14[. /-]11|14\\s+listopada"
+      },
+      {
+        "fact": "hours",
+        "pattern": "0?9[:.]00.*20[:.]00"
+      },
+      {
+        "fact": "registration",
+        "pattern": "10[. /-]11|10\\s+listopada"
+      }
+    ]
   },
   {
     "id": "q07_ambiguous_wednesday_movie",
@@ -63,27 +191,59 @@
     "expected_sources": [
       "repertuar_kina.md#chunk-2"
     ],
-    "retrieval_query": "Łowca androidów 2049 środa 21 października godziny seansu"
+    "retrieval_query": "Łowca androidów 2049 środa 21 października godziny seansu",
+    "answer_rubric": [
+      {
+        "fact": "asks_showtime",
+        "pattern": "który|którą|jak\\w* godzin|wybierz|doprecyz"
+      },
+      {
+        "fact": "early_show",
+        "pattern": "16[:.]00"
+      },
+      {
+        "fact": "late_show",
+        "pattern": "21[:.]15"
+      }
+    ]
   },
   {
     "id": "q08_unanswerable_cinema_popcorn",
     "question": "Ile kosztuje duży popcorn solony i cola w barze Kina Muza?",
     "expected_outcome": "not_found",
     "expected_sources": [],
-    "retrieval_query": "cennik baru kinowego popcorn napoje Kino Muza"
+    "retrieval_query": "cennik baru kinowego popcorn napoje Kino Muza",
+    "answer_rubric": [
+      {
+        "fact": "missing_price",
+        "pattern": "brak|nie (?:ma|mam|znalaz|podano|jest|zawiera|znam)|niedostępn|niepublik"
+      }
+    ]
   },
   {
     "id": "q09_unanswerable_instructor_phone",
     "question": "Jaki jest prywatny numer telefonu komórkowego do mgr. Piotra Wiśniewskiego prowadzącego laboratorium z Systemów operacyjnych?",
     "expected_outcome": "not_found",
     "expected_sources": [],
-    "retrieval_query": "numer telefonu kontakt Piotr Wiśniewski systemy operacyjne"
+    "retrieval_query": "numer telefonu kontakt Piotr Wiśniewski systemy operacyjne",
+    "answer_rubric": [
+      {
+        "fact": "missing_private_phone",
+        "pattern": "nie.*(?:udostępn|dostępn|podan|znalaz)|brak"
+      }
+    ]
   },
   {
     "id": "q10_unanswerable_parking_fee",
     "question": "Ile kosztuje miesięczna karta parkingowa dla studentów na parking podziemny pod wydziałem WMI UAM?",
     "expected_outcome": "not_found",
     "expected_sources": [],
-    "retrieval_query": "opłata karta parkingowa parking studencki WMI UAM"
+    "retrieval_query": "opłata karta parkingowa parking studencki WMI UAM",
+    "answer_rubric": [
+      {
+        "fact": "missing_parking_price",
+        "pattern": "brak|nie (?:ma|mam|znalaz|podano|jest|zawiera|znam)|niedostępn"
+      }
+    ]
   }
 ]

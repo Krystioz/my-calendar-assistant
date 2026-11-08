@@ -1,0 +1,187 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" width="880" height="4566" viewBox="0 0 880 4566"><title id="title">Przebieg agenta</title>
+<desc id="desc">Chronologiczna historia, nie mapa wszystkich możliwych ścieżek. Treści są skrócone; pełne dane pozostają w logu JSONL.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#64748b"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<g font-family="Segoe UI, sans-serif" fill="#172033">
+<text x="28" y="36" font-size="22">Przebieg agenta</text>
+<text x="28" y="62" font-size="14">Przebieg chronologiczny · strzałki = kolejność zdarzeń</text>
+<text x="28" y="84" font-size="13">Numer zdarzenia ≠ tura LLM. Sterowanie LangGraph = zakończony węzeł i wybrane przejście.</text>
+<rect x="28" y="102" width="16" height="16" fill="#edf2f7" stroke="#475569"/><text x="52" y="115" font-size="13">Start / koniec</text>
+<rect x="306" y="102" width="16" height="16" fill="#dbeafe" stroke="#1d4ed8"/><text x="330" y="115" font-size="13">Komunikacja z LLM</text>
+<rect x="584" y="102" width="16" height="16" fill="#dcfce7" stroke="#15803d"/><text x="608" y="115" font-size="13">Narzędzie</text>
+<rect x="28" y="132" width="16" height="16" fill="#f3e8ff" stroke="#7e22ce"/><text x="52" y="145" font-size="13">Sterowanie LangGraph</text>
+<rect x="306" y="132" width="16" height="16" fill="#fef3c7" stroke="#92400e"/><text x="330" y="145" font-size="13">Decyzja człowieka</text>
+<rect x="584" y="132" width="16" height="16" fill="#fee2e2" stroke="#b91c1c"/><text x="608" y="145" font-size="13">Błąd / odrzucenie</text>
+<rect x="28" y="175" width="824" height="132" rx="10" fill="#edf2f7" stroke="#475569"/><text x="46" y="197" font-size="12">Start / koniec</text>
+<text x="46" y="222" font-size="17" font-weight="600">1. START · komenda użytkownika</text>
+<text x="46" y="245" font-size="14">Ile kosztuje miesięczna karta parkingowa dla studentów na parking podziemny pod wydziałem WMI</text>
+<text x="46" y="264" font-size="14">UAM?</text>
+<text x="46" y="283" font-size="14">2026-11-08T22:27:14.563237+00:00</text>
+<line x1="440" y1="311" x2="440" y2="333" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="337" width="824" height="170" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="359" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="384" font-size="17" font-weight="600">2. Tura LLM 1 · odebrano odpowiedź LLM</text>
+<text x="46" y="407" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="426" font-size="14">Czas żądania: 639 ms · koszt narastająco: $0.00007</text>
+<text x="46" y="445" font-size="14">Propozycja wywołania narzędzia: search_docs {&quot;query&quot;: &quot;karta parkingowa parking podziemny WMI</text>
+<text x="46" y="464" font-size="14">UAM cena student&quot;}</text>
+<text x="46" y="483" font-size="14">2026-11-08T22:27:15.206125+00:00</text>
+<line x1="440" y1="511" x2="440" y2="533" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="537" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="559" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="584" font-size="17" font-weight="600">3. Tura LLM 1 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="607" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="626" font-size="14">Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)</text>
+<text x="46" y="645" font-size="14">Zebrane źródła: 0 · status: w toku</text>
+<text x="46" y="664" font-size="14">2026-11-08T22:27:15.208122+00:00</text>
+<line x1="440" y1="692" x2="440" y2="714" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="718" width="824" height="189" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="740" font-size="12">Narzędzie</text>
+<text x="46" y="765" font-size="17" font-weight="600">4. Tura LLM 1 · wynik obsługi narzędzia: search_docs</text>
+<text x="46" y="788" font-size="14">Argumenty: {&quot;query&quot;: &quot;karta parkingowa parking podziemny WMI UAM cena student&quot;}</text>
+<text x="46" y="807" font-size="14">Znaleziono fragmentów: 3</text>
+<text x="46" y="826" font-size="14">repertuar_kina.md#chunk-1 · score=0.422</text>
+<text x="46" y="845" font-size="14">plan_studiow_i_seminaria.md#chunk-3 · score=0.4158</text>
+<text x="46" y="864" font-size="14">regulamin_studiow_wmi.md#chunk-1 · score=0.3614</text>
+<text x="46" y="883" font-size="14">2026-11-08T22:27:15.213229+00:00</text>
+<line x1="440" y1="911" x2="440" y2="933" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="937" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="959" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="984" font-size="17" font-weight="600">5. Tura LLM 1 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów</text>
+<text x="46" y="1007" font-size="14">Identyfikator w kodzie: retrieve_docs</text>
+<text x="46" y="1026" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="1045" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="1064" font-size="14">2026-11-08T22:27:15.213731+00:00</text>
+<line x1="440" y1="1092" x2="440" y2="1114" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1118" width="824" height="170" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="1140" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="1165" font-size="17" font-weight="600">6. Tura LLM 2 · odebrano odpowiedź LLM</text>
+<text x="46" y="1188" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="1207" font-size="14">Czas żądania: 522 ms · koszt narastająco: $0.00021</text>
+<text x="46" y="1226" font-size="14">Propozycja wywołania narzędzia: search_docs {&quot;query&quot;: &quot;parking podziemny WMI UAM karta</text>
+<text x="46" y="1245" font-size="14">miesięczna cena student&quot;}</text>
+<text x="46" y="1264" font-size="14">2026-11-08T22:27:15.736131+00:00</text>
+<line x1="440" y1="1292" x2="440" y2="1314" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1318" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="1340" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="1365" font-size="17" font-weight="600">7. Tura LLM 2 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="1388" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="1407" font-size="14">Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)</text>
+<text x="46" y="1426" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="1445" font-size="14">2026-11-08T22:27:15.736651+00:00</text>
+<line x1="440" y1="1473" x2="440" y2="1495" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1499" width="824" height="189" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="1521" font-size="12">Narzędzie</text>
+<text x="46" y="1546" font-size="17" font-weight="600">8. Tura LLM 2 · wynik obsługi narzędzia: search_docs</text>
+<text x="46" y="1569" font-size="14">Argumenty: {&quot;query&quot;: &quot;parking podziemny WMI UAM karta miesięczna cena student&quot;}</text>
+<text x="46" y="1588" font-size="14">Znaleziono fragmentów: 3</text>
+<text x="46" y="1607" font-size="14">plan_studiow_i_seminaria.md#chunk-3 · score=0.4473</text>
+<text x="46" y="1626" font-size="14">repertuar_kina.md#chunk-1 · score=0.4415</text>
+<text x="46" y="1645" font-size="14">notatki_organizacyjne.md#chunk-2 · score=0.4174</text>
+<text x="46" y="1664" font-size="14">2026-11-08T22:27:15.741922+00:00</text>
+<line x1="440" y1="1692" x2="440" y2="1714" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1718" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="1740" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="1765" font-size="17" font-weight="600">9. Tura LLM 2 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów</text>
+<text x="46" y="1788" font-size="14">Identyfikator w kodzie: retrieve_docs</text>
+<text x="46" y="1807" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="1826" font-size="14">Zebrane źródła: 4 · status: w toku</text>
+<text x="46" y="1845" font-size="14">2026-11-08T22:27:15.742462+00:00</text>
+<line x1="440" y1="1873" x2="440" y2="1895" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1899" width="824" height="151" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="1921" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="1946" font-size="17" font-weight="600">10. Tura LLM 3 · odebrano odpowiedź LLM</text>
+<text x="46" y="1969" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="1988" font-size="14">Czas żądania: 486 ms · koszt narastająco: $0.00042</text>
+<text x="46" y="2007" font-size="14">Propozycja wywołania narzędzia: search_docs {&quot;query&quot;: &quot;parking WMI UAM cena karta miesięczna&quot;}</text>
+<text x="46" y="2026" font-size="14">2026-11-08T22:27:16.229432+00:00</text>
+<line x1="440" y1="2054" x2="440" y2="2076" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2080" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="2102" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="2127" font-size="17" font-weight="600">11. Tura LLM 3 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="2150" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="2169" font-size="14">Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)</text>
+<text x="46" y="2188" font-size="14">Zebrane źródła: 4 · status: w toku</text>
+<text x="46" y="2207" font-size="14">2026-11-08T22:27:16.229432+00:00</text>
+<line x1="440" y1="2235" x2="440" y2="2257" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2261" width="824" height="189" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="2283" font-size="12">Narzędzie</text>
+<text x="46" y="2308" font-size="17" font-weight="600">12. Tura LLM 3 · wynik obsługi narzędzia: search_docs</text>
+<text x="46" y="2331" font-size="14">Argumenty: {&quot;query&quot;: &quot;parking WMI UAM cena karta miesięczna&quot;}</text>
+<text x="46" y="2350" font-size="14">Znaleziono fragmentów: 3</text>
+<text x="46" y="2369" font-size="14">repertuar_kina.md#chunk-1 · score=0.3326</text>
+<text x="46" y="2388" font-size="14">plan_studiow_i_seminaria.md#chunk-3 · score=0.3275</text>
+<text x="46" y="2407" font-size="14">notatki_organizacyjne.md#chunk-2 · score=0.3054</text>
+<text x="46" y="2426" font-size="14">2026-11-08T22:27:16.233433+00:00</text>
+<line x1="440" y1="2454" x2="440" y2="2476" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2480" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="2502" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="2527" font-size="17" font-weight="600">13. Tura LLM 3 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów</text>
+<text x="46" y="2550" font-size="14">Identyfikator w kodzie: retrieve_docs</text>
+<text x="46" y="2569" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="2588" font-size="14">Zebrane źródła: 4 · status: w toku</text>
+<text x="46" y="2607" font-size="14">2026-11-08T22:27:16.234936+00:00</text>
+<line x1="440" y1="2635" x2="440" y2="2657" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2661" width="824" height="151" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="2683" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="2708" font-size="17" font-weight="600">14. Tura LLM 4 · odebrano odpowiedź LLM</text>
+<text x="46" y="2731" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="2750" font-size="14">Czas żądania: 550 ms · koszt narastająco: $0.00067</text>
+<text x="46" y="2769" font-size="14">Propozycja wywołania narzędzia: search_docs {&quot;query&quot;: &quot;parking WMI UAM&quot;}</text>
+<text x="46" y="2788" font-size="14">2026-11-08T22:27:16.786178+00:00</text>
+<line x1="440" y1="2816" x2="440" y2="2838" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2842" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="2864" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="2889" font-size="17" font-weight="600">15. Tura LLM 4 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="2912" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="2931" font-size="14">Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)</text>
+<text x="46" y="2950" font-size="14">Zebrane źródła: 4 · status: w toku</text>
+<text x="46" y="2969" font-size="14">2026-11-08T22:27:16.786178+00:00</text>
+<line x1="440" y1="2997" x2="440" y2="3019" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="3023" width="824" height="189" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="3045" font-size="12">Narzędzie</text>
+<text x="46" y="3070" font-size="17" font-weight="600">16. Tura LLM 4 · wynik obsługi narzędzia: search_docs</text>
+<text x="46" y="3093" font-size="14">Argumenty: {&quot;query&quot;: &quot;parking WMI UAM&quot;}</text>
+<text x="46" y="3112" font-size="14">Znaleziono fragmentów: 3</text>
+<text x="46" y="3131" font-size="14">plan_studiow_i_seminaria.md#chunk-3 · score=0.3805</text>
+<text x="46" y="3150" font-size="14">regulamin_studiow_wmi.md#chunk-1 · score=0.3435</text>
+<text x="46" y="3169" font-size="14">sylabus_systemy_operacyjne.md#chunk-2 · score=0.3227</text>
+<text x="46" y="3188" font-size="14">2026-11-08T22:27:16.791066+00:00</text>
+<line x1="440" y1="3216" x2="440" y2="3238" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="3242" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="3264" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="3289" font-size="17" font-weight="600">17. Tura LLM 4 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów</text>
+<text x="46" y="3312" font-size="14">Identyfikator w kodzie: retrieve_docs</text>
+<text x="46" y="3331" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="3350" font-size="14">Zebrane źródła: 5 · status: w toku</text>
+<text x="46" y="3369" font-size="14">2026-11-08T22:27:16.791586+00:00</text>
+<line x1="440" y1="3397" x2="440" y2="3419" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="3423" width="824" height="170" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="3445" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="3470" font-size="17" font-weight="600">18. Tura LLM 5 · odebrano odpowiedź LLM</text>
+<text x="46" y="3493" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="3512" font-size="14">Czas żądania: 785 ms · koszt narastająco: $0.00093</text>
+<text x="46" y="3531" font-size="14">Tekst odpowiedzi LLM: Niestety, w dostępnych dokumentach nie ma informacji na temat kosztu</text>
+<text x="46" y="3550" font-size="14">miesięcznej karty parkingowej dla studentów na parkingu podziemnym pod wydziałem WMI UAM.</text>
+<text x="46" y="3569" font-size="14">2026-11-08T22:27:17.577314+00:00</text>
+<line x1="440" y1="3597" x2="440" y2="3619" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="3623" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="3645" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="3670" font-size="17" font-weight="600">19. Tura LLM 5 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="3693" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="3712" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="3731" font-size="14">Zebrane źródła: 5 · status: w toku</text>
+<text x="46" y="3750" font-size="14">2026-11-08T22:27:17.577314+00:00</text>
+<line x1="440" y1="3778" x2="440" y2="3800" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="3804" width="824" height="189" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="3826" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="3851" font-size="17" font-weight="600">20. Tura LLM 6 · odebrano odpowiedź LLM</text>
+<text x="46" y="3874" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="3893" font-size="14">Czas żądania: 502 ms · koszt narastająco: $0.00118</text>
+<text x="46" y="3912" font-size="14">Propozycja wywołania narzędzia: finish {&quot;answer&quot;: &quot;Niestety, w dostępnych dokumentach nie ma</text>
+<text x="46" y="3931" font-size="14">informacji na temat kosztu miesięcznej karty parkingowej dla studentów na parkingu podziemnym</text>
+<text x="46" y="3950" font-size="14">pod wydziałem WMI UAM.&quot;, &quot;outcome&quot;: &quot;not_found&quot;}</text>
+<text x="46" y="3969" font-size="14">2026-11-08T22:27:18.080395+00:00</text>
+<line x1="440" y1="3997" x2="440" y2="4019" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="4023" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="4045" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="4070" font-size="17" font-weight="600">21. Tura LLM 6 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="4093" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="4112" font-size="14">Przejście do: abstencja z powodu braku dowodów (abstain)</text>
+<text x="46" y="4131" font-size="14">Zebrane źródła: 5 · status: w toku</text>
+<text x="46" y="4150" font-size="14">2026-11-08T22:27:18.080395+00:00</text>
+<line x1="440" y1="4178" x2="440" y2="4200" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="4204" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="4226" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="4251" font-size="17" font-weight="600">22. Tura LLM 6 · zakończono węzeł: abstencja z powodu braku dowodów</text>
+<text x="46" y="4274" font-size="14">Identyfikator w kodzie: abstain</text>
+<text x="46" y="4293" font-size="14">Przejście do: zakończenie przebiegu (end)</text>
+<text x="46" y="4312" font-size="14">Zebrane źródła: 5 · status: not_found</text>
+<text x="46" y="4331" font-size="14">2026-11-08T22:27:18.081400+00:00</text>
+<line x1="440" y1="4359" x2="440" y2="4381" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="4385" width="824" height="151" rx="10" fill="#edf2f7" stroke="#475569"/><text x="46" y="4407" font-size="12">Start / koniec</text>
+<text x="46" y="4432" font-size="17" font-weight="600">23. KONIEC · not_found</text>
+<text x="46" y="4455" font-size="14">Niestety, w dostępnych dokumentach nie ma informacji na temat kosztu miesięcznej karty</text>
+<text x="46" y="4474" font-size="14">parkingowej dla studentów na parkingu podziemnym pod wydziałem WMI UAM.</text>
+<text x="46" y="4493" font-size="14">Liczba tur LLM: 6 · koszt: $0.00118 · czas: 3518 ms</text>
+<text x="46" y="4512" font-size="14">2026-11-08T22:27:18.081400+00:00</text>
+</g></svg>

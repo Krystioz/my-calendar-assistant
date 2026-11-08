@@ -1,0 +1,53 @@
+flowchart TD
+  subgraph legend["Legenda"]
+    legend_boundary["Start / koniec"]:::boundary
+    legend_model["Komunikacja z LLM"]:::model
+    legend_tool["Narzędzie"]:::tool
+    legend_graph["Sterowanie LangGraph"]:::graph
+    legend_decision["Decyzja człowieka"]:::decision
+    legend_error["Błąd / odrzucenie"]:::error
+  end
+  note["Przebieg chronologiczny · strzałki = kolejność zdarzeń"]
+  n0["START · komenda użytkownika<br/>Ile kosztuje miesięczna karta parkingowa dla studentów na parking podziemny pod wydziałem WMI UAM?<br/>2026-11-08T22:28:18.405859+00:00"]:::boundary
+  n1["Tura LLM 1 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 598 ms · koszt narastająco: $0.00007<br/>Propozycja wywołania narzędzia: search_docs #123;#34;query#34;: #34;karta parkingowa student parking podziemny WMI UAM cena#34;#125;<br/>2026-11-08T22:28:19.006972+00:00"]:::model
+  n0 --> n1
+  n2["Tura LLM 1 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)<br/>Zebrane źródła: 0 · status: w toku<br/>2026-11-08T22:28:19.007972+00:00"]:::graph
+  n1 --> n2
+  n3["Tura LLM 1 · wynik obsługi narzędzia: search_docs<br/>Argumenty: #123;#34;query#34;: #34;karta parkingowa student parking podziemny WMI UAM cena#34;#125;<br/>Znaleziono fragmentów: 3<br/>repertuar_kina.md#35;chunk-1 · score=0.4246<br/>plan_studiow_i_seminaria.md#35;chunk-3 · score=0.4088<br/>notatki_organizacyjne.md#35;chunk-2 · score=0.356<br/>2026-11-08T22:28:19.014002+00:00"]:::tool
+  n2 --> n3
+  n4["Tura LLM 1 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów<br/>Identyfikator w kodzie: retrieve_docs<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-08T22:28:19.014002+00:00"]:::graph
+  n3 --> n4
+  n5["Tura LLM 2 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 533 ms · koszt narastająco: $0.00021<br/>Propozycja wywołania narzędzia: search_docs #123;#34;query#34;: #34;parking WMI UAM cena karta studencka#34;#125;<br/>2026-11-08T22:28:19.548389+00:00"]:::model
+  n4 --> n5
+  n6["Tura LLM 2 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-08T22:28:19.549394+00:00"]:::graph
+  n5 --> n6
+  n7["Tura LLM 2 · wynik obsługi narzędzia: search_docs<br/>Argumenty: #123;#34;query#34;: #34;parking WMI UAM cena karta studencka#34;#125;<br/>Znaleziono fragmentów: 3<br/>repertuar_kina.md#35;chunk-1 · score=0.4041<br/>plan_studiow_i_seminaria.md#35;chunk-3 · score=0.3466<br/>notatki_organizacyjne.md#35;chunk-2 · score=0.3295<br/>2026-11-08T22:28:19.554394+00:00"]:::tool
+  n6 --> n7
+  n8["Tura LLM 2 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów<br/>Identyfikator w kodzie: retrieve_docs<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-08T22:28:19.554394+00:00"]:::graph
+  n7 --> n8
+  n9["Tura LLM 3 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 526 ms · koszt narastająco: $0.00042<br/>Propozycja wywołania narzędzia: search_docs #123;#34;query#34;: #34;parking WMI UAM regulamin opłaty#34;#125;<br/>2026-11-08T22:28:20.082008+00:00"]:::model
+  n8 --> n9
+  n10["Tura LLM 3 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-08T22:28:20.082008+00:00"]:::graph
+  n9 --> n10
+  n11["Tura LLM 3 · wynik obsługi narzędzia: search_docs<br/>Argumenty: #123;#34;query#34;: #34;parking WMI UAM regulamin opłaty#34;#125;<br/>Znaleziono fragmentów: 3<br/>regulamin_studiow_wmi.md#35;chunk-1 · score=0.4164<br/>plan_studiow_i_seminaria.md#35;chunk-3 · score=0.3531<br/>regulamin_studiow_wmi.md#35;chunk-3 · score=0.3445<br/>2026-11-08T22:28:20.087364+00:00"]:::tool
+  n10 --> n11
+  n12["Tura LLM 3 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów<br/>Identyfikator w kodzie: retrieve_docs<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 5 · status: w toku<br/>2026-11-08T22:28:20.087364+00:00"]:::graph
+  n11 --> n12
+  n13["Tura LLM 4 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 1073 ms · koszt narastająco: $0.00067<br/>Tekst odpowiedzi LLM: Niestety, w dostępnych dokumentach nie ma informacji o cenie miesięcznej karty parkingowej dla studentów na parkingu podziemnym pod wydziałem WMI UAM. Dokumenty zawierają jedynie informacje o regulaminie studiów, planie zajęć oraz cenniku …<br/>2026-11-08T22:28:21.161685+00:00"]:::model
+  n12 --> n13
+  n14["Tura LLM 4 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 5 · status: w toku<br/>2026-11-08T22:28:21.162685+00:00"]:::graph
+  n13 --> n14
+  n15["Tura LLM 5 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 475 ms · koszt narastająco: $0.00088<br/>Propozycja wywołania narzędzia: finish #123;#34;answer#34;: #34;Niestety, w dostępnych dokumentach nie ma informacji o cenie miesięcznej karty parkingowej dla studentów na parkingu podziemnym pod wydziałem WMI UAM.#34;, #34;outcome#34;: #34;not_found#34;#125;<br/>2026-11-08T22:28:21.638508+00:00"]:::model
+  n14 --> n15
+  n16["Tura LLM 5 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: abstencja z powodu braku dowodów (abstain)<br/>Zebrane źródła: 5 · status: w toku<br/>2026-11-08T22:28:21.639509+00:00"]:::graph
+  n15 --> n16
+  n17["Tura LLM 5 · zakończono węzeł: abstencja z powodu braku dowodów<br/>Identyfikator w kodzie: abstain<br/>Przejście do: zakończenie przebiegu (end)<br/>Zebrane źródła: 5 · status: not_found<br/>2026-11-08T22:28:21.639509+00:00"]:::graph
+  n16 --> n17
+  n18["KONIEC · not_found<br/>Niestety, w dostępnych dokumentach nie ma informacji o cenie miesięcznej karty parkingowej dla studentów na parkingu podziemnym pod wydziałem WMI UAM.<br/>Liczba tur LLM: 5 · koszt: $0.00088 · czas: 3235 ms<br/>2026-11-08T22:28:21.640510+00:00"]:::boundary
+  n17 --> n18
+  classDef boundary fill:#edf2f7,stroke:#475569,color:#172033
+  classDef model fill:#dbeafe,stroke:#1d4ed8,color:#172033
+  classDef tool fill:#dcfce7,stroke:#15803d,color:#172033
+  classDef graph fill:#f3e8ff,stroke:#7e22ce,color:#172033
+  classDef decision fill:#fef3c7,stroke:#92400e,color:#172033
+  classDef error fill:#fee2e2,stroke:#b91c1c,color:#172033

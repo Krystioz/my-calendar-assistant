@@ -1,0 +1,33 @@
+flowchart TD
+  subgraph legend["Legenda"]
+    legend_boundary["Start / koniec"]:::boundary
+    legend_model["Komunikacja z LLM"]:::model
+    legend_tool["Narzędzie"]:::tool
+    legend_graph["Sterowanie LangGraph"]:::graph
+    legend_decision["Decyzja człowieka"]:::decision
+    legend_error["Błąd / odrzucenie"]:::error
+  end
+  note["Przebieg chronologiczny · strzałki = kolejność zdarzeń"]
+  n0["START · komenda użytkownika<br/>Jakich materiałów można używać na egzaminie z Kryptografii i jaki warunek trzeba spełnić do 15 grudnia, żeby podejść w pierwszym terminie?<br/>2026-11-08T22:26:47.396359+00:00"]:::boundary
+  n1["Tura LLM 1 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 721 ms · koszt narastająco: $0.00012<br/>Propozycja wywołania narzędzia: search_docs #123;#34;query#34;: #34;Kryptografia egzamin materiały warunki termin#34;#125;<br/>2026-11-08T22:26:48.121359+00:00"]:::model
+  n0 --> n1
+  n2["Tura LLM 1 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)<br/>Zebrane źródła: 0 · status: w toku<br/>2026-11-08T22:26:48.122205+00:00"]:::graph
+  n1 --> n2
+  n3["Tura LLM 1 · wynik obsługi narzędzia: search_docs<br/>Argumenty: #123;#34;query#34;: #34;Kryptografia egzamin materiały warunki termin#34;#125;<br/>Znaleziono fragmentów: 3<br/>sylabus_kryptografia.md#35;chunk-2 · score=0.7301<br/>sylabus_kryptografia.md#35;chunk-1 · score=0.5688<br/>sylabus_kryptografia.md#35;chunk-3 · score=0.4836<br/>2026-11-08T22:26:48.126718+00:00"]:::tool
+  n2 --> n3
+  n4["Tura LLM 1 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów<br/>Identyfikator w kodzie: retrieve_docs<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-08T22:26:48.126718+00:00"]:::graph
+  n3 --> n4
+  n5["Tura LLM 2 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 948 ms · koszt narastająco: $0.00028<br/>Propozycja wywołania narzędzia: finish #123;#34;answer#34;: #34;Na egzaminie z Kryptografii można korzystać z jednej własnoręcznie podpisanej kartki formatu A4 z notatkami (dwustronnej). Kalkulatory programowalne, telefony oraz laptopy są surowo zabronione #91;sylabus_kryptografia.md#35;chunk-2#93;.…<br/>Tekst odpowiedzi LLM: Na egzaminie z Kryptografii można korzystać z jednej własnoręcznie podpisanej kartki formatu A4 z notatkami (dwustronnej). Kalkulatory programowalne, telefony oraz laptopy są surowo zabronione #91;sylabus_kryptografia.md#35;chunk-2#93;. Aby podejść…<br/>2026-11-08T22:26:49.075018+00:00"]:::model
+  n4 --> n5
+  n6["Tura LLM 2 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: weryfikacja cytowań (verify_citations)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-08T22:26:49.076522+00:00"]:::graph
+  n5 --> n6
+  n7["Tura LLM 2 · zakończono węzeł: weryfikacja cytowań<br/>Identyfikator w kodzie: verify_citations<br/>Przejście do: zakończenie przebiegu (end)<br/>Zebrane źródła: 3 · status: success<br/>2026-11-08T22:26:49.076522+00:00"]:::graph
+  n6 --> n7
+  n8["KONIEC · success<br/>Na egzaminie z Kryptografii można korzystać z jednej własnoręcznie podpisanej kartki formatu A4 z notatkami (dwustronnej). Kalkulatory programowalne, telefony oraz laptopy są surowo zabronione #91;sylabus_kryptografia.md#35;chunk-2#93;. Aby podejść do egzaminu w pierwszym terminie, należy do 15 grudnia 2026 r. uzyskać zaliczenie z projektu implementacyjnego (obejmującego szyfr blokowy oraz podpis cyfrowy RSA/ECDSA) #91;sylabus_kryptografia.md#35;chunk-2#93;.<br/>Liczba tur LLM: 2 · koszt: $0.00028 · czas: 1681 ms<br/>Cytowania: sylabus_kryptografia.md#35;chunk-2<br/>2026-11-08T22:26:49.077526+00:00"]:::boundary
+  n7 --> n8
+  classDef boundary fill:#edf2f7,stroke:#475569,color:#172033
+  classDef model fill:#dbeafe,stroke:#1d4ed8,color:#172033
+  classDef tool fill:#dcfce7,stroke:#15803d,color:#172033
+  classDef graph fill:#f3e8ff,stroke:#7e22ce,color:#172033
+  classDef decision fill:#fef3c7,stroke:#92400e,color:#172033
+  classDef error fill:#fee2e2,stroke:#b91c1c,color:#172033

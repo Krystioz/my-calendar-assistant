@@ -1,0 +1,57 @@
+[
+  {
+    "name": "cited-answer-and-retry",
+    "repeat": 2,
+    "question_id": "q01_dune_conflict_and_makeup",
+    "source_trace": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q01_dune_conflict_and_makeup.jsonl",
+    "trace": "evidence/m3/cited-answer-and-retry.jsonl",
+    "status": "success",
+    "citations": [
+      "evt-018@calendar.local",
+      "repertuar_kina.md#chunk-2",
+      "sylabus_systemy_operacyjne.md#chunk-2"
+    ]
+  },
+  {
+    "name": "abstention-live",
+    "repeat": 2,
+    "question_id": "q08_unanswerable_cinema_popcorn",
+    "source_trace": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q08_unanswerable_cinema_popcorn.jsonl",
+    "trace": "evidence/m3/abstention-live.jsonl",
+    "status": "not_found",
+    "citations": []
+  },
+  {
+    "name": "failure-calendar-search",
+    "repeat": 3,
+    "question_id": "q01_dune_conflict_and_makeup",
+    "source_trace": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q01_dune_conflict_and_makeup.jsonl",
+    "trace": "evidence/m3/failure-calendar-search.jsonl",
+    "status": "success",
+    "citations": [
+      "repertuar_kina.md#chunk-2",
+      "sylabus_systemy_operacyjne.md#chunk-2"
+    ]
+  },
+  {
+    "name": "failure-interval-reasoning",
+    "repeat": 3,
+    "question_id": "q07_ambiguous_wednesday_movie",
+    "source_trace": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q07_ambiguous_wednesday_movie.jsonl",
+    "trace": "evidence/m3/failure-interval-reasoning.jsonl",
+    "status": "success",
+    "citations": [
+      "evt-016@calendar.local",
+      "repertuar_kina.md#chunk-2"
+    ]
+  },
+  {
+    "name": "failure-finish-protocol",
+    "repeat": 1,
+    "question_id": "q08_unanswerable_cinema_popcorn",
+    "source_trace": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q08_unanswerable_cinema_popcorn.jsonl",
+    "trace": "evidence/m3/failure-finish-protocol.jsonl",
+    "status": "step_limit",
+    "citations": []
+  }
+]

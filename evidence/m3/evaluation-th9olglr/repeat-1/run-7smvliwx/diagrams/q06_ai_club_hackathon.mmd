@@ -1,0 +1,33 @@
+flowchart TD
+  subgraph legend["Legenda"]
+    legend_boundary["Start / koniec"]:::boundary
+    legend_model["Komunikacja z LLM"]:::model
+    legend_tool["Narzędzie"]:::tool
+    legend_graph["Sterowanie LangGraph"]:::graph
+    legend_decision["Decyzja człowieka"]:::decision
+    legend_error["Błąd / odrzucenie"]:::error
+  end
+  note["Przebieg chronologiczny · strzałki = kolejność zdarzeń"]
+  n0["START · komenda użytkownika<br/>Kiedy odbywa się hackathon koła naukowego Golem AI i do kiedy trzeba się zarejestrować?<br/>2026-11-08T22:26:54.217878+00:00"]:::boundary
+  n1["Tura LLM 1 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 758 ms · koszt narastająco: $0.00007<br/>Propozycja wywołania narzędzia: search_docs #123;#34;query#34;: #34;hackathon koło naukowe Golem AI rejestracja#34;#125;<br/>2026-11-08T22:26:54.978576+00:00"]:::model
+  n0 --> n1
+  n2["Tura LLM 1 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)<br/>Zebrane źródła: 0 · status: w toku<br/>2026-11-08T22:26:54.980576+00:00"]:::graph
+  n1 --> n2
+  n3["Tura LLM 1 · wynik obsługi narzędzia: search_docs<br/>Argumenty: #123;#34;query#34;: #34;hackathon koło naukowe Golem AI rejestracja#34;#125;<br/>Znaleziono fragmentów: 3<br/>sylabus_systemy_operacyjne.md#35;chunk-3 · score=0.3713<br/>notatki_organizacyjne.md#35;chunk-3 · score=0.3527<br/>plan_studiow_i_seminaria.md#35;chunk-3 · score=0.3325<br/>2026-11-08T22:26:54.984598+00:00"]:::tool
+  n2 --> n3
+  n4["Tura LLM 1 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów<br/>Identyfikator w kodzie: retrieve_docs<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-08T22:26:54.985603+00:00"]:::graph
+  n3 --> n4
+  n5["Tura LLM 2 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 1114 ms · koszt narastająco: $0.00023<br/>Propozycja wywołania narzędzia: finish #123;#34;answer#34;: #34;Hackathon koła naukowego Golem AI pt. *Agentic Workflows* odbędzie się w sobotę, 14 listopada 2026 roku, w godzinach 09:00–20:00 (w Auli B). Rejestracja musi zostać dokonana do 10 listopada.#34;, #34;citations#34;: #91;#34;plan_studiow_i_semi…<br/>Tekst odpowiedzi LLM: Hackathon koła naukowego Golem AI pt. *Agentic Workflows* odbędzie się w sobotę, **14 listopada 2026 roku**, w godzinach **09:00–20:00** (w Auli B). Rejestracja musi zostać dokonana do **10 listopada**. #60;#124;channel#62;thought #60;channel#124;#62;<br/>2026-11-08T22:26:56.100384+00:00"]:::model
+  n4 --> n5
+  n6["Tura LLM 2 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: weryfikacja cytowań (verify_citations)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-08T22:26:56.100384+00:00"]:::graph
+  n5 --> n6
+  n7["Tura LLM 2 · zakończono węzeł: weryfikacja cytowań<br/>Identyfikator w kodzie: verify_citations<br/>Przejście do: zakończenie przebiegu (end)<br/>Zebrane źródła: 3 · status: success<br/>2026-11-08T22:26:56.102860+00:00"]:::graph
+  n6 --> n7
+  n8["KONIEC · success<br/>Hackathon koła naukowego Golem AI pt. *Agentic Workflows* odbędzie się w sobotę, 14 listopada 2026 roku, w godzinach 09:00–20:00 (w Auli B). Rejestracja musi zostać dokonana do 10 listopada.<br/>Liczba tur LLM: 2 · koszt: $0.00023 · czas: 1886 ms<br/>Cytowania: plan_studiow_i_seminaria.md#35;chunk-3<br/>2026-11-08T22:26:56.102860+00:00"]:::boundary
+  n7 --> n8
+  classDef boundary fill:#edf2f7,stroke:#475569,color:#172033
+  classDef model fill:#dbeafe,stroke:#1d4ed8,color:#172033
+  classDef tool fill:#dcfce7,stroke:#15803d,color:#172033
+  classDef graph fill:#f3e8ff,stroke:#7e22ce,color:#172033
+  classDef decision fill:#fef3c7,stroke:#92400e,color:#172033
+  classDef error fill:#fee2e2,stroke:#b91c1c,color:#172033

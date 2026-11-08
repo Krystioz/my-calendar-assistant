@@ -1,0 +1,1133 @@
+{
+  "model": "google/gemma-4-26b-a4b-it",
+  "today": "2026-10-16",
+  "requested_repeats": 3,
+  "complete": true,
+  "cost_usd": 0.0184011975,
+  "aggregate": {
+    "outcome_accuracy": {
+      "mean": 0.7666666666666667,
+      "worst": 0.7
+    },
+    "citation_accuracy": {
+      "mean": 0.7777777777777778,
+      "worst": 0.6666666666666666
+    },
+    "fact_coverage": {
+      "mean": 0.9180555555555555,
+      "worst": 0.8666666666666667
+    },
+    "all_facts_accuracy": {
+      "mean": 0.7666666666666667,
+      "worst": 0.7
+    }
+  },
+  "repetitions": [
+    {
+      "total_questions": 10,
+      "planned_questions": 10,
+      "complete": true,
+      "outcome_accuracy": 0.7,
+      "citation_accuracy": 0.8333333333333334,
+      "fact_coverage": 0.8666666666666667,
+      "all_facts_accuracy": 0.8,
+      "cost_usd": 0.006959469,
+      "results": [
+        {
+          "id": "q01_dune_conflict_and_makeup",
+          "expected_status": "success",
+          "actual_status": "success",
+          "status_ok": true,
+          "expected_sources": [
+            "repertuar_kina.md#chunk-2",
+            "sylabus_systemy_operacyjne.md#chunk-2",
+            "evt-018@calendar.local"
+          ],
+          "actual_citations": [
+            "repertuar_kina.md#chunk-2",
+            "evt-018@calendar.local",
+            "sylabus_systemy_operacyjne.md#chunk-2"
+          ],
+          "citations_ok": true,
+          "steps": 3,
+          "cost_usd": 0.00069096,
+          "answer": "Niestety nie możesz iść na seans o 18:00, ponieważ masz wtedy zajęcia.\n\n**Szczegóły:**\n* **Film:** \"Diuna: Część druga\" w Kinie Muza (pokaz specjalny IMAX/Muza) jest dostępny w piątek 23.10 o godzinie 18:00 [repertuar_kina.md#chunk-2].\n* **Konflikt:** W tym samym czasie (17:30–19:00) masz zajęcia: **Laboratorium — Systemy operacyjne (gr. 2)** w sali A2-21 [evt-018@calendar.local].\n\n**Jak możesz odrobić te zajęcia?**\nZgodnie z sylabusem, pojedynczą nieobecność grupy 2 możesz odrobić z grupą 1 [sylabus_systemy_operacyjne.md#chunk-2]:\n* **Termin odrabiania:** Środa, godz. 12:00–13:30 (sala A2-21).\n* **Warunek:** Musisz wysłać wiadomość e-mail do mgr. Piotra Wiśniewskiego najpóźniej dzień przed zajęciami grupy 1 (czyli najpóźniej we wtorek).\n\nW kalendarzu widnieje również informacja o możliwości odrobienia tych zajęć w środę 21.10 o 12:00 [evt-018@calendar.local], jednak pamiętaj o konieczności wcześniejszego poinformowania prowadzącego.\n\nJeśli wolisz inny termin filmu, w Kinie Muza jest też seans w sobotę 24.10 o 20:00 [repertuar_kina.md#chunk-2].",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q01_dune_conflict_and_makeup.jsonl",
+          "fact_checks": [
+            {
+              "fact": "film_date",
+              "passed": true
+            },
+            {
+              "fact": "film_time",
+              "passed": true
+            },
+            {
+              "fact": "conflict",
+              "passed": true
+            },
+            {
+              "fact": "lab_hours",
+              "passed": true
+            },
+            {
+              "fact": "makeup_day",
+              "passed": true
+            },
+            {
+              "fact": "makeup_hours",
+              "passed": true
+            },
+            {
+              "fact": "email",
+              "passed": true
+            },
+            {
+              "fact": "advance_notice",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 1.0,
+          "all_facts_present": true,
+          "manual_review_required": true
+        },
+        {
+          "id": "q02_crypto_exam_notes",
+          "expected_status": "success",
+          "actual_status": "success",
+          "status_ok": true,
+          "expected_sources": [
+            "sylabus_kryptografia.md#chunk-2"
+          ],
+          "actual_citations": [
+            "sylabus_kryptografia.md#chunk-2"
+          ],
+          "citations_ok": true,
+          "steps": 2,
+          "cost_usd": 0.00027510800000000004,
+          "answer": "Na egzaminie z Kryptografii można korzystać z jednej własnoręcznie podpisanej kartki formatu A4 z notatkami (dwustronnej). Kalkulatory programowalne, telefony oraz laptopy są surowo zabronione [sylabus_kryptografia.md#chunk-2].\n\nAby podejść do egzaminu w pierwszym terminie, należy do 15 grudnia 2026 r. uzyskać zaliczenie z projektu implementacyjnego (obejmującego szyfr blokowy oraz podpis cyfrowy RSA/ECDSA) [sylabus_kryptografia.md#chunk-2].",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q02_crypto_exam_notes.jsonl",
+          "fact_checks": [
+            {
+              "fact": "one_A4",
+              "passed": true
+            },
+            {
+              "fact": "signed",
+              "passed": true
+            },
+            {
+              "fact": "double_sided",
+              "passed": true
+            },
+            {
+              "fact": "prohibited_devices",
+              "passed": true
+            },
+            {
+              "fact": "project_pass",
+              "passed": true
+            },
+            {
+              "fact": "deadline",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 1.0,
+          "all_facts_present": true,
+          "manual_review_required": true
+        },
+        {
+          "id": "q03_os_passing_threshold",
+          "expected_status": "success",
+          "actual_status": "success",
+          "status_ok": true,
+          "expected_sources": [
+            "sylabus_systemy_operacyjne.md#chunk-3"
+          ],
+          "actual_citations": [
+            "sylabus_systemy_operacyjne.md#chunk-3"
+          ],
+          "citations_ok": true,
+          "steps": 3,
+          "cost_usd": 0.000501508,
+          "answer": "Aby zaliczyć laboratorium z Systemów operacyjnych na ocenę 3.0, należy zdobyć co najmniej 55 punktów. Aby uzyskać ocenę 5.0, wymagane jest zdobycie co najmniej 90 punktów.",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q03_os_passing_threshold.jsonl",
+          "fact_checks": [
+            {
+              "fact": "grade_3_threshold",
+              "passed": true
+            },
+            {
+              "fact": "grade_5_threshold",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 1.0,
+          "all_facts_present": true,
+          "manual_review_required": true
+        },
+        {
+          "id": "q04_physio_cancellation_fee",
+          "expected_status": "success",
+          "actual_status": "success",
+          "status_ok": true,
+          "expected_sources": [
+            "notatki_organizacyjne.md#chunk-1",
+            "evt-020@calendar.local"
+          ],
+          "actual_citations": [
+            "notatki_organizacyjne.md#chunk-1"
+          ],
+          "citations_ok": false,
+          "steps": 2,
+          "cost_usd": 0.00025998549999999997,
+          "answer": "Wizytę w FizjoActive możesz bezpłatnie odwołać lub przełożyć najpóźniej 24 godziny przed planowanym terminem. Jeśli spóźnisz się z odwołaniem, pobierana jest opłata rezerwacyjna w wysokości 50% ceny wizyty, co wynosi 90 zł.",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q04_physio_cancellation_fee.jsonl",
+          "fact_checks": [
+            {
+              "fact": "notice",
+              "passed": true
+            },
+            {
+              "fact": "fee_percent",
+              "passed": true
+            },
+            {
+              "fact": "fee_amount",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 1.0,
+          "all_facts_present": true,
+          "manual_review_required": true
+        },
+        {
+          "id": "q05_seminars_november",
+          "expected_status": "success",
+          "actual_status": "success",
+          "status_ok": true,
+          "expected_sources": [
+            "plan_studiow_i_seminaria.md#chunk-2"
+          ],
+          "actual_citations": [
+            "plan_studiow_i_seminaria.md#chunk-2"
+          ],
+          "citations_ok": true,
+          "steps": 3,
+          "cost_usd": 0.00042048399999999994,
+          "answer": "W listopadzie 2026 roku tematy seminarium dyplomowego „Bezpieczeństwo i systemy rozproszone” prowadzonego przez prof. Marka Kowalskiego to:\n\n* **5 listopada 2026**: Prezentacja przeglądu literatury i planu rozdziałów (obecność obowiązkowa).\n* **19 listopada 2026**: Referaty studenckie — ataki kanałami bocznymi i izolacja kontenerów.\n\nSeminarium odbywa się w **sali B1-20**.",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q05_seminars_november.jsonl",
+          "fact_checks": [
+            {
+              "fact": "nov5",
+              "passed": true
+            },
+            {
+              "fact": "literature",
+              "passed": true
+            },
+            {
+              "fact": "chapter_plan",
+              "passed": true
+            },
+            {
+              "fact": "nov19",
+              "passed": true
+            },
+            {
+              "fact": "side_channels",
+              "passed": true
+            },
+            {
+              "fact": "containers",
+              "passed": true
+            },
+            {
+              "fact": "room",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 1.0,
+          "all_facts_present": true,
+          "manual_review_required": true
+        },
+        {
+          "id": "q06_ai_club_hackathon",
+          "expected_status": "success",
+          "actual_status": "success",
+          "status_ok": true,
+          "expected_sources": [
+            "plan_studiow_i_seminaria.md#chunk-3"
+          ],
+          "actual_citations": [
+            "plan_studiow_i_seminaria.md#chunk-3"
+          ],
+          "citations_ok": true,
+          "steps": 2,
+          "cost_usd": 0.000228336,
+          "answer": "Hackathon koła naukowego Golem AI pt. *Agentic Workflows* odbędzie się w sobotę, 14 listopada 2026 roku, w godzinach 09:00–20:00 (w Auli B). Rejestracja musi zostać dokonana do 10 listopada.",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q06_ai_club_hackathon.jsonl",
+          "fact_checks": [
+            {
+              "fact": "event_date",
+              "passed": true
+            },
+            {
+              "fact": "hours",
+              "passed": true
+            },
+            {
+              "fact": "registration",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 1.0,
+          "all_facts_present": true,
+          "manual_review_required": true
+        },
+        {
+          "id": "q07_ambiguous_wednesday_movie",
+          "expected_status": "clarify",
+          "actual_status": "success",
+          "status_ok": false,
+          "expected_sources": [
+            "repertuar_kina.md#chunk-2"
+          ],
+          "actual_citations": [
+            "repertuar_kina.md#chunk-2",
+            "evt-016@calendar.local"
+          ],
+          "citations_ok": null,
+          "steps": 3,
+          "cost_usd": 0.0008145235,
+          "answer": "W środę 21 października w Kinie Muza są dwa seanse filmu „Łowca androidów 2049”:\n* **16:00–18:45** (Sala nr 2)\n* **21:15–23:55** (Sala nr 1)\n\nSprawdzając Twój kalendarz na ten dzień:\n* **Seans o 16:00:** Masz zaplanowaną kolację z rodzicami od 18:30, więc seans (kończący się o 18:45) koliduje z Twoimi planami lub kończy się zbyt późno, by zdążyć na kolację.\n* **Seans o 21:15:** Masz wolny czas. Twoja kolacja z rodzicami kończy się o 21:00, więc po tym czasie jesteś wolny/a na seans.",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q07_ambiguous_wednesday_movie.jsonl",
+          "fact_checks": [
+            {
+              "fact": "asks_showtime",
+              "passed": false
+            },
+            {
+              "fact": "early_show",
+              "passed": true
+            },
+            {
+              "fact": "late_show",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 0.6666666666666666,
+          "all_facts_present": false,
+          "manual_review_required": true
+        },
+        {
+          "id": "q08_unanswerable_cinema_popcorn",
+          "expected_status": "not_found",
+          "actual_status": "step_limit",
+          "status_ok": false,
+          "expected_sources": [],
+          "actual_citations": [],
+          "citations_ok": null,
+          "steps": 12,
+          "cost_usd": 0.001943552,
+          "answer": "Stopped: no answer within 12 steps.",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q08_unanswerable_cinema_popcorn.jsonl",
+          "fact_checks": [
+            {
+              "fact": "missing_price",
+              "passed": false
+            }
+          ],
+          "fact_coverage": 0.0,
+          "all_facts_present": false,
+          "manual_review_required": true
+        },
+        {
+          "id": "q09_unanswerable_instructor_phone",
+          "expected_status": "not_found",
+          "actual_status": "success",
+          "status_ok": false,
+          "expected_sources": [],
+          "actual_citations": [
+            "sylabus_systemy_operacyjne.md#chunk-1"
+          ],
+          "citations_ok": null,
+          "steps": 3,
+          "cost_usd": 0.00064746,
+          "answer": "Prywatny numer telefonu komórkowego do mgr. inż. Piotra Wiśniewskiego nie jest udostępniany studentom [sylabus_systemy_operacyjne.md#chunk-1]. Możesz się z nim skontaktować drogą mailową pod adresem `p.wisniewski@wmi.uam.edu.pl` lub udać na konsultacje we wtorki w godzinach 14:00–15:30 w pokoju B2-08 [sylabus_systemy_operacyjne.md#chunk-1].",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q09_unanswerable_instructor_phone.jsonl",
+          "fact_checks": [
+            {
+              "fact": "missing_private_phone",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 1.0,
+          "all_facts_present": true,
+          "manual_review_required": true
+        },
+        {
+          "id": "q10_unanswerable_parking_fee",
+          "expected_status": "not_found",
+          "actual_status": "not_found",
+          "status_ok": true,
+          "expected_sources": [],
+          "actual_citations": [],
+          "citations_ok": null,
+          "steps": 6,
+          "cost_usd": 0.0011775520000000001,
+          "answer": "Niestety, w dostępnych dokumentach nie ma informacji na temat kosztu miesięcznej karty parkingowej dla studentów na parkingu podziemnym pod wydziałem WMI UAM.",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q10_unanswerable_parking_fee.jsonl",
+          "fact_checks": [
+            {
+              "fact": "missing_parking_price",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 1.0,
+          "all_facts_present": true,
+          "manual_review_required": true
+        }
+      ],
+      "limitations": "Deterministic regex fact coverage only; manual review must check negation, contradictions, invented claims and semantic correctness. Cost limit is checked after each provider call and may overshoot by one call."
+    },
+    {
+      "total_questions": 10,
+      "planned_questions": 10,
+      "complete": true,
+      "outcome_accuracy": 0.8,
+      "citation_accuracy": 0.8333333333333334,
+      "fact_coverage": 0.95,
+      "all_facts_accuracy": 0.8,
+      "cost_usd": 0.0049339635,
+      "results": [
+        {
+          "id": "q01_dune_conflict_and_makeup",
+          "expected_status": "success",
+          "actual_status": "success",
+          "status_ok": true,
+          "expected_sources": [
+            "repertuar_kina.md#chunk-2",
+            "sylabus_systemy_operacyjne.md#chunk-2",
+            "evt-018@calendar.local"
+          ],
+          "actual_citations": [
+            "evt-018@calendar.local",
+            "repertuar_kina.md#chunk-2",
+            "sylabus_systemy_operacyjne.md#chunk-2"
+          ],
+          "citations_ok": true,
+          "steps": 4,
+          "cost_usd": 0.0008079280000000001,
+          "answer": "Niestety, nie możesz iść na seans „Diuna: Część druga” w piątek 23.10 o 18:00, ponieważ masz wtedy zaplanowane zajęcia: **Laboratorium — Systemy operacyjne (gr. 2)** w godzinach 17:30–19:00 [evt-018@calendar.local].\n\nMożesz jednak odrobić te zajęcia na następujących zasadach:\n*   **Kiedy:** W środę (21.10) w godzinach 12:00–13:30 z grupą nr 1 [sylabus_systemy_operacyjne.md#chunk-2].\n*   **Miejsce:** Sala A2-21 [sylabus_systemy_operacyjne.md#chunk-2].\n*   **Warunek:** Musisz wysłać wiadomość e-mail do mgr. Piotra Wiśniewskiego najpóźniej dzień przed zajęciami grupy 1 [sylabus_systemy_operacyjne.md#chunk-2].\n\nSeans „Diuna: Część druga” w Kinie Muza w tym terminie (piątek, 23.10, godz. 18:00) jest potwierdzony w repertuarze [repertuar_kina.md#chunk-2].",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q01_dune_conflict_and_makeup.jsonl",
+          "fact_checks": [
+            {
+              "fact": "film_date",
+              "passed": true
+            },
+            {
+              "fact": "film_time",
+              "passed": true
+            },
+            {
+              "fact": "conflict",
+              "passed": true
+            },
+            {
+              "fact": "lab_hours",
+              "passed": true
+            },
+            {
+              "fact": "makeup_day",
+              "passed": true
+            },
+            {
+              "fact": "makeup_hours",
+              "passed": true
+            },
+            {
+              "fact": "email",
+              "passed": true
+            },
+            {
+              "fact": "advance_notice",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 1.0,
+          "all_facts_present": true,
+          "manual_review_required": true
+        },
+        {
+          "id": "q02_crypto_exam_notes",
+          "expected_status": "success",
+          "actual_status": "success",
+          "status_ok": true,
+          "expected_sources": [
+            "sylabus_kryptografia.md#chunk-2"
+          ],
+          "actual_citations": [
+            "sylabus_kryptografia.md#chunk-2"
+          ],
+          "citations_ok": true,
+          "steps": 2,
+          "cost_usd": 0.00025635299999999996,
+          "answer": "Na egzaminie z Kryptografii można korzystać z jednej własnoręcznie podpisanej kartki formatu A4 z notatkami (dwustronnej) [sylabus_kryptografia.md#chunk-2]. Aby móc podejść do egzaminu w pierwszym terminie, należy do 15 grudnia 2026 r. uzyskać zaliczenie z projektu implementacyjnego (dotyczącego szyfru blokowego oraz podpisu cyfrowego RSA/ECDSA) [sylabus_kryptografia.md#chunk-2].",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q02_crypto_exam_notes.jsonl",
+          "fact_checks": [
+            {
+              "fact": "one_A4",
+              "passed": true
+            },
+            {
+              "fact": "signed",
+              "passed": true
+            },
+            {
+              "fact": "double_sided",
+              "passed": true
+            },
+            {
+              "fact": "prohibited_devices",
+              "passed": false
+            },
+            {
+              "fact": "project_pass",
+              "passed": true
+            },
+            {
+              "fact": "deadline",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 0.8333333333333334,
+          "all_facts_present": false,
+          "manual_review_required": true
+        },
+        {
+          "id": "q03_os_passing_threshold",
+          "expected_status": "success",
+          "actual_status": "success",
+          "status_ok": true,
+          "expected_sources": [
+            "sylabus_systemy_operacyjne.md#chunk-3"
+          ],
+          "actual_citations": [
+            "sylabus_systemy_operacyjne.md#chunk-3"
+          ],
+          "citations_ok": true,
+          "steps": 3,
+          "cost_usd": 0.00034809200000000004,
+          "answer": "Aby zaliczyć laboratorium z Systemów operacyjnych na ocenę 3.0, należy zdobyć co najmniej 55 punktów. Z kolei na ocenę 5.0 wymagane jest uzyskanie co najmniej 90 punktów.",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q03_os_passing_threshold.jsonl",
+          "fact_checks": [
+            {
+              "fact": "grade_3_threshold",
+              "passed": true
+            },
+            {
+              "fact": "grade_5_threshold",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 1.0,
+          "all_facts_present": true,
+          "manual_review_required": true
+        },
+        {
+          "id": "q04_physio_cancellation_fee",
+          "expected_status": "success",
+          "actual_status": "success",
+          "status_ok": true,
+          "expected_sources": [
+            "notatki_organizacyjne.md#chunk-1",
+            "evt-020@calendar.local"
+          ],
+          "actual_citations": [
+            "notatki_organizacyjne.md#chunk-1"
+          ],
+          "citations_ok": false,
+          "steps": 3,
+          "cost_usd": 0.00039452400000000005,
+          "answer": "Wizytę w FizjoActive możesz bezpłatnie odwołać lub przełożyć najpóźniej 24 godziny przed planowanym terminem. Jeśli spóźnisz się z odwołaniem, pobierana jest opłata rezerwacyjna w wysokości 50% ceny wizyty (90 zł).",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q04_physio_cancellation_fee.jsonl",
+          "fact_checks": [
+            {
+              "fact": "notice",
+              "passed": true
+            },
+            {
+              "fact": "fee_percent",
+              "passed": true
+            },
+            {
+              "fact": "fee_amount",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 1.0,
+          "all_facts_present": true,
+          "manual_review_required": true
+        },
+        {
+          "id": "q05_seminars_november",
+          "expected_status": "success",
+          "actual_status": "success",
+          "status_ok": true,
+          "expected_sources": [
+            "plan_studiow_i_seminaria.md#chunk-2"
+          ],
+          "actual_citations": [
+            "plan_studiow_i_seminaria.md#chunk-2"
+          ],
+          "citations_ok": true,
+          "steps": 3,
+          "cost_usd": 0.000398384,
+          "answer": "W listopadzie 2026 roku seminarium dyplomowe prof. Marka Kowalskiego (*Bezpieczeństwo i systemy rozproszone*) odbywa się w **sali B1-20**.\n\nTematy zaplanowane na listopad to:\n* **5 listopada 2026**: Prezentacja przeglądu literatury i planu rozdziałów (obecność obowiązkowa).\n* **19 listopada 2026**: Referaty studenckie — ataki kanałami bocznymi i izolacja kontenerów.",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q05_seminars_november.jsonl",
+          "fact_checks": [
+            {
+              "fact": "nov5",
+              "passed": true
+            },
+            {
+              "fact": "literature",
+              "passed": true
+            },
+            {
+              "fact": "chapter_plan",
+              "passed": true
+            },
+            {
+              "fact": "nov19",
+              "passed": true
+            },
+            {
+              "fact": "side_channels",
+              "passed": true
+            },
+            {
+              "fact": "containers",
+              "passed": true
+            },
+            {
+              "fact": "room",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 1.0,
+          "all_facts_present": true,
+          "manual_review_required": true
+        },
+        {
+          "id": "q06_ai_club_hackathon",
+          "expected_status": "success",
+          "actual_status": "success",
+          "status_ok": true,
+          "expected_sources": [
+            "plan_studiow_i_seminaria.md#chunk-3"
+          ],
+          "actual_citations": [
+            "plan_studiow_i_seminaria.md#chunk-3"
+          ],
+          "citations_ok": true,
+          "steps": 2,
+          "cost_usd": 0.000198072,
+          "answer": "Hackathon koła naukowego Golem AI pt. *Agentic Workflows* odbędzie się w sobotę, 14 listopada 2026 roku, w godzinach 09:00–20:00 (w Auli B). Zgłoszenia należy zarejestrować do 10 listopada.",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q06_ai_club_hackathon.jsonl",
+          "fact_checks": [
+            {
+              "fact": "event_date",
+              "passed": true
+            },
+            {
+              "fact": "hours",
+              "passed": true
+            },
+            {
+              "fact": "registration",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 1.0,
+          "all_facts_present": true,
+          "manual_review_required": true
+        },
+        {
+          "id": "q07_ambiguous_wednesday_movie",
+          "expected_status": "clarify",
+          "actual_status": "success",
+          "status_ok": false,
+          "expected_sources": [
+            "repertuar_kina.md#chunk-2"
+          ],
+          "actual_citations": [
+            "evt-016@calendar.local",
+            "repertuar_kina.md#chunk-2"
+          ],
+          "citations_ok": null,
+          "steps": 4,
+          "cost_usd": 0.00057561,
+          "answer": "W środę 21 października w Kinie Muza masz dwa seanse filmu „Łowca androidów 2049”:\n* **16:00–18:45** (Sala nr 2)\n* **21:15–23:55** (Sala nr 1)\n\nSprawdzając Twój kalendarz na ten dzień:\n1. **Pierwszy seans (16:00–18:45):** Nie masz wolnego czasu. O 18:30 masz zaplanowaną kolację z rodzicami [evt-016@calendar.local].\n2. **Drugi seans (21:15–23:55):** Masz wolny czas. Kolacja z rodzicami kończy się o 21:00, więc zdążysz na seans o 21:15 [evt-016@calendar.local].",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q07_ambiguous_wednesday_movie.jsonl",
+          "fact_checks": [
+            {
+              "fact": "asks_showtime",
+              "passed": false
+            },
+            {
+              "fact": "early_show",
+              "passed": true
+            },
+            {
+              "fact": "late_show",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 0.6666666666666666,
+          "all_facts_present": false,
+          "manual_review_required": true
+        },
+        {
+          "id": "q08_unanswerable_cinema_popcorn",
+          "expected_status": "not_found",
+          "actual_status": "not_found",
+          "status_ok": true,
+          "expected_sources": [],
+          "actual_citations": [],
+          "citations_ok": null,
+          "steps": 3,
+          "cost_usd": 0.00032411600000000005,
+          "answer": "Niestety, w dostępnych dokumentach nie ma informacji o cenach produktów w barze Kina Muza. Dokument z repertuarem zawiera jedynie informację, że cennik baru kinowego (popcorn, napoje, przekąski) nie jest publikowany w repertuarze [repertuar_kina.md#chunk-1].",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q08_unanswerable_cinema_popcorn.jsonl",
+          "fact_checks": [
+            {
+              "fact": "missing_price",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 1.0,
+          "all_facts_present": true,
+          "manual_review_required": true
+        },
+        {
+          "id": "q09_unanswerable_instructor_phone",
+          "expected_status": "not_found",
+          "actual_status": "success",
+          "status_ok": false,
+          "expected_sources": [],
+          "actual_citations": [
+            "sylabus_systemy_operacyjne.md#chunk-1"
+          ],
+          "citations_ok": null,
+          "steps": 3,
+          "cost_usd": 0.0004496085,
+          "answer": "Prywatny numer telefonu komórkowego do mgr. inż. Piotra Wiśniewskiego nie jest udostępniany studentom [sylabus_systemy_operacyjne.md#chunk-1]. Do kontaktu z prowadzącym laboratorium z Systemów operacyjnych możesz użyć adresu e-mail: `p.wisniewski@wmi.uam.edu.pl` [sylabus_systemy_operacyjne.md#chunk-1].",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q09_unanswerable_instructor_phone.jsonl",
+          "fact_checks": [
+            {
+              "fact": "missing_private_phone",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 1.0,
+          "all_facts_present": true,
+          "manual_review_required": true
+        },
+        {
+          "id": "q10_unanswerable_parking_fee",
+          "expected_status": "not_found",
+          "actual_status": "not_found",
+          "status_ok": true,
+          "expected_sources": [],
+          "actual_citations": [],
+          "citations_ok": null,
+          "steps": 6,
+          "cost_usd": 0.001181276,
+          "answer": "Niestety, w dostępnych dokumentach nie ma informacji o koszcie miesięcznej karty parkingowej dla studentów na parkingu podziemnym pod wydziałem WMI UAM.",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q10_unanswerable_parking_fee.jsonl",
+          "fact_checks": [
+            {
+              "fact": "missing_parking_price",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 1.0,
+          "all_facts_present": true,
+          "manual_review_required": true
+        }
+      ],
+      "limitations": "Deterministic regex fact coverage only; manual review must check negation, contradictions, invented claims and semantic correctness. Cost limit is checked after each provider call and may overshoot by one call."
+    },
+    {
+      "total_questions": 10,
+      "planned_questions": 10,
+      "complete": true,
+      "outcome_accuracy": 0.8,
+      "citation_accuracy": 0.6666666666666666,
+      "fact_coverage": 0.9375,
+      "all_facts_accuracy": 0.7,
+      "cost_usd": 0.0065077649999999996,
+      "results": [
+        {
+          "id": "q01_dune_conflict_and_makeup",
+          "expected_status": "success",
+          "actual_status": "success",
+          "status_ok": true,
+          "expected_sources": [
+            "repertuar_kina.md#chunk-2",
+            "sylabus_systemy_operacyjne.md#chunk-2",
+            "evt-018@calendar.local"
+          ],
+          "actual_citations": [
+            "repertuar_kina.md#chunk-2",
+            "sylabus_systemy_operacyjne.md#chunk-2"
+          ],
+          "citations_ok": false,
+          "steps": 5,
+          "cost_usd": 0.00100005,
+          "answer": "Tak, w Kinie Muza w piątek 23 października 2026 o godzinie 18:00 odbywa się pokaz specjalny filmu „Diuna: Część druga” (Sala nr 1, napisy PL) [repertuar_kina.md#chunk-2].\n\nW Twoim kalendarzu na ten dzień nie widnieją żadne zaplanowane zajęcia. Jeśli jednak Twoje pytanie dotyczyło konkretnego przedmiotu, z którego masz zajęcia w piątki (np. Systemy operacyjne), to zgodnie z sylabusem:\n\n* **Zajęcia (Grupa 2):** odbywają się w piątki w godzinach 17:30–19:00 [sylabus_systemy_operacyjne.md#chunk-2].\n* **Odrabianie:** Jeśli masz zajęcia z Systemów operacyjnych w tej grupie, możesz odrobić nieobecność, uczestnicząc w zajęciach Grupy 1 (środa, godz. 12:00–13:30, sala A2-21). Warunkiem jest wysłanie e-maila do mgr. Piotra Wiśniewskiego najpóźniej dzień przed zajęciami grupy 1 [sylabus_systemy_operacyjne.md#chunk-2].",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q01_dune_conflict_and_makeup.jsonl",
+          "fact_checks": [
+            {
+              "fact": "film_date",
+              "passed": true
+            },
+            {
+              "fact": "film_time",
+              "passed": true
+            },
+            {
+              "fact": "conflict",
+              "passed": false
+            },
+            {
+              "fact": "lab_hours",
+              "passed": true
+            },
+            {
+              "fact": "makeup_day",
+              "passed": true
+            },
+            {
+              "fact": "makeup_hours",
+              "passed": true
+            },
+            {
+              "fact": "email",
+              "passed": true
+            },
+            {
+              "fact": "advance_notice",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 0.875,
+          "all_facts_present": false,
+          "manual_review_required": true
+        },
+        {
+          "id": "q02_crypto_exam_notes",
+          "expected_status": "success",
+          "actual_status": "success",
+          "status_ok": true,
+          "expected_sources": [
+            "sylabus_kryptografia.md#chunk-2"
+          ],
+          "actual_citations": [
+            "sylabus_kryptografia.md#chunk-2"
+          ],
+          "citations_ok": true,
+          "steps": 2,
+          "cost_usd": 0.00020169600000000002,
+          "answer": "Na egzaminie z Kryptografii można korzystać z jednej własnoręcznie podpisanej kartki formatu A4 z notatkami (dwustronnej) [sylabus_kryptografia.md#chunk-2]. Aby móc podejść do egzaminu w pierwszym terminie, należy do 15 grudnia 2026 r. uzyskać zaliczenie z projektu implementacyjnego (obejmującego szyfr blokowy oraz podpis cyfrowy RSA/ECDSA) [sylabus_kryptografia.md#chunk-2].",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q02_crypto_exam_notes.jsonl",
+          "fact_checks": [
+            {
+              "fact": "one_A4",
+              "passed": true
+            },
+            {
+              "fact": "signed",
+              "passed": true
+            },
+            {
+              "fact": "double_sided",
+              "passed": true
+            },
+            {
+              "fact": "prohibited_devices",
+              "passed": false
+            },
+            {
+              "fact": "project_pass",
+              "passed": true
+            },
+            {
+              "fact": "deadline",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 0.8333333333333334,
+          "all_facts_present": false,
+          "manual_review_required": true
+        },
+        {
+          "id": "q03_os_passing_threshold",
+          "expected_status": "success",
+          "actual_status": "success",
+          "status_ok": true,
+          "expected_sources": [
+            "sylabus_systemy_operacyjne.md#chunk-3"
+          ],
+          "actual_citations": [
+            "sylabus_systemy_operacyjne.md#chunk-3"
+          ],
+          "citations_ok": true,
+          "steps": 3,
+          "cost_usd": 0.000386268,
+          "answer": "Aby zaliczyć laboratorium z Systemów operacyjnych, wymagania punktowe są następujące:\n\n* **Ocena 3.0 (dostateczna):** minimum **55 punktów**.\n* **Ocena 5.0 (bardzo dobra):** minimum **90 punktów**.\n\nMaksymalna liczba punktów do zdobycia w semestrze wynosi 100 (60 pkt za zadania praktyczne oraz 40 pkt za kolokwia).",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q03_os_passing_threshold.jsonl",
+          "fact_checks": [
+            {
+              "fact": "grade_3_threshold",
+              "passed": true
+            },
+            {
+              "fact": "grade_5_threshold",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 1.0,
+          "all_facts_present": true,
+          "manual_review_required": true
+        },
+        {
+          "id": "q04_physio_cancellation_fee",
+          "expected_status": "success",
+          "actual_status": "success",
+          "status_ok": true,
+          "expected_sources": [
+            "notatki_organizacyjne.md#chunk-1",
+            "evt-020@calendar.local"
+          ],
+          "actual_citations": [
+            "notatki_organizacyjne.md#chunk-1"
+          ],
+          "citations_ok": false,
+          "steps": 3,
+          "cost_usd": 0.000419784,
+          "answer": "Wizytę w gabinecie FizjoActive możesz bezpłatnie odwołać lub przełożyć najpóźniej 24 godziny przed planowanym terminem. Jeśli odwołasz wizytę później, pobierana jest opłata rezerwacyjna w wysokości 50% ceny wizyty (90 zł). Odwołania można dokonać telefonicznie (61 840 22 10) lub przez SMS.",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q04_physio_cancellation_fee.jsonl",
+          "fact_checks": [
+            {
+              "fact": "notice",
+              "passed": true
+            },
+            {
+              "fact": "fee_percent",
+              "passed": true
+            },
+            {
+              "fact": "fee_amount",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 1.0,
+          "all_facts_present": true,
+          "manual_review_required": true
+        },
+        {
+          "id": "q05_seminars_november",
+          "expected_status": "success",
+          "actual_status": "success",
+          "status_ok": true,
+          "expected_sources": [
+            "plan_studiow_i_seminaria.md#chunk-2"
+          ],
+          "actual_citations": [
+            "plan_studiow_i_seminaria.md#chunk-2"
+          ],
+          "citations_ok": true,
+          "steps": 2,
+          "cost_usd": 0.00021967999999999998,
+          "answer": "W listopadzie 2026 r. seminarium dyplomowe prowadzone przez prof. Marka Kowalskiego (temat: *Bezpieczeństwo i systemy rozproszone*) odbywa się w **sali B1-20**.\n\nTematy spotkań w listopadzie to:\n* **5 listopada 2026**: Prezentacja przeglądu literatury i planu rozdziałów (obecność obowiązkowa).\n* **19 listopada 2026**: Referaty studenckie — ataki kanałami bocznymi i izolacja kontenerów.",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q05_seminars_november.jsonl",
+          "fact_checks": [
+            {
+              "fact": "nov5",
+              "passed": true
+            },
+            {
+              "fact": "literature",
+              "passed": true
+            },
+            {
+              "fact": "chapter_plan",
+              "passed": true
+            },
+            {
+              "fact": "nov19",
+              "passed": true
+            },
+            {
+              "fact": "side_channels",
+              "passed": true
+            },
+            {
+              "fact": "containers",
+              "passed": true
+            },
+            {
+              "fact": "room",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 1.0,
+          "all_facts_present": true,
+          "manual_review_required": true
+        },
+        {
+          "id": "q06_ai_club_hackathon",
+          "expected_status": "success",
+          "actual_status": "success",
+          "status_ok": true,
+          "expected_sources": [
+            "plan_studiow_i_seminaria.md#chunk-3"
+          ],
+          "actual_citations": [
+            "plan_studiow_i_seminaria.md#chunk-3"
+          ],
+          "citations_ok": true,
+          "steps": 9,
+          "cost_usd": 0.001776138,
+          "answer": "Hackathon koła naukowego Golem AI pt. *Agentic Workflows* odbędzie się w sobotę, 14 listopada 2026 roku, w godzinach 09:00–20:00 w Auli B. Rejestracja na wydarzenie jest wymagana do 10 listopada.",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q06_ai_club_hackathon.jsonl",
+          "fact_checks": [
+            {
+              "fact": "event_date",
+              "passed": true
+            },
+            {
+              "fact": "hours",
+              "passed": true
+            },
+            {
+              "fact": "registration",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 1.0,
+          "all_facts_present": true,
+          "manual_review_required": true
+        },
+        {
+          "id": "q07_ambiguous_wednesday_movie",
+          "expected_status": "clarify",
+          "actual_status": "success",
+          "status_ok": false,
+          "expected_sources": [
+            "repertuar_kina.md#chunk-2"
+          ],
+          "actual_citations": [
+            "evt-016@calendar.local",
+            "repertuar_kina.md#chunk-2"
+          ],
+          "citations_ok": null,
+          "steps": 4,
+          "cost_usd": 0.000717132,
+          "answer": "W środę 21 października w Kinie Muza zaplanowano dwa seanse filmu „Łowca androidów 2049” [repertuar_kina.md#chunk-2]:\n* **16:00–18:45** (Sala nr 2)\n* **21:15–23:55** (Sala nr 1)\n\nSprawdzając Twój kalendarz na ten dzień, sytuacja wygląda następująco:\n* **Seans o 16:00:** Masz wolny czas (Twoje zajęcia kończą się o 11:15, a kolacja zaczyna się o 18:30), więc możesz wybrać tę godzinę.\n* **Seans o 21:15:** Masz kolację z rodzicami w godzinach 18:30–21:00 [evt-016@calendar.local], więc seans o 21:15 może być trudny do zrealizowania ze względu na czas na dojazd.",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q07_ambiguous_wednesday_movie.jsonl",
+          "fact_checks": [
+            {
+              "fact": "asks_showtime",
+              "passed": false
+            },
+            {
+              "fact": "early_show",
+              "passed": true
+            },
+            {
+              "fact": "late_show",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 0.6666666666666666,
+          "all_facts_present": false,
+          "manual_review_required": true
+        },
+        {
+          "id": "q08_unanswerable_cinema_popcorn",
+          "expected_status": "not_found",
+          "actual_status": "not_found",
+          "status_ok": true,
+          "expected_sources": [],
+          "actual_citations": [],
+          "citations_ok": null,
+          "steps": 4,
+          "cost_usd": 0.0006906449999999999,
+          "answer": "Niestety, w dostępnych dokumentach nie ma informacji o cenniku baru w Kinie Muza. Dokument repertuar kina informuje, że cennik baru (popcorn, napoje, przekąski) nie jest publikowany w repertuarze [repertuar_kina.md#chunk-1].",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q08_unanswerable_cinema_popcorn.jsonl",
+          "fact_checks": [
+            {
+              "fact": "missing_price",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 1.0,
+          "all_facts_present": true,
+          "manual_review_required": true
+        },
+        {
+          "id": "q09_unanswerable_instructor_phone",
+          "expected_status": "not_found",
+          "actual_status": "success",
+          "status_ok": false,
+          "expected_sources": [],
+          "actual_citations": [
+            "sylabus_systemy_operacyjne.md#chunk-1"
+          ],
+          "citations_ok": null,
+          "steps": 2,
+          "cost_usd": 0.000220576,
+          "answer": "Prywatny numer telefonu komórkowego do mgr. inż. Piotra Wiśniewskiego nie jest udostępniany studentom [sylabus_systemy_operacyjne.md#chunk-1]. W sylabusie podany jest jedynie jego adres e-mail: `p.wisniewski@wmi.uam.edu.pl`.",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q09_unanswerable_instructor_phone.jsonl",
+          "fact_checks": [
+            {
+              "fact": "missing_private_phone",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 1.0,
+          "all_facts_present": true,
+          "manual_review_required": true
+        },
+        {
+          "id": "q10_unanswerable_parking_fee",
+          "expected_status": "not_found",
+          "actual_status": "not_found",
+          "status_ok": true,
+          "expected_sources": [],
+          "actual_citations": [],
+          "citations_ok": null,
+          "steps": 5,
+          "cost_usd": 0.000875796,
+          "answer": "Niestety, w dostępnych dokumentach nie ma informacji o cenie miesięcznej karty parkingowej dla studentów na parkingu podziemnym pod wydziałem WMI UAM.",
+          "trace": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q10_unanswerable_parking_fee.jsonl",
+          "fact_checks": [
+            {
+              "fact": "missing_parking_price",
+              "passed": true
+            }
+          ],
+          "fact_coverage": 1.0,
+          "all_facts_present": true,
+          "manual_review_required": true
+        }
+      ],
+      "limitations": "Deterministic regex fact coverage only; manual review must check negation, contradictions, invented claims and semantic correctness. Cost limit is checked after each provider call and may overshoot by one call."
+    }
+  ]
+}

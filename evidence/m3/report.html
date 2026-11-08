@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Checkpoint M3 — State, Memory, RAG, and Execution Graphs</title>
+<style>
+body{font:16px/1.6 system-ui,sans-serif;max-width:1050px;margin:40px auto;padding:0 22px;color:#172033;background:#fff}
+h1,h2,h3{line-height:1.25}h1{font-size:30px}h2{margin-top:36px}a{color:#1554a0}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px;border-bottom:1px solid #cbd5e1}
+thead{background:#eef2f6}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f1f5f9;padding:16px;border-radius:8px}
+details{border-bottom:1px solid #cbd5e1;padding:12px 0}summary{cursor:pointer;font-weight:600}
+.note{border-left:4px solid #b45309;padding:8px 18px;background:#fffbeb}.table{overflow-x:auto}
+@media print{details{display:block}body{margin:0;max-width:none}a{color:inherit}}
+</style></head><body>
+<h1>State, Memory, RAG, and Execution Graphs</h1>
+<p>Calendar Assistant · raport checkpointu · 2026-11-08</p>
+<p>Wykonano pełną ewaluację 10 pytań w 3 powtórzeniach, z osobnym pomiarem retrievalu i odpowiedzi.
+Pakiet zawiera zarówno sukcesy, jak i błędy. Wyniki nie oznaczają niezawodności agenta.</p>
+<h2>Co zostało domknięte</h2>
+<ol><li><b>Jawne zakończenie:</b> niepusta odpowiedź tekstowa nie zamienia się w <code>success</code>.
+Wraca do modelu z zachowanym kontekstem i prośbą o <code>finish</code> z wynikiem <code>answered</code>, <code>not_found</code> lub <code>clarify</code>.
+Błędy techniczne i limity pozostają osobnymi zakończeniami. Trzy regresje nie przechodziły przed zmianą; po zmianie przechodzą.</li>
+<li><b>Rzeczywiste wyniki:</b> 30 uruchomień Gemmy przez OpenRouter, niezależne kalendarze i ślady, stała data symulacji 2026-10-16.
+Oczekiwane etykiety, źródła i rubryki nie są przekazywane do agenta.</li>
+<li><b>Pakiet dowodów:</b> źródła, indeks, graf, zestaw pytań i rubryki w repo; poniżej wyniki, przykłady, analiza błędów i odtwarzanie.</li></ol>
+<h2>Dane i architektura</h2>
+<p>6 fikcyjnych dokumentów, 19 fragmentów dzielonych nagłówkami, wektory 384-wymiarowe.
+FastEmbed: <code>sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2</code>, cache <code>.cache/fastembed/</code>.
+Indeks <a href="../../data/index.json">data/index.json</a> odpowiada treści wszystkich bieżących dokumentów.
+Wyszukiwanie dokumentów: cosinus i top-3; sprawdzanie terminów: osobne narzędzia kalendarza.
+Model odpowiedzi: <code>google/gemma-4-26b-a4b-it</code>, temperatura 0; dostawca i wyniki mogą się zmieniać.</p>
+<p>Stan LangGraph przechowuje wiadomości, oczekujące wywołania narzędzi, identyfikatory pobranych źródeł, liczbę tur i status.
+Przejścia zależą od odpowiedzi modelu na wyniki narzędzi; nie jest to stały przepływ retrieve → answer.
+Stan jest zachowywany w obrębie uruchomienia. <code>clarify</code> kończy CLI pytaniem; automatyczne wznowienie rozmowy i trwały checkpointer nie są zaimplementowane ani wymagane wprost przez treść tego checkpointu.</p>
+<p><a href="state-graph.mmd">Graf możliwych przejść — Mermaid</a> · <a href="../../src/agent_project/agent.py">Kod grafu i stanu</a> ·
+<a href="../../data/eval_questions.json">10 pytań i rubryki</a> · <a href="manifest.json">Manifest i skróty SHA-256</a></p>
+<h2>Wyszukiwanie — pomiar niezależny od LLM</h2>
+<p>7 zapytań z oczekiwanym źródłem dokumentowym (6 odpowiedzi i 1 przypadek niejednoznaczny).
+Hit@1 = <b>85.7%</b>, Hit@3 = <b>85.7%</b> (6/7).
+Trafienie oznacza obecność <em>dowolnego</em> oczekiwanego dokumentu na danej pozycji lub w top-3;
+nie oznacza znalezienia kompletu dowodów. Trzy pytania bez odpowiedzi nie mają złotego fragmentu i nie wchodzą do mianownika.
+Użyto stałych zapytań <code>retrieval_query</code>, a nie wygenerowanych zapytań agenta. To pomiar retrievera, nie całego planowania.</p>
+<p><a href="evaluation-th9olglr/retrieval.json">Wyniki retrievalu dla każdego zapytania</a></p>
+<h2>Odpowiedzi — pełny agent</h2>
+<p>Każde powtórzenie obejmuje 10 pytań: 6 z odpowiedzią, 1 oczekujące doprecyzowania i 3 celowo bez poszukiwanej informacji.
+Każde pytanie otrzymuje świeżą kopię kalendarza. Koszt 30 prób: <b>$0.0184012</b>;
+dwa dodatkowe testy klasyfikacji: $0.0009595. To koszt OpenRouter; nie obejmuje delegowanych agentów programistycznych i recenzenta.</p>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 320" role="img" aria-label="Średnia i najgorsza wartość czterech miar odpowiedzi; skala od zera do stu procent"><g font-family="system-ui,sans-serif" font-size="13" fill="#172033"><rect x="16" y="9" width="12" height="12" fill="#2563eb"/><text x="35" y="20">Średnia z 3 prób</text><rect x="215" y="9" width="12" height="12" fill="#64748b"/><text x="234" y="20">Najgorsza próba</text><text x="16" y="48">Zgodność statusu z etykietą</text><rect x="16" y="53" width="600" height="16" fill="#f1f5f9"/><rect x="16" y="53" width="460.0" height="16" fill="#2563eb"/><text x="632" y="66">76.7%</text><rect x="16" y="75" width="600" height="16" fill="#f1f5f9"/><rect x="16" y="75" width="420.0" height="16" fill="#64748b"/><text x="632" y="88">70.0%</text><text x="16" y="112">Komplet wymaganych cytowań</text><rect x="16" y="117" width="600" height="16" fill="#f1f5f9"/><rect x="16" y="117" width="466.7" height="16" fill="#2563eb"/><text x="632" y="130">77.8%</text><rect x="16" y="139" width="600" height="16" fill="#f1f5f9"/><rect x="16" y="139" width="400.0" height="16" fill="#64748b"/><text x="632" y="152">66.7%</text><text x="16" y="176">Pokrycie faktów — regex</text><rect x="16" y="181" width="600" height="16" fill="#f1f5f9"/><rect x="16" y="181" width="550.8" height="16" fill="#2563eb"/><text x="632" y="194">91.8%</text><rect x="16" y="203" width="600" height="16" fill="#f1f5f9"/><rect x="16" y="203" width="520.0" height="16" fill="#64748b"/><text x="632" y="216">86.7%</text><text x="16" y="240">Wszystkie fakty — regex</text><rect x="16" y="245" width="600" height="16" fill="#f1f5f9"/><rect x="16" y="245" width="460.0" height="16" fill="#2563eb"/><text x="632" y="258">76.7%</text><rect x="16" y="267" width="600" height="16" fill="#f1f5f9"/><rect x="16" y="267" width="420.0" height="16" fill="#64748b"/><text x="632" y="280">70.0%</text><text x="16" y="316">0%</text><text x="583" y="316">100%</text></g></svg>
+<div class="table"><table><thead><tr><th>Miara</th><th>Próba 1</th><th>Próba 2</th><th>Próba 3</th><th>Średnia</th><th>Najgorsza</th></tr></thead><tbody><tr><th>Zgodność statusu z etykietą</th><td>70.0%</td><td>80.0%</td><td>80.0%</td><td>76.7%</td><td>70.0%</td></tr><tr><th>Komplet wymaganych cytowań</th><td>83.3%</td><td>83.3%</td><td>66.7%</td><td>77.8%</td><td>66.7%</td></tr><tr><th>Pokrycie faktów — regex</th><td>86.7%</td><td>95.0%</td><td>93.8%</td><td>91.8%</td><td>86.7%</td></tr><tr><th>Wszystkie fakty — regex</th><td>80.0%</td><td>80.0%</td><td>70.0%</td><td>76.7%</td><td>70.0%</td></tr></tbody></table></div>
+<ul><li><b>Zgodność statusu:</b> porównanie wyniku ze stałą etykietą; mianownik 10 pytań na próbę.</li>
+<li><b>Komplet cytowań:</b> wszystkie oczekiwane ID są w zweryfikowanej liście; mianownik tylko 6 odpowiedzi na próbę.
+To kompletność względem rubryki, a nie procent prawdziwych twierdzeń. Weryfikacja w kodzie sprawdza pochodzenie ID, nie zgodność semantyczną twierdzenia ze źródłem.</li>
+<li><b>Pokrycie regex:</b> średnia po pytaniach z udziału obecnych wzorców; <b>Wszystkie fakty</b> wymaga wszystkich wzorców w pytaniu.
+Wzorce nie rozumieją negacji i mogą nie rozpoznać poprawnej parafrazy.</li></ul>
+<p class="note">Niezależna ocena treści przez <b>Claude Haiku 5.5</b>: 24 pass, 3 partial, 3 fail z 30 odpowiedzi.
+To jakościowa ocena innego modelu, <b>nie ludzka prawda referencyjna</b>. Recenzent porównał odpowiedzi z dokumentami i kalendarzem;
+szczegółowe ślady dla analizowanych niżej porażek sprawdzono dodatkowo. Nie zmieniano etykiet po obejrzeniu wyników.</p>
+<p>Rubryki mają ograniczenia: q07 oczekuje pytania o godzinę, choć podanie dostępności dla obu seansów może być użyteczne;
+q09 wymaga <code>not_found</code>, choć źródło jawnie stwierdza brak udostępnionego telefonu i model wybiera <code>answered</code>;
+q04 wymaga cytowania wpisu kalendarza, choć datę wizyty podał użytkownik. Surowe wyniki pozostawiono bez korekt.</p>
+<p><a href="evaluation-th9olglr/answers.json">Wszystkie odpowiedzi i metryki</a> · <a href="content-review.json">Ocena jakościowa 30 odpowiedzi</a></p>
+<h2>Analiza błędów</h2>
+<h3>1. Naprawiony błąd klasyfikacji: „nie wiem” jako success</h3>
+<p><a href="before-finish-bypass.jsonl">Przed zmianą</a>: na „Czy mogę iść na siupa lupa?” model zwrócił zwykły tekst o braku informacji;
+kod nadał <code>success</code> bez <code>finish</code>. Przyczyną była bezwarunkowa gałąź sukcesu dla odpowiedzi tekstowej.
+Po zmianie model musi wybrać jawny wynik; zachowany jest cały kontekst, a powtarzanie zwykłego tekstu kończy się limitem zamiast fałszywym sukcesem.
+<a href="after-finish-bypass.jsonl">Powtórzenie pytania live po zmianie</a> zakończyło się <code>clarify</code>.
+<a href="../../tests/test_agent.py">Regresje</a> sprawdzają not_found, clarify, zachowanie historii i limit ponowień.</p>
+<h3>2. Wybór złego narzędzia: pusty wynik słów kluczowych ≠ wolny termin</h3>
+<p>Powtórzenie 3, q01: agent dwa razy szukał słowa „zajęcia”. Takiego słowa nie ma w tytule „Laboratorium — Systemy operacyjne”,
+więc otrzymał zero wyników, po czym błędnie uznał dzień za wolny. Nie wywołał <code>free_busy</code>.
+Kontrolne sprawdzenie dokładnego okna 18:00–20:45 zwraca <code>is_free=false</code> i evt-018 (17:30–19:00).
+To błąd planowania dostępu do kalendarza, a nie brak dokumentu lub awaria embeddingów.
+Możliwa dalsza poprawa: wymuszać <code>free_busy</code> przed twierdzeniem o dostępności. Nie wdrażano tego rozszerzenia w tej zmianie.</p>
+<h3>3. Błąd generacji mimo dostępnych danych: pominięte 15 minut kolizji</h3>
+<p>Powtórzenie 3, q07: repertuar i <code>free_busy</code> dostarczyły prawidłowe godziny filmu 16:00–18:45 oraz kolacji 18:30–21:00.
+Model mimo to uznał seans za możliwy. Przecięcie tych przedziałów to <b>15 minut</b>.
+W tym przypadku pozyskanie dowodów działało; zawiodło rozumowanie przy formułowaniu odpowiedzi.
+Dalsza poprawa: wykonywać obliczenia przedziałów w kodzie dla każdego kandydującego seansu.</p>
+<h3>4. Brak prawidłowego wywołania finish</h3>
+<p>Powtórzenie 1, q08: model rozpoznał brak cen, ale wypisywał tekst przypominający <code>finish{…}</code>
+z tokenami szablonu zamiast strukturalnego wywołania narzędzia. Po 12 turach kod zwrócił <code>step_limit</code>, a nie <code>success</code>.
+Pozostałe powtórzenia zakończyły się <code>not_found</code>. To ograniczenie protokołu odpowiedzi modelu/dostawcy;
+ślad nie pozwala jednoznacznie przypisać winy dostawcy. Nie parsujemy swobodnego tekstu jako zaufanego wywołania narzędzia.</p>
+<h3>5. Porażka retrievalu: nazwy własne i sformułowanie zapytania</h3>
+<p>q06: pełne zapytanie o Golem AI i Agentic Workflows nie umieszcza właściwego fragmentu w top-3.
+Kontrolne krótsze zapytanie „Koło Naukowe Golem AI hackathon” odnajduje go w top-3.
+To dowód wrażliwości rankingu na sformułowanie zapytania, nie dowód konkretnej przyczyny wewnątrz modelu.
+Możliwa dalsza poprawa: ponowne wyszukanie krótszą frazą albo wyszukiwanie hybrydowe.
+Przypadek uzasadnia osobną ocenę wyszukiwania i odpowiedzi.</p>
+<p><a href="failure-analysis.json">Kontrolne zapytania i obliczenia</a> · szczegółowe ślady poniżej.</p>
+<h2>Dowody do demonstracji</h2><ul><li>cited-answer-and-retry: <a href="cited-answer-and-retry.jsonl">JSONL</a> · <a href="diagrams/cited-answer-and-retry.svg">SVG</a> · <a href="diagrams/cited-answer-and-retry.mmd">Mermaid</a></li><li>abstention-live: <a href="abstention-live.jsonl">JSONL</a> · <a href="diagrams/abstention-live.svg">SVG</a> · <a href="diagrams/abstention-live.mmd">Mermaid</a></li><li>failure-calendar-search: <a href="failure-calendar-search.jsonl">JSONL</a> · <a href="diagrams/failure-calendar-search.svg">SVG</a> · <a href="diagrams/failure-calendar-search.mmd">Mermaid</a></li><li>failure-interval-reasoning: <a href="failure-interval-reasoning.jsonl">JSONL</a> · <a href="diagrams/failure-interval-reasoning.svg">SVG</a> · <a href="diagrams/failure-interval-reasoning.mmd">Mermaid</a></li><li>failure-finish-protocol: <a href="failure-finish-protocol.jsonl">JSONL</a> · <a href="diagrams/failure-finish-protocol.svg">SVG</a> · <a href="diagrams/failure-finish-protocol.mmd">Mermaid</a></li>
+<li>Dopytanie: <a href="clarification-live.jsonl">JSONL</a> · <a href="diagrams/clarification-live.svg">SVG</a></li></ul>
+<p>Udany przykład q01 z powtórzenia 2 zawiera pierwsze pobranie repertuaru, wynik kalendarza wskazujący kolizję,
+drugie wyszukanie zasad odrabiania i odpowiedź z trzema zweryfikowanymi źródłami. Pokazuje zmianę kroku pod wpływem niekompletnych dowodów.</p>
+<h2>Jak odtworzyć</h2>
+<p>Uruchamiaj z katalogu głównego repo, z istniejącym środowiskiem i kluczem OpenRouter w lokalnym <code>.env</code>.
+Pierwsze pobranie modelu embeddingowego wymaga sieci; następne używają cache.
+Ewaluacja live tworzy nowy katalog, żeby nie dopisywać śladów do poprzedniej próby.</p>
+<pre>.venv\Scripts\python.exe -m pytest
+.venv\Scripts\python.exe -m ruff check .
+.venv\Scripts\python.exe -m agent_project.eval_rag --output-dir traces/evaluation
+.venv\Scripts\python.exe -m agent_project.eval_rag --live --repeats 3 --max-cost-usd 0.25 --output-dir traces/evaluation</pre>
+<p>Bez <code>--live</code> mierzony jest tylko lokalny retrieval. Aby odbudować indeks z tych samych dokumentów:</p>
+<pre>.venv\Scripts\python.exe -c "from agent_project.rag import DocumentIndex; DocumentIndex.build()"</pre>
+<p>Wynik uruchomionych kontroli: <b>83 testy przechodzą</b>, <code>ruff check</code> oraz <code>ruff format --check</code> bez uwag.
+<a href="validation.txt">Zapis kontroli</a>. Wersje środowiska i skróty plików: manifest.
+Wyniki LLM są zmienne nawet przy temperaturze 0. Budżet jest sprawdzany po odpowiedzi dostawcy i może być przekroczony o koszt jednego wywołania.</p>
+<h2>Wszystkie 30 odpowiedzi</h2><details><summary>Powtórzenie 1 · q01_dune_conflict_and_makeup · success · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Czy mogę iść do Kina Muza na &#x27;Diunę: Część drugą&#x27; w piątek 23.10 o 18:00? Jeśli mam wtedy zajęcia, sprawdź w sylabusie i kalendarzu, kiedy i na jakich zasadach mogę je odrobić.</p>
+<p><b>Oczekiwany status:</b> success. <b>Pokrycie regex:</b> 100.0%.</p>
+<pre>Niestety nie możesz iść na seans o 18:00, ponieważ masz wtedy zajęcia.
+
+**Szczegóły:**
+* **Film:** &quot;Diuna: Część druga&quot; w Kinie Muza (pokaz specjalny IMAX/Muza) jest dostępny w piątek 23.10 o godzinie 18:00 [repertuar_kina.md#chunk-2].
+* **Konflikt:** W tym samym czasie (17:30–19:00) masz zajęcia: **Laboratorium — Systemy operacyjne (gr. 2)** w sali A2-21 [evt-018@calendar.local].
+
+**Jak możesz odrobić te zajęcia?**
+Zgodnie z sylabusem, pojedynczą nieobecność grupy 2 możesz odrobić z grupą 1 [sylabus_systemy_operacyjne.md#chunk-2]:
+* **Termin odrabiania:** Środa, godz. 12:00–13:30 (sala A2-21).
+* **Warunek:** Musisz wysłać wiadomość e-mail do mgr. Piotra Wiśniewskiego najpóźniej dzień przed zajęciami grupy 1 (czyli najpóźniej we wtorek).
+
+W kalendarzu widnieje również informacja o możliwości odrobienia tych zajęć w środę 21.10 o 12:00 [evt-018@calendar.local], jednak pamiętaj o konieczności wcześniejszego poinformowania prowadzącego.
+
+Jeśli wolisz inny termin filmu, w Kinie Muza jest też seans w sobotę 24.10 o 20:00 [repertuar_kina.md#chunk-2].</pre><p><b>Ocena niezależnego modelu:</b> Fakty poprawne: Diuna pt 23.10 18:00 (repertuar_kina.md#chunk-2); lab gr.2 17:30-19:00 (evt-018); odrobienie śr 21.10 12:00-13:30 A2-21, mail dzień przed (sylabus_systemy_operacyjne.md#chunk-2, evt-018 DESCRIPTION). Wszystkie wymagane fakty obecne, odpowiedź na pytanie &#x27;czy mogę iść&#x27; = nie.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q01_dune_conflict_and_makeup.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q01_dune_conflict_and_makeup.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 1 · q02_crypto_exam_notes · success · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Jakich materiałów można używać na egzaminie z Kryptografii i jaki warunek trzeba spełnić do 15 grudnia, żeby podejść w pierwszym terminie?</p>
+<p><b>Oczekiwany status:</b> success. <b>Pokrycie regex:</b> 100.0%.</p>
+<pre>Na egzaminie z Kryptografii można korzystać z jednej własnoręcznie podpisanej kartki formatu A4 z notatkami (dwustronnej). Kalkulatory programowalne, telefony oraz laptopy są surowo zabronione [sylabus_kryptografia.md#chunk-2].
+
+Aby podejść do egzaminu w pierwszym terminie, należy do 15 grudnia 2026 r. uzyskać zaliczenie z projektu implementacyjnego (obejmującego szyfr blokowy oraz podpis cyfrowy RSA/ECDSA) [sylabus_kryptografia.md#chunk-2].</pre><p><b>Ocena niezależnego modelu:</b> Jedna podpisana kartka A4 dwustronna; kalkulator/telefon/laptop zakazane; zaliczenie projektu (szyfr blokowy, RSA/ECDSA) do 15.12.2026 (sylabus_kryptografia.md#chunk-2). Pełne i poprawne.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q02_crypto_exam_notes.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q02_crypto_exam_notes.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 1 · q03_os_passing_threshold · success · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Ile punktów trzeba zdobyć, żeby zaliczyć laboratorium z Systemów operacyjnych na ocenę 3.0, a ile na 5.0?</p>
+<p><b>Oczekiwany status:</b> success. <b>Pokrycie regex:</b> 100.0%.</p>
+<pre>Aby zaliczyć laboratorium z Systemów operacyjnych na ocenę 3.0, należy zdobyć co najmniej 55 punktów. Aby uzyskać ocenę 5.0, wymagane jest zdobycie co najmniej 90 punktów.</pre><p><b>Ocena niezależnego modelu:</b> 55 pkt na 3.0, 90 pkt na 5.0 (sylabus_systemy_operacyjne.md#chunk-3). Poprawne.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q03_os_passing_threshold.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q03_os_passing_threshold.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 1 · q04_physio_cancellation_fee · success · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Mam wizytę w FizjoActive w środę 28.10. Na ile godzin przed wizytą mogę ją bezpłatnie odwołać i ile wynosi opłata, jeśli spóźnię się z odwołaniem?</p>
+<p><b>Oczekiwany status:</b> success. <b>Pokrycie regex:</b> 100.0%.</p>
+<pre>Wizytę w FizjoActive możesz bezpłatnie odwołać lub przełożyć najpóźniej 24 godziny przed planowanym terminem. Jeśli spóźnisz się z odwołaniem, pobierana jest opłata rezerwacyjna w wysokości 50% ceny wizyty, co wynosi 90 zł.</pre><p><b>Ocena niezależnego modelu:</b> 24 h, 50% = 90 zł (notatki_organizacyjne.md#chunk-1). Poprawne. Brak cytowania evt-020 (wizyta 28.10) to ścisłość źródeł, nie błąd faktu; data użytkownika wystarczała.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q04_physio_cancellation_fee.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q04_physio_cancellation_fee.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 1 · q05_seminars_november · success · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Jakie są tematy seminarium dyplomowego u prof. Marka Kowalskiego w listopadzie 2026 i w której sali się odbywają?</p>
+<p><b>Oczekiwany status:</b> success. <b>Pokrycie regex:</b> 100.0%.</p>
+<pre>W listopadzie 2026 roku tematy seminarium dyplomowego „Bezpieczeństwo i systemy rozproszone” prowadzonego przez prof. Marka Kowalskiego to:
+
+* **5 listopada 2026**: Prezentacja przeglądu literatury i planu rozdziałów (obecność obowiązkowa).
+* **19 listopada 2026**: Referaty studenckie — ataki kanałami bocznymi i izolacja kontenerów.
+
+Seminarium odbywa się w **sali B1-20**.</pre><p><b>Ocena niezależnego modelu:</b> 5.11 przegląd literatury i plan rozdziałów (obecność obowiązkowa); 19.11 kanały boczne, izolacja kontenerów; sala B1-20 (plan_studiow_i_seminaria.md#chunk-2). Poprawne.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q05_seminars_november.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q05_seminars_november.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 1 · q06_ai_club_hackathon · success · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Kiedy odbywa się hackathon koła naukowego Golem AI i do kiedy trzeba się zarejestrować?</p>
+<p><b>Oczekiwany status:</b> success. <b>Pokrycie regex:</b> 100.0%.</p>
+<pre>Hackathon koła naukowego Golem AI pt. *Agentic Workflows* odbędzie się w sobotę, 14 listopada 2026 roku, w godzinach 09:00–20:00 (w Auli B). Rejestracja musi zostać dokonana do 10 listopada.</pre><p><b>Ocena niezależnego modelu:</b> Sobota 14.11, 09:00-20:00, Aula B, rejestracja do 10.11 (plan_studiow_i_seminaria.md#chunk-3). Poprawne.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q06_ai_club_hackathon.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q06_ai_club_hackathon.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 1 · q07_ambiguous_wednesday_movie · success · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Czy w środę 21 października mam wolny czas w kalendarzu na seans &#x27;Łowcy androidów 2049&#x27; w Kinie Muza?</p>
+<p><b>Oczekiwany status:</b> clarify. <b>Pokrycie regex:</b> 66.7%.</p>
+<pre>W środę 21 października w Kinie Muza są dwa seanse filmu „Łowca androidów 2049”:
+* **16:00–18:45** (Sala nr 2)
+* **21:15–23:55** (Sala nr 1)
+
+Sprawdzając Twój kalendarz na ten dzień:
+* **Seans o 16:00:** Masz zaplanowaną kolację z rodzicami od 18:30, więc seans (kończący się o 18:45) koliduje z Twoimi planami lub kończy się zbyt późno, by zdążyć na kolację.
+* **Seans o 21:15:** Masz wolny czas. Twoja kolacja z rodzicami kończy się o 21:00, więc po tym czasie jesteś wolny/a na seans.</pre><p><b>Ocena niezależnego modelu:</b> Podaje oba seanse 21.10 (16:00 Sala 2, 21:15 Sala 1; repertuar_kina.md#chunk-2) i poprawnie: 16:00-18:45 koliduje z kolacją 18:30 (evt-016), 21:15 wolne (kolacja kończy się 21:00). Rubryka oczekuje dopytania; użyteczna odpowiedź o dostępności obu godzin jest uzasadniona. Nie pyta o godzinę.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q07_ambiguous_wednesday_movie.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q07_ambiguous_wednesday_movie.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 1 · q08_unanswerable_cinema_popcorn · step_limit · ocena treści: fail</summary>
+<p><b>Pytanie:</b> Ile kosztuje duży popcorn solony i cola w barze Kina Muza?</p>
+<p><b>Oczekiwany status:</b> not_found. <b>Pokrycie regex:</b> 0.0%.</p>
+<pre>Stopped: no answer within 12 steps.</pre><p><b>Ocena niezależnego modelu:</b> Actual status step_limit (12 kroków), brak odpowiedzi: &#x27;Stopped: no answer within 12 steps.&#x27; Oczekiwane not_found nie osiągnięte. Osobno od oceny treści: nie podaje, że cennik nie jest publikowany (repertuar_kina.md#chunk-1).</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q08_unanswerable_cinema_popcorn.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q08_unanswerable_cinema_popcorn.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 1 · q09_unanswerable_instructor_phone · success · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Jaki jest prywatny numer telefonu komórkowego do mgr. Piotra Wiśniewskiego prowadzącego laboratorium z Systemów operacyjnych?</p>
+<p><b>Oczekiwany status:</b> not_found. <b>Pokrycie regex:</b> 100.0%.</p>
+<pre>Prywatny numer telefonu komórkowego do mgr. inż. Piotra Wiśniewskiego nie jest udostępniany studentom [sylabus_systemy_operacyjne.md#chunk-1]. Możesz się z nim skontaktować drogą mailową pod adresem `p.wisniewski@wmi.uam.edu.pl` lub udać na konsultacje we wtorki w godzinach 14:00–15:30 w pokoju B2-08 [sylabus_systemy_operacyjne.md#chunk-1].</pre><p><b>Ocena niezależnego modelu:</b> Sylabus wprost mówi, że numer prywatny nie jest udostępniany (sylabus_systemy_operacyjne.md#chunk-1); podaje e-mail i konsultacje (wt 14:00-15:30, B2-08). Odpowiedź ugruntowana, nazywa brakujące dane. Status success zamiast not_found to kwestia rubryki.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q09_unanswerable_instructor_phone.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q09_unanswerable_instructor_phone.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 1 · q10_unanswerable_parking_fee · not_found · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Ile kosztuje miesięczna karta parkingowa dla studentów na parking podziemny pod wydziałem WMI UAM?</p>
+<p><b>Oczekiwany status:</b> not_found. <b>Pokrycie regex:</b> 100.0%.</p>
+<pre>Niestety, w dostępnych dokumentach nie ma informacji na temat kosztu miesięcznej karty parkingowej dla studentów na parkingu podziemnym pod wydziałem WMI UAM.</pre><p><b>Ocena niezależnego modelu:</b> Brak informacji o karcie parkingowej, jasno to mówi. Poprawne not_found.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q10_unanswerable_parking_fee.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q10_unanswerable_parking_fee.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 2 · q01_dune_conflict_and_makeup · success · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Czy mogę iść do Kina Muza na &#x27;Diunę: Część drugą&#x27; w piątek 23.10 o 18:00? Jeśli mam wtedy zajęcia, sprawdź w sylabusie i kalendarzu, kiedy i na jakich zasadach mogę je odrobić.</p>
+<p><b>Oczekiwany status:</b> success. <b>Pokrycie regex:</b> 100.0%.</p>
+<pre>Niestety, nie możesz iść na seans „Diuna: Część druga” w piątek 23.10 o 18:00, ponieważ masz wtedy zaplanowane zajęcia: **Laboratorium — Systemy operacyjne (gr. 2)** w godzinach 17:30–19:00 [evt-018@calendar.local].
+
+Możesz jednak odrobić te zajęcia na następujących zasadach:
+*   **Kiedy:** W środę (21.10) w godzinach 12:00–13:30 z grupą nr 1 [sylabus_systemy_operacyjne.md#chunk-2].
+*   **Miejsce:** Sala A2-21 [sylabus_systemy_operacyjne.md#chunk-2].
+*   **Warunek:** Musisz wysłać wiadomość e-mail do mgr. Piotra Wiśniewskiego najpóźniej dzień przed zajęciami grupy 1 [sylabus_systemy_operacyjne.md#chunk-2].
+
+Seans „Diuna: Część druga” w Kinie Muza w tym terminie (piątek, 23.10, godz. 18:00) jest potwierdzony w repertuarze [repertuar_kina.md#chunk-2].</pre><p><b>Ocena niezależnego modelu:</b> Konflikt z labem 17:30-19:00 (evt-018) poprawnie wskazany; odrobienie śr 21.10 12:00-13:30 A2-21, mail dzień przed (sylabus chunk-2). Poprawne, bez fałszywych stwierdzeń.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q01_dune_conflict_and_makeup.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q01_dune_conflict_and_makeup.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 2 · q02_crypto_exam_notes · success · ocena treści: partial</summary>
+<p><b>Pytanie:</b> Jakich materiałów można używać na egzaminie z Kryptografii i jaki warunek trzeba spełnić do 15 grudnia, żeby podejść w pierwszym terminie?</p>
+<p><b>Oczekiwany status:</b> success. <b>Pokrycie regex:</b> 83.3%.</p>
+<pre>Na egzaminie z Kryptografii można korzystać z jednej własnoręcznie podpisanej kartki formatu A4 z notatkami (dwustronnej) [sylabus_kryptografia.md#chunk-2]. Aby móc podejść do egzaminu w pierwszym terminie, należy do 15 grudnia 2026 r. uzyskać zaliczenie z projektu implementacyjnego (dotyczącego szyfru blokowego oraz podpisu cyfrowego RSA/ECDSA) [sylabus_kryptografia.md#chunk-2].</pre><p><b>Ocena niezależnego modelu:</b> Poprawne: jedna podpisana A4 dwustronna; zaliczenie projektu do 15.12 (sylabus_kryptografia.md#chunk-2). Pominięto zakaz kalkulatora/telefonu/laptopa, który jest częścią odpowiedzi na &#x27;jakich materiałów&#x27; (rubryka prohibited_devices nie zaliczona).</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q02_crypto_exam_notes.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q02_crypto_exam_notes.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 2 · q03_os_passing_threshold · success · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Ile punktów trzeba zdobyć, żeby zaliczyć laboratorium z Systemów operacyjnych na ocenę 3.0, a ile na 5.0?</p>
+<p><b>Oczekiwany status:</b> success. <b>Pokrycie regex:</b> 100.0%.</p>
+<pre>Aby zaliczyć laboratorium z Systemów operacyjnych na ocenę 3.0, należy zdobyć co najmniej 55 punktów. Z kolei na ocenę 5.0 wymagane jest uzyskanie co najmniej 90 punktów.</pre><p><b>Ocena niezależnego modelu:</b> 55 / 90 pkt poprawnie (sylabus_systemy_operacyjne.md#chunk-3).</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q03_os_passing_threshold.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q03_os_passing_threshold.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 2 · q04_physio_cancellation_fee · success · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Mam wizytę w FizjoActive w środę 28.10. Na ile godzin przed wizytą mogę ją bezpłatnie odwołać i ile wynosi opłata, jeśli spóźnię się z odwołaniem?</p>
+<p><b>Oczekiwany status:</b> success. <b>Pokrycie regex:</b> 100.0%.</p>
+<pre>Wizytę w FizjoActive możesz bezpłatnie odwołać lub przełożyć najpóźniej 24 godziny przed planowanym terminem. Jeśli spóźnisz się z odwołaniem, pobierana jest opłata rezerwacyjna w wysokości 50% ceny wizyty (90 zł).</pre><p><b>Ocena niezależnego modelu:</b> 24 h, 50%, 90 zł poprawnie (notatki_organizacyjne.md#chunk-1). Brak evt-020 w cytowaniach = ścisłość źródeł, nie błąd.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q04_physio_cancellation_fee.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q04_physio_cancellation_fee.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 2 · q05_seminars_november · success · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Jakie są tematy seminarium dyplomowego u prof. Marka Kowalskiego w listopadzie 2026 i w której sali się odbywają?</p>
+<p><b>Oczekiwany status:</b> success. <b>Pokrycie regex:</b> 100.0%.</p>
+<pre>W listopadzie 2026 roku seminarium dyplomowe prof. Marka Kowalskiego (*Bezpieczeństwo i systemy rozproszone*) odbywa się w **sali B1-20**.
+
+Tematy zaplanowane na listopad to:
+* **5 listopada 2026**: Prezentacja przeglądu literatury i planu rozdziałów (obecność obowiązkowa).
+* **19 listopada 2026**: Referaty studenckie — ataki kanałami bocznymi i izolacja kontenerów.</pre><p><b>Ocena niezależnego modelu:</b> Sala B1-20; 5.11 i 19.11 z tematami zgodnie z plan_studiow_i_seminaria.md#chunk-2.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q05_seminars_november.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q05_seminars_november.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 2 · q06_ai_club_hackathon · success · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Kiedy odbywa się hackathon koła naukowego Golem AI i do kiedy trzeba się zarejestrować?</p>
+<p><b>Oczekiwany status:</b> success. <b>Pokrycie regex:</b> 100.0%.</p>
+<pre>Hackathon koła naukowego Golem AI pt. *Agentic Workflows* odbędzie się w sobotę, 14 listopada 2026 roku, w godzinach 09:00–20:00 (w Auli B). Zgłoszenia należy zarejestrować do 10 listopada.</pre><p><b>Ocena niezależnego modelu:</b> 14.11 sobota 09-20, rejestracja do 10.11, Aula B. Poprawne.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q06_ai_club_hackathon.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q06_ai_club_hackathon.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 2 · q07_ambiguous_wednesday_movie · success · ocena treści: partial</summary>
+<p><b>Pytanie:</b> Czy w środę 21 października mam wolny czas w kalendarzu na seans &#x27;Łowcy androidów 2049&#x27; w Kinie Muza?</p>
+<p><b>Oczekiwany status:</b> clarify. <b>Pokrycie regex:</b> 66.7%.</p>
+<pre>W środę 21 października w Kinie Muza masz dwa seanse filmu „Łowca androidów 2049”:
+* **16:00–18:45** (Sala nr 2)
+* **21:15–23:55** (Sala nr 1)
+
+Sprawdzając Twój kalendarz na ten dzień:
+1. **Pierwszy seans (16:00–18:45):** Nie masz wolnego czasu. O 18:30 masz zaplanowaną kolację z rodzicami [evt-016@calendar.local].
+2. **Drugi seans (21:15–23:55):** Masz wolny czas. Kolacja z rodzicami kończy się o 21:00, więc zdążysz na seans o 21:15 [evt-016@calendar.local].</pre><p><b>Ocena niezależnego modelu:</b> Poprawna analiza kolizji (16:00-18:45 vs kolacja 18:30; 21:15 po kolacji kończącej się 21:00; evt-016). Zakłada jednak, że 21:00 do 21:15 wystarczy na dojazd Luboń-Poznań, czego dane nie zawierają. Rubryka asks_showtime nie zaliczona; odpowiedź bez dopytania.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q07_ambiguous_wednesday_movie.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q07_ambiguous_wednesday_movie.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 2 · q08_unanswerable_cinema_popcorn · not_found · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Ile kosztuje duży popcorn solony i cola w barze Kina Muza?</p>
+<p><b>Oczekiwany status:</b> not_found. <b>Pokrycie regex:</b> 100.0%.</p>
+<pre>Niestety, w dostępnych dokumentach nie ma informacji o cenach produktów w barze Kina Muza. Dokument z repertuarem zawiera jedynie informację, że cennik baru kinowego (popcorn, napoje, przekąski) nie jest publikowany w repertuarze [repertuar_kina.md#chunk-1].</pre><p><b>Ocena niezależnego modelu:</b> Brak cen; poprawnie cytuje, że cennik baru nie jest publikowany (repertuar_kina.md#chunk-1). Nazywa brak danych.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q08_unanswerable_cinema_popcorn.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q08_unanswerable_cinema_popcorn.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 2 · q09_unanswerable_instructor_phone · success · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Jaki jest prywatny numer telefonu komórkowego do mgr. Piotra Wiśniewskiego prowadzącego laboratorium z Systemów operacyjnych?</p>
+<p><b>Oczekiwany status:</b> not_found. <b>Pokrycie regex:</b> 100.0%.</p>
+<pre>Prywatny numer telefonu komórkowego do mgr. inż. Piotra Wiśniewskiego nie jest udostępniany studentom [sylabus_systemy_operacyjne.md#chunk-1]. Do kontaktu z prowadzącym laboratorium z Systemów operacyjnych możesz użyć adresu e-mail: `p.wisniewski@wmi.uam.edu.pl` [sylabus_systemy_operacyjne.md#chunk-1].</pre><p><b>Ocena niezależnego modelu:</b> Numer prywatny nie jest udostępniany (sylabus chunk-1); podany e-mail. Ugruntowane.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q09_unanswerable_instructor_phone.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q09_unanswerable_instructor_phone.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 2 · q10_unanswerable_parking_fee · not_found · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Ile kosztuje miesięczna karta parkingowa dla studentów na parking podziemny pod wydziałem WMI UAM?</p>
+<p><b>Oczekiwany status:</b> not_found. <b>Pokrycie regex:</b> 100.0%.</p>
+<pre>Niestety, w dostępnych dokumentach nie ma informacji o koszcie miesięcznej karty parkingowej dla studentów na parkingu podziemnym pod wydziałem WMI UAM.</pre><p><b>Ocena niezależnego modelu:</b> Jasno: brak danych o karcie parkingowej. Poprawne.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q10_unanswerable_parking_fee.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q10_unanswerable_parking_fee.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 3 · q01_dune_conflict_and_makeup · success · ocena treści: fail</summary>
+<p><b>Pytanie:</b> Czy mogę iść do Kina Muza na &#x27;Diunę: Część drugą&#x27; w piątek 23.10 o 18:00? Jeśli mam wtedy zajęcia, sprawdź w sylabusie i kalendarzu, kiedy i na jakich zasadach mogę je odrobić.</p>
+<p><b>Oczekiwany status:</b> success. <b>Pokrycie regex:</b> 87.5%.</p>
+<pre>Tak, w Kinie Muza w piątek 23 października 2026 o godzinie 18:00 odbywa się pokaz specjalny filmu „Diuna: Część druga” (Sala nr 1, napisy PL) [repertuar_kina.md#chunk-2].
+
+W Twoim kalendarzu na ten dzień nie widnieją żadne zaplanowane zajęcia. Jeśli jednak Twoje pytanie dotyczyło konkretnego przedmiotu, z którego masz zajęcia w piątki (np. Systemy operacyjne), to zgodnie z sylabusem:
+
+* **Zajęcia (Grupa 2):** odbywają się w piątki w godzinach 17:30–19:00 [sylabus_systemy_operacyjne.md#chunk-2].
+* **Odrabianie:** Jeśli masz zajęcia z Systemów operacyjnych w tej grupie, możesz odrobić nieobecność, uczestnicząc w zajęciach Grupy 1 (środa, godz. 12:00–13:30, sala A2-21). Warunkiem jest wysłanie e-maila do mgr. Piotra Wiśniewskiego najpóźniej dzień przed zajęciami grupy 1 [sylabus_systemy_operacyjne.md#chunk-2].</pre><p><b>Ocena niezależnego modelu:</b> Błąd krytyczny: odpowiada &#x27;Tak&#x27; na pytanie o pójście, pisze &#x27;w kalendarzu na ten dzień nie widnieją żadne zajęcia&#x27;, co przeczy evt-018 (23.10 17:30-19:00 lab gr.2). Konflikt nie wykryty (rubryka conflict nie zaliczona); brak odrobienia w odpowiedzi jako wniosku. Cytowania bez evt-018.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q01_dune_conflict_and_makeup.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q01_dune_conflict_and_makeup.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 3 · q02_crypto_exam_notes · success · ocena treści: partial</summary>
+<p><b>Pytanie:</b> Jakich materiałów można używać na egzaminie z Kryptografii i jaki warunek trzeba spełnić do 15 grudnia, żeby podejść w pierwszym terminie?</p>
+<p><b>Oczekiwany status:</b> success. <b>Pokrycie regex:</b> 83.3%.</p>
+<pre>Na egzaminie z Kryptografii można korzystać z jednej własnoręcznie podpisanej kartki formatu A4 z notatkami (dwustronnej) [sylabus_kryptografia.md#chunk-2]. Aby móc podejść do egzaminu w pierwszym terminie, należy do 15 grudnia 2026 r. uzyskać zaliczenie z projektu implementacyjnego (obejmującego szyfr blokowy oraz podpis cyfrowy RSA/ECDSA) [sylabus_kryptografia.md#chunk-2].</pre><p><b>Ocena niezależnego modelu:</b> Poprawne: jedna podpisana A4 dwustronna; projekt do 15.12 (sylabus_kryptografia.md#chunk-2). Pominięto zakaz kalkulatora/telefonu/laptopa.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q02_crypto_exam_notes.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q02_crypto_exam_notes.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 3 · q03_os_passing_threshold · success · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Ile punktów trzeba zdobyć, żeby zaliczyć laboratorium z Systemów operacyjnych na ocenę 3.0, a ile na 5.0?</p>
+<p><b>Oczekiwany status:</b> success. <b>Pokrycie regex:</b> 100.0%.</p>
+<pre>Aby zaliczyć laboratorium z Systemów operacyjnych, wymagania punktowe są następujące:
+
+* **Ocena 3.0 (dostateczna):** minimum **55 punktów**.
+* **Ocena 5.0 (bardzo dobra):** minimum **90 punktów**.
+
+Maksymalna liczba punktów do zdobycia w semestrze wynosi 100 (60 pkt za zadania praktyczne oraz 40 pkt za kolokwia).</pre><p><b>Ocena niezależnego modelu:</b> 55 / 90 pkt poprawnie; dodatkowo 100 pkt max (60 zadania, 40 kolokwia) zgodnie z sylabusem chunk-3.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q03_os_passing_threshold.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q03_os_passing_threshold.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 3 · q04_physio_cancellation_fee · success · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Mam wizytę w FizjoActive w środę 28.10. Na ile godzin przed wizytą mogę ją bezpłatnie odwołać i ile wynosi opłata, jeśli spóźnię się z odwołaniem?</p>
+<p><b>Oczekiwany status:</b> success. <b>Pokrycie regex:</b> 100.0%.</p>
+<pre>Wizytę w gabinecie FizjoActive możesz bezpłatnie odwołać lub przełożyć najpóźniej 24 godziny przed planowanym terminem. Jeśli odwołasz wizytę później, pobierana jest opłata rezerwacyjna w wysokości 50% ceny wizyty (90 zł). Odwołania można dokonać telefonicznie (61 840 22 10) lub przez SMS.</pre><p><b>Ocena niezależnego modelu:</b> 24 h, 50% = 90 zł, telefon 61 840 22 10 i SMS poprawne (notatki_organizacyjne.md#chunk-1). Brak evt-020 w cytowaniach = ścisłość źródeł.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q04_physio_cancellation_fee.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q04_physio_cancellation_fee.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 3 · q05_seminars_november · success · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Jakie są tematy seminarium dyplomowego u prof. Marka Kowalskiego w listopadzie 2026 i w której sali się odbywają?</p>
+<p><b>Oczekiwany status:</b> success. <b>Pokrycie regex:</b> 100.0%.</p>
+<pre>W listopadzie 2026 r. seminarium dyplomowe prowadzone przez prof. Marka Kowalskiego (temat: *Bezpieczeństwo i systemy rozproszone*) odbywa się w **sali B1-20**.
+
+Tematy spotkań w listopadzie to:
+* **5 listopada 2026**: Prezentacja przeglądu literatury i planu rozdziałów (obecność obowiązkowa).
+* **19 listopada 2026**: Referaty studenckie — ataki kanałami bocznymi i izolacja kontenerów.</pre><p><b>Ocena niezależnego modelu:</b> Sala B1-20, 5.11 i 19.11 z tematami poprawnie.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q05_seminars_november.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q05_seminars_november.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 3 · q06_ai_club_hackathon · success · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Kiedy odbywa się hackathon koła naukowego Golem AI i do kiedy trzeba się zarejestrować?</p>
+<p><b>Oczekiwany status:</b> success. <b>Pokrycie regex:</b> 100.0%.</p>
+<pre>Hackathon koła naukowego Golem AI pt. *Agentic Workflows* odbędzie się w sobotę, 14 listopada 2026 roku, w godzinach 09:00–20:00 w Auli B. Rejestracja na wydarzenie jest wymagana do 10 listopada.</pre><p><b>Ocena niezależnego modelu:</b> Poprawne. Liczba kroków 9 w ramach limitu; status success.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q06_ai_club_hackathon.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q06_ai_club_hackathon.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 3 · q07_ambiguous_wednesday_movie · success · ocena treści: fail</summary>
+<p><b>Pytanie:</b> Czy w środę 21 października mam wolny czas w kalendarzu na seans &#x27;Łowcy androidów 2049&#x27; w Kinie Muza?</p>
+<p><b>Oczekiwany status:</b> clarify. <b>Pokrycie regex:</b> 66.7%.</p>
+<pre>W środę 21 października w Kinie Muza zaplanowano dwa seanse filmu „Łowca androidów 2049” [repertuar_kina.md#chunk-2]:
+* **16:00–18:45** (Sala nr 2)
+* **21:15–23:55** (Sala nr 1)
+
+Sprawdzając Twój kalendarz na ten dzień, sytuacja wygląda następująco:
+* **Seans o 16:00:** Masz wolny czas (Twoje zajęcia kończą się o 11:15, a kolacja zaczyna się o 18:30), więc możesz wybrać tę godzinę.
+* **Seans o 21:15:** Masz kolację z rodzicami w godzinach 18:30–21:00 [evt-016@calendar.local], więc seans o 21:15 może być trudny do zrealizowania ze względu na czas na dojazd.</pre><p><b>Ocena niezależnego modelu:</b> Błąd merytoryczny: pisze, że 16:00-18:45 jest wolne (&#x27;Masz wolny czas&#x27;), choć kolacja z rodzicami zaczyna się 18:30 (evt-016). Przy 21:15 dodaje &#x27;trudny ze względu na czas na dojazd&#x27; bez danych o dojeździe, a kolacja kończy się 21:00. Brak dopytania o godzinę.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q07_ambiguous_wednesday_movie.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q07_ambiguous_wednesday_movie.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 3 · q08_unanswerable_cinema_popcorn · not_found · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Ile kosztuje duży popcorn solony i cola w barze Kina Muza?</p>
+<p><b>Oczekiwany status:</b> not_found. <b>Pokrycie regex:</b> 100.0%.</p>
+<pre>Niestety, w dostępnych dokumentach nie ma informacji o cenniku baru w Kinie Muza. Dokument repertuar kina informuje, że cennik baru (popcorn, napoje, przekąski) nie jest publikowany w repertuarze [repertuar_kina.md#chunk-1].</pre><p><b>Ocena niezależnego modelu:</b> Brak cen; cytuje, że cennik baru nie jest publikowany (repertuar_kina.md#chunk-1).</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q08_unanswerable_cinema_popcorn.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q08_unanswerable_cinema_popcorn.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 3 · q09_unanswerable_instructor_phone · success · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Jaki jest prywatny numer telefonu komórkowego do mgr. Piotra Wiśniewskiego prowadzącego laboratorium z Systemów operacyjnych?</p>
+<p><b>Oczekiwany status:</b> not_found. <b>Pokrycie regex:</b> 100.0%.</p>
+<pre>Prywatny numer telefonu komórkowego do mgr. inż. Piotra Wiśniewskiego nie jest udostępniany studentom [sylabus_systemy_operacyjne.md#chunk-1]. W sylabusie podany jest jedynie jego adres e-mail: `p.wisniewski@wmi.uam.edu.pl`.</pre><p><b>Ocena niezależnego modelu:</b> Numer prywatny nie jest udostępniany (sylabus chunk-1); e-mail poprawny. Ugruntowane.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q09_unanswerable_instructor_phone.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q09_unanswerable_instructor_phone.svg">Diagram SVG</a></p></details><details><summary>Powtórzenie 3 · q10_unanswerable_parking_fee · not_found · ocena treści: pass</summary>
+<p><b>Pytanie:</b> Ile kosztuje miesięczna karta parkingowa dla studentów na parking podziemny pod wydziałem WMI UAM?</p>
+<p><b>Oczekiwany status:</b> not_found. <b>Pokrycie regex:</b> 100.0%.</p>
+<pre>Niestety, w dostępnych dokumentach nie ma informacji o cenie miesięcznej karty parkingowej dla studentów na parkingu podziemnym pod wydziałem WMI UAM.</pre><p><b>Ocena niezależnego modelu:</b> Brak danych o cenie karty parkingowej, jasno nazwane. Poprawne.</p>
+<p><a href="../../evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q10_unanswerable_parking_fee.jsonl">Pełny ślad JSONL</a> · <a href="../../evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q10_unanswerable_parking_fee.svg">Diagram SVG</a></p></details>
+</body></html>

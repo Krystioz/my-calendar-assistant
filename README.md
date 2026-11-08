@@ -102,8 +102,9 @@ nothing.
   a different keyword (entries are in Polish, questions may be in English); a
   missing entry leads to an explicit "not found" instead of a guess. A fixed
   pipeline cannot make these choices.
-- **Planned data:** a local `.ics` calendar (`data/calendar.ics`, 22 fictional
-  events) and, later, documents such as syllabi and schedules. A real Google
+- **Data:** a local `.ics` calendar (`data/calendar.ics`, 22 fictional
+  events) and six fictional documents in `data/docs/` (19 indexed fragments).
+  A real Google
   Calendar is a later backend; evaluation always uses the fixed fictional file.
 - **Tools:** read-only `search_events` and `free_busy`, reversible
   `create_event`, and sensitive `delete_event` that needs the user's
@@ -175,8 +176,10 @@ flowchart TD
     R --> M
 ```
 - **The run ends** (`src/agent_project/agent.py`) when the model calls
-  `finish` with outcome `answered` (status `success`) or `not_found`, replies
-  without a tool call (`success`), the model call fails or three tool requests
+  `finish` with outcome `answered` (status `success`), `not_found`, or `clarify`.
+  A plain text response is retained in context and sent back to the model with
+  a request to call `finish`; it cannot silently become `success`.
+  Technical exits remain possible when the model call fails or three tool requests
   in a row are rejected (`error`), after 12 steps (`step_limit`), or when the
   cost exceeds USD 0.10 (`cost_limit`).
 - **Every run is traced** as JSON Lines: `run_start`, one `model_call` per step
@@ -190,6 +193,9 @@ flowchart TD
 - `src/agent_project/tools.py` — calendar loading and saving, the four tools,
   request checks and the confirmation rule;
 - `src/agent_project/agent.py` — the bounded agent loop and tracing;
+- `src/agent_project/rag.py` — local FastEmbed index and semantic retrieval;
+- `src/agent_project/eval_rag.py` — separate retrieval and answer evaluation;
+- `src/agent_project/trace_graph.py` — automatic SVG/Mermaid run diagrams;
 - `src/agent_project/cli.py` — command line entry point and the `y/N` prompt;
 - `src/agent_project/mcp_server.py` — local MCP server over the same tools;
 - `src/agent_project/llm.py`, `tracing.py` — course starter code (OpenRouter
@@ -206,6 +212,34 @@ flowchart TD
 - Each agent run is capped at 12 model steps and USD 0.10; a typical run costs
   well under USD 0.01.
 - Tests use the mock client and make no API calls.
+
+## M3 checkpoint: state, RAG and execution graphs
+
+The [checkpoint report](evidence/m3/report.html) contains measured retrieval
+results, three repetitions of all ten evaluation questions, a separate answer
+assessment, failure analyses, and links to traces and run diagrams. The
+[manifest](evidence/m3/manifest.json) records file hashes and dependency versions.
+All documents and calendar events used for this evaluation are fictional.
+
+```powershell
+# Local retrieval evaluation; no OpenRouter calls.
+.venv\Scripts\python.exe -m agent_project.eval_rag --output-dir traces/evaluation
+# Three repetitions, with a total spending limit; requires a configured .env.
+.venv\Scripts\python.exe -m agent_project.eval_rag --live --repeats 3 --max-cost-usd 0.25 --output-dir traces/evaluation
+```
+
+Every invocation creates a fresh directory. Results include per-question
+answers, fact-rubric checks, outcomes, citations, costs, and per-repetition
+mean/worst aggregates. Expected labels never influence agent execution.
+Regex fact coverage measures observable phrases, not semantic correctness;
+the report includes a separate qualitative review by another model and
+documents weaknesses of the rubric. A retrieved citation ID does not prove
+that every statement in an answer follows from that source.
+
+`clarify` returns a clarifying question and ends the current CLI invocation.
+Automatic conversation resumption and a persistent LangGraph checkpointer
+are not implemented. State persists during the run; JSONL traces record it
+for debugging. See the report for remaining model-quality failures.
 
 ## Design Notes
 
