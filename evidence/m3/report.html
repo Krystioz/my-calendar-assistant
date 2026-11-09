@@ -91,6 +91,19 @@ Przypadek uzasadnia osobną ocenę wyszukiwania i odpowiedzi.</p>
 <li>Dopytanie: <a href="clarification-live.jsonl">JSONL</a> · <a href="diagrams/clarification-live.svg">SVG</a></li></ul>
 <p>Udany przykład q01 z powtórzenia 2 zawiera pierwsze pobranie repertuaru, wynik kalendarza wskazujący kolizję,
 drugie wyszukanie zasad odrabiania i odpowiedź z trzema zweryfikowanymi źródłami. Pokazuje zmianę kroku pod wpływem niekompletnych dowodów.</p>
+<h2 id="citation-hardening">Uzupełnienie 2026-11-09: uszczelnienie cytowań</h2>
+<p>Zamknięto oba obejścia wykryte podczas weryfikacji zakresu: grupowane cytowania inline oraz cytowania w wynikach clarify i not_found.
+Wspólna walidacja finish sprawdza wszystkie ID z listy i nawiasów, także rozdzielone przecinkiem lub średnikiem.
+Brak cytowań jest dozwolony dla dopytania i abstencji; podane cytowania zawsze muszą pochodzić z pobranych źródeł.
+Błędne zakończenie wraca do modelu jako obserwacja błędu. Powtarzanie błędu kończy się limitem odrzuceń.</p>
+<p>17 nowych regresji nie przechodziło przed poprawką; wszystkie przechodzą po poprawce. Sprawdzają każdy wynik zakończenia,
+samodzielne finish i finish w paczce z narzędziami, metadane cytowań oraz ograniczenie ponowień.
+<a href="citation-hardening/results.json">Wyniki i ślady regresji</a>. To testy deterministyczne z MockClient, rzeczywistym grafem i walidatorem, bez nowych płatnych wywołań LLM.
+Topologia grafu pozostaje bez zmian: 6 węzłów roboczych i 16 przejść.</p>
+<p>Wyniki 30 prób live w tym raporcie pochodzą z wersji sprzed uszczelnienia cytowań (commit a4e0ee4).
+Nie przeliczano ich ani nie uruchamiano ponownie. Aktualna weryfikacja to 100 testów i kontrole Ruff.
+Walidacja nadal dotyczy pochodzenia źródeł, a nie semantycznej poprawności każdego twierdzenia.</p>
+<p>Skróty SHA-256 w manifeście dotyczą tekstu po normalizacji CRLF do LF, dzięki czemu zgadzają się również po klonowaniu repozytorium na innym systemie.</p>
 <h2>Jak odtworzyć</h2>
 <p>Uruchamiaj z katalogu głównego repo, z istniejącym środowiskiem i kluczem OpenRouter w lokalnym <code>.env</code>.
 Pierwsze pobranie modelu embeddingowego wymaga sieci; następne używają cache.
@@ -101,7 +114,7 @@ Ewaluacja live tworzy nowy katalog, żeby nie dopisywać śladów do poprzedniej
 .venv\Scripts\python.exe -m agent_project.eval_rag --live --repeats 3 --max-cost-usd 0.25 --output-dir traces/evaluation</pre>
 <p>Bez <code>--live</code> mierzony jest tylko lokalny retrieval. Aby odbudować indeks z tych samych dokumentów:</p>
 <pre>.venv\Scripts\python.exe -c "from agent_project.rag import DocumentIndex; DocumentIndex.build()"</pre>
-<p>Wynik uruchomionych kontroli: <b>83 testy przechodzą</b>, <code>ruff check</code> oraz <code>ruff format --check</code> bez uwag.
+<p>Wynik uruchomionych kontroli: <b>100 testów przechodzi</b>, <code>ruff check</code> oraz <code>ruff format --check</code> bez uwag.
 <a href="validation.txt">Zapis kontroli</a>. Wersje środowiska i skróty plików: manifest.
 Wyniki LLM są zmienne nawet przy temperaturze 0. Budżet jest sprawdzany po odpowiedzi dostawcy i może być przekroczony o koszt jednego wywołania.</p>
 <h2>Wszystkie 30 odpowiedzi</h2><details><summary>Powtórzenie 1 · q01_dune_conflict_and_makeup · success · ocena treści: pass</summary>

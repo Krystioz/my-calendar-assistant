@@ -126,6 +126,116 @@ def test_verify_citations_requires_at_least_one_and_all_valid() -> None:
     assert cited == ["repertuar_kina.md#chunk-2", "evt-018@calendar.local"]
 
 
+@pytest.mark.parametrize("separator", [", ", "; ", ",\n"])
+def test_grouped_inline_citations_cannot_hide_an_unretrieved_source(separator):
+    known = "repertuar_kina.md#chunk-2"
+    fake = "zmyślone.md#chunk-99"
+    ok, cited, error = verify_citations_in_code(
+        f"Seans [{known}{separator}{fake}].", [known], {known}, True
+    )
+    assert not ok
+    assert fake in cited
+    assert error["error"]["code"] == "unverified_citations"
+
+
+def test_grouped_verified_citations_include_created_event_ids():
+    sources = ["repertuar_kina.md#chunk-2", "agent-abcd1234@calendar.local"]
+    ok, cited, error = verify_citations_in_code(
+        f"Zapisano [{', '.join(sources)}].", [], set(sources), True
+    )
+    assert ok
+    assert cited == sources
+    assert error is None
+
+
+@pytest.mark.parametrize("outcome", ["answered", "clarify", "not_found"])
+@pytest.mark.parametrize("batch", ["single", "calendar", "documents"])
+def test_every_finish_path_rejects_grouped_fake_citations(
+    tmp_path, doc_index, outcome, batch
+):
+    known = "evt-018@calendar.local"
+    invalid_finish = (
+        "finish",
+        {
+            "outcome": outcome,
+            "answer": f"Informacja [{known}, zmyślone.md#chunk-99].",
+            "citations": [known],
+        },
+    )
+    calls = []
+    if batch == "calendar":
+        calls.append(("search_events", {"query": "dentysta"}))
+    elif batch == "documents":
+        calls.append(("search_docs", {"query": "Diuna", "top_k": 1}))
+    result, events = run(
+        [
+            reply(
+                ("free_busy", {"start": "2026-10-23T18:00", "end": "2026-10-23T20:45"})
+            ),
+            reply(*calls, invalid_finish),
+            reply(
+                (
+                    "finish",
+                    {"outcome": outcome, "answer": "Poprawiono.", "citations": [known]},
+                )
+            ),
+        ],
+        tmp_path,
+        doc_index,
+    )
+    assert result.status == ("success" if outcome == "answered" else outcome)
+    assert result.answer == "Poprawiono."
+    assert result.steps == 3
+    assert result.citations == [known]
+    assert any(
+        e["event"] == "tool_result"
+        and e["payload"].get("error", {}).get("code") == "unverified_citations"
+        for e in events
+    )
+
+
+@pytest.mark.parametrize("outcome", ["clarify", "not_found"])
+def test_nonanswer_metadata_citations_are_validated(tmp_path, doc_index, outcome):
+    result, events = run(
+        [
+            reply(
+                (
+                    "finish",
+                    {
+                        "outcome": outcome,
+                        "answer": "Brak danych.",
+                        "citations": ["fake.md#chunk-99"],
+                    },
+                )
+            ),
+            reply(("finish", {"outcome": outcome, "answer": "Bez cytowań."})),
+        ],
+        tmp_path,
+        doc_index,
+        require_citations=True,
+    )
+    assert result.status == outcome
+    assert result.answer == "Bez cytowań."
+    assert result.steps == 2
+    assert result.citations == []
+    assert any(
+        e["event"] == "tool_result"
+        and e["payload"].get("error", {}).get("code") == "unverified_citations"
+        for e in events
+    )
+
+
+@pytest.mark.parametrize("outcome", ["clarify", "not_found"])
+def test_repeated_nonanswer_fake_citations_stop_without_exposing_them(
+    tmp_path, doc_index, outcome
+):
+    bad = reply(("finish", {"outcome": outcome, "answer": "Brak [fake.md#chunk-99]."}))
+    result, _ = run([bad] * 3, tmp_path, doc_index)
+    assert result.status == "error"
+    assert result.steps == 3
+    assert "fake.md" not in result.answer
+
+
 def test_first_retrieval_insufficient_leads_to_second_search_and_verified_answer(
     tmp_path, doc_index: DocumentIndex
 ) -> None:

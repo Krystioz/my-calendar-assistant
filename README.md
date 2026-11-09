@@ -236,6 +236,14 @@ the report includes a separate qualitative review by another model and
 documents weaknesses of the rubric. A retrieved citation ID does not prove
 that every statement in an answer follows from that source.
 
+Every `finish` outcome validates both inline source IDs and the `citations`
+list before it can end the run. Groups separated by commas or semicolons
+are checked in full. `clarify` and `not_found` may omit citations, but any
+citations they include must come from retrieved sources. Rejected citations
+return an error observation to the model and remain subject to the retry limit.
+Deterministic [regression traces](evidence/m3/citation-hardening/results.json)
+cover this guard; the original live evaluation predates the citation fix.
+
 `clarify` returns a clarifying question and ends the current CLI invocation.
 Automatic conversation resumption and a persistent LangGraph checkpointer
 are not implemented. State persists during the run; JSONL traces record it

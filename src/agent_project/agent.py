@@ -27,7 +27,7 @@ MAX_CALLS_PER_STEP = 5
 MAX_CONSECUTIVE_REJECTIONS = 3
 
 INLINE_CITATION_RE = re.compile(
-    r"\[([a-zA-Z0-9_.-]+\.md#chunk-\d+|evt-[a-zA-Z0-9_-]+@calendar\.local)\]"
+    r"\[([^\[\]]*(?:#chunk-|@calendar\.local)[^\[\]]*)\]", re.IGNORECASE
 )
 
 SYSTEM_PROMPT = """\
@@ -146,7 +146,12 @@ def verify_citations_in_code(
     require_citations: bool,
 ) -> tuple[bool, list[str], dict[str, Any] | None]:
     """Verify in code that every citation is in retrieved_ids and >=1 when required."""
-    inline_ids = INLINE_CITATION_RE.findall(answer)
+    inline_ids = [
+        source.strip()
+        for group in INLINE_CITATION_RE.findall(answer)
+        for source in re.split(r"[,;]", group)
+        if source.strip()
+    ]
     all_cited = list(
         dict.fromkeys([*(c.strip() for c in citations if c.strip()), *inline_ids])
     )
@@ -340,7 +345,11 @@ def build_agent_graph(
         # Decide which explicit graph node handles the requested action.
         first_finish = next((c for c in calls if c["name"] == "finish"), None)
         if first_finish is not None and len(calls) == 1:
-            parsed = _parse_finish(first_finish["arguments"])
+            parsed = _parse_finish(
+                first_finish["arguments"],
+                state["retrieved_ids"],
+                require_citations or bool(state["doc_retrieved_ids"]),
+            )
             if isinstance(parsed, FinishArgs):
                 if parsed.outcome == "clarify":
                     next_step: NextNode = "ask_clarification"
@@ -371,46 +380,26 @@ def build_agent_graph(
 
         for index, call in enumerate(state["pending_calls"]):
             if call["name"] == "finish":
-                finished = _parse_finish(call["arguments"])
+                finished = _parse_finish(
+                    call["arguments"],
+                    retrieved_ids,
+                    require_citations or bool(doc_retrieved_ids),
+                )
                 if isinstance(finished, FinishArgs):
-                    if finished.outcome == "not_found":
-                        return {
-                            "messages": messages,
-                            "retrieved_ids": retrieved_ids,
-                            "doc_retrieved_ids": doc_retrieved_ids,
-                            "status": "not_found",
-                            "answer": finished.answer,
-                            "next_node": "end",
-                        }
-                    if finished.outcome == "clarify":
-                        return {
-                            "messages": messages,
-                            "retrieved_ids": retrieved_ids,
-                            "doc_retrieved_ids": doc_retrieved_ids,
-                            "status": "clarify",
-                            "answer": finished.answer,
-                            "next_node": "end",
-                        }
-                    must_cite = require_citations or bool(doc_retrieved_ids)
-                    ok, cited, err_obs = verify_citations_in_code(
-                        finished.answer,
-                        finished.citations,
-                        retrieved_ids,
-                        require_citations=must_cite,
-                    )
-                    if ok:
-                        return {
-                            "messages": messages,
-                            "retrieved_ids": retrieved_ids,
-                            "doc_retrieved_ids": doc_retrieved_ids,
-                            "status": "success",
-                            "answer": finished.answer,
-                            "citations": cited,
-                            "next_node": "end",
-                        }
-                    observation = err_obs
-                else:
-                    observation = finished
+                    return {
+                        "messages": messages,
+                        "retrieved_ids": retrieved_ids,
+                        "doc_retrieved_ids": doc_retrieved_ids,
+                        "status": (
+                            "success"
+                            if finished.outcome == "answered"
+                            else finished.outcome
+                        ),
+                        "answer": finished.answer,
+                        "citations": finished.citations,
+                        "next_node": "end",
+                    }
+                observation = finished
             elif index >= MAX_CALLS_PER_STEP:
                 observation = {
                     "ok": False,
@@ -480,23 +469,25 @@ def build_agent_graph(
 
     def ask_clarification(state: AgentState) -> dict[str, Any]:
         call = state["pending_calls"][0]
-        finished = _parse_finish(call["arguments"])
+        finished = _parse_finish(call["arguments"], state["retrieved_ids"])
         assert isinstance(finished, FinishArgs)
         return {
             "pending_calls": [],
             "status": "clarify",
             "answer": finished.answer,
+            "citations": finished.citations,
             "next_node": "end",
         }
 
     def abstain(state: AgentState) -> dict[str, Any]:
         call = state["pending_calls"][0]
-        finished = _parse_finish(call["arguments"])
+        finished = _parse_finish(call["arguments"], state["retrieved_ids"])
         assert isinstance(finished, FinishArgs)
         return {
             "pending_calls": [],
             "status": "not_found",
             "answer": finished.answer,
+            "citations": finished.citations,
             "next_node": "end",
         }
 
@@ -615,19 +606,34 @@ def run_agent(
     return run.end(status, answer, citations=citations)
 
 
-def _parse_finish(raw_arguments: str | dict | None) -> FinishArgs | dict[str, Any]:
+def _parse_finish(
+    raw_arguments: str | dict | None,
+    retrieved_ids: set[str],
+    require_citations: bool = False,
+) -> FinishArgs | dict[str, Any]:
+    """Validate the schema and source membership before any finish can be routed."""
     try:
         arguments = (
             raw_arguments
             if isinstance(raw_arguments, dict)
             else json.loads(raw_arguments or "{}")
         )
-        return FinishArgs.model_validate(arguments)
+        finished = FinishArgs.model_validate(arguments)
     except (json.JSONDecodeError, ValidationError) as exc:
         return {
             "ok": False,
             "error": {"code": "invalid_arguments", "message": str(exc)[:500]},
         }
+    ok, cited, error = verify_citations_in_code(
+        finished.answer,
+        finished.citations,
+        retrieved_ids,
+        require_citations=require_citations and finished.outcome == "answered",
+    )
+    if not ok:
+        return error
+    finished.citations = cited
+    return finished
 
 
 class _Run:

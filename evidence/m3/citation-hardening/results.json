@@ -1,0 +1,28 @@
+{
+  "method": "Deterministic MockClient; real graph, tools and validation; no live API calls",
+  "regressions_failed_before_fix": 17,
+  "regressions_passed_after_fix": 17,
+  "cases": [
+    {
+      "outcome": "answered",
+      "status": "success",
+      "rejected_unretrieved_citations": 1,
+      "trace": "evidence/m3/citation-hardening/answered.jsonl",
+      "steps": 3
+    },
+    {
+      "outcome": "not_found",
+      "status": "not_found",
+      "rejected_unretrieved_citations": 1,
+      "trace": "evidence/m3/citation-hardening/not_found.jsonl",
+      "steps": 2
+    },
+    {
+      "outcome": "clarify",
+      "status": "clarify",
+      "rejected_unretrieved_citations": 1,
+      "trace": "evidence/m3/citation-hardening/clarify.jsonl",
+      "steps": 2
+    }
+  ]
+}
