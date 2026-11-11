@@ -2,10 +2,15 @@
 
 import argparse
 import sys
+import tomllib
 from datetime import date, datetime
 from pathlib import Path
 
-from agent_project.agent import run_agent
+from langgraph.checkpoint.sqlite import SqliteSaver
+from pydantic import ValidationError
+
+from agent_project.agent import ConversationError, run_agent
+from agent_project.config import CONFIG_PATH, load_settings
 from agent_project.llm import OpenRouterClient
 from agent_project.tools import WORKING_CALENDAR, CalendarTools, working_copy
 
@@ -17,8 +22,20 @@ def ask_user(question: str) -> bool:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Ask the calendar agent a question.")
-    parser.add_argument("goal", help="What you want to know or change.")
+    parser = argparse.ArgumentParser(
+        description="Ask the calendar agent a question. Settings come from "
+        f"{CONFIG_PATH}."
+    )
+    parser.add_argument(
+        "goal",
+        help="What you want to know or change; with --thread, your answer to "
+        "the agent's question.",
+    )
+    parser.add_argument(
+        "--thread",
+        help="Continue the conversation with this id: it must be waiting for "
+        "your answer. Pass the same --calendar as in that conversation.",
+    )
     parser.add_argument(
         "--calendar",
         type=Path,
@@ -39,26 +56,54 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    try:
+        settings = load_settings(CONFIG_PATH)
+    except (OSError, tomllib.TOMLDecodeError, ValidationError) as exc:
+        print(f"[config] {CONFIG_PATH}: {exc}", file=sys.stderr)
+        return 2
+
     trace_path = args.trace or Path(
         "traces", f"run-{datetime.now():%Y%m%d-%H%M%S-%f}.jsonl"
     )
+    db = Path(settings.storage.db)
+    db.parent.mkdir(parents=True, exist_ok=True)
     sys.stdout.reconfigure(encoding="utf-8")
-    result = run_agent(
-        goal=args.goal,
-        client=OpenRouterClient(),
-        tools=CalendarTools.from_file(working_copy(target=args.calendar)),
-        trace_path=trace_path,
-        today=args.today,
-        confirm=ask_user,
-    )
+    try:
+        with SqliteSaver.from_conn_string(str(db)) as checkpointer:
+            result = run_agent(
+                goal=args.goal,
+                client=OpenRouterClient(
+                    model=settings.model.name,
+                    temperature=settings.model.temperature,
+                ),
+                tools=CalendarTools.from_file(working_copy(target=args.calendar)),
+                trace_path=trace_path,
+                today=args.today,
+                max_steps=settings.limits.max_steps,
+                max_cost_usd=settings.limits.max_cost_usd,
+                max_clarifications=settings.limits.max_clarifications,
+                confirm=ask_user,
+                require_citations=settings.agent.require_citations,
+                checkpointer=checkpointer,
+                resume_thread=args.thread,
+                settings=settings.model_dump(),
+            )
+    except ConversationError as exc:
+        print(f"[thread] {exc}", file=sys.stderr)
+        return 2
+
     print(result.answer)
     print(
         f"\n[status={result.status} steps={result.steps} "
-        f"cost=${result.cost_usd:.5f} trace={result.trace_path.as_posix()}]"
+        f"cost=${result.cost_usd:.5f} thread={result.thread_id} "
+        f"trace={result.trace_path.as_posix()}]"
     )
     if result.diagram_paths:
         svg, mermaid = result.diagram_paths
         print(f"[diagram={svg.as_posix()} mermaid={mermaid.as_posix()}]")
+    if result.status == "clarify":
+        print(f'[answer with: calendar-agent "..." --thread {result.thread_id}]')
+        return 0
     return 0 if result.status == "success" else 1
 
 

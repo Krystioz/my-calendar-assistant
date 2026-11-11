@@ -11,6 +11,7 @@ from agent_project.tools import CalendarTools, working_copy
 CALENDAR = Path(__file__).parents[1] / "data" / "calendar.ics"
 TODAY = date(2026, 10, 16)
 LAB_ID = "evt-018@calendar.local"
+LIMITS = {"max_steps": 12, "max_cost_usd": 0.10, "max_clarifications": 3}
 
 
 def reply(*calls, text=None, cost=0.0001):
@@ -37,7 +38,7 @@ def run(responses, tmp_path, **kwargs):
         tools=CalendarTools.from_file(calendar),
         trace_path=trace,
         today=TODAY,
-        **kwargs,
+        **{**LIMITS, **kwargs},
     )
     events = [json.loads(line) for line in trace.read_text("utf-8").splitlines()]
     return result, events

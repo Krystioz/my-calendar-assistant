@@ -19,7 +19,7 @@ Put an OpenRouter API key in `.env`. The file is ignored by Git; the key must
 never appear in code, traces, issues, or reports. To check the connection:
 
 ```bash
-uv run python -c 'from agent_project.llm import OpenRouterClient; print(OpenRouterClient().complete([{"role": "user", "content": "Reply with exactly COURSE_READY"}])["text"])'
+uv run python -c 'from agent_project.llm import OpenRouterClient; print(OpenRouterClient(model="google/gemma-4-26b-a4b-it", temperature=0).complete([{"role": "user", "content": "Reply with exactly COURSE_READY"}])["text"])'
 ```
 
 ## Usage
@@ -40,9 +40,31 @@ cost, and the trace file. Before any deletion the terminal asks
 - `--calendar PATH` — working calendar the agent reads and changes (default
   `workspace/calendar.ics`, copied from `data/calendar.ics` on first use);
 - `--today YYYY-MM-DD` — fixed "today" for reproducible runs;
-- `--trace PATH` — trace file (default `traces/run-<timestamp>.jsonl`).
+- `--trace PATH` — trace file (default `traces/run-<timestamp>.jsonl`);
+- `--thread ID` — answer the agent's clarifying question in that conversation.
 
-The exit code is `0` only when the run ends with status `success`.
+The model, its temperature, the limits and the conversation database are set in
+`calendar-agent.toml`, the only source of these values: edit it to experiment.
+A missing file, a missing or unknown key, or a wrong type stops the CLI with
+exit code `2`. `max_steps` and `max_cost_usd` apply to each run (turn);
+`max_clarifications` applies to the whole conversation.
+
+When the agent needs more details, it asks, saves the conversation to SQLite
+(`workspace/conversations.sqlite`) and exits. Answer in a new run with the
+printed thread id; the agent continues with the same goal, messages and tool
+results:
+
+```bash
+uv run calendar-agent "Umów spotkanie z Tomkiem" --today 2026-10-16
+# Kiedy i na jak długo?
+# [answer with: calendar-agent "..." --thread 3f9c...]
+uv run calendar-agent "12 grudnia o 13, godzina" --thread 3f9c... --today 2026-10-16
+```
+
+Pass the same `--calendar` as in the first run. The exit code is `0` when the
+run ends with status `success` or waits for an answer (`clarify`), `1` for
+other statuses, and `2` for a bad config or a thread that cannot take an
+answer.
 `data/calendar.ics` never changes; delete `workspace/calendar.ics` to start
 over from the original.
 
@@ -244,10 +266,10 @@ return an error observation to the model and remain subject to the retry limit.
 Deterministic [regression traces](evidence/m3/citation-hardening/results.json)
 cover this guard; the original live evaluation predates the citation fix.
 
-`clarify` returns a clarifying question and ends the current CLI invocation.
-Automatic conversation resumption and a persistent LangGraph checkpointer
-are not implemented. State persists during the run; JSONL traces record it
-for debugging. See the report for remaining model-quality failures.
+`clarify` returns a clarifying question and suspends the graph with
+`interrupt()`; the state is saved by a SQLite checkpointer, and the next run
+with `--thread` resumes it (see Usage). JSONL traces record each run for
+debugging. See the report for remaining model-quality failures.
 
 ## Design Notes
 

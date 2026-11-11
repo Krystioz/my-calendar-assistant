@@ -157,10 +157,18 @@ def test_calendar_cli_automatically_exports_even_when_agent_abstains(
 ):
     from agent_project import MockClient, cli
 
+    config = tmp_path / "calendar-agent.toml"
+    config.write_text(
+        cli.CONFIG_PATH.read_text("utf-8").replace(
+            "workspace/conversations.sqlite", (tmp_path / "c.sqlite").as_posix()
+        ),
+        "utf-8",
+    )
+    monkeypatch.setattr(cli, "CONFIG_PATH", config)
     monkeypatch.setattr(
         cli,
         "OpenRouterClient",
-        lambda: MockClient(
+        lambda **_: MockClient(
             [
                 {
                     "tool_calls": [
@@ -190,6 +198,8 @@ def test_calendar_cli_automatically_exports_even_when_agent_abstains(
     assert (tmp_path / "diagrams" / "cli.svg").exists()
     assert (tmp_path / "diagrams" / "cli.mmd").exists()
     assert "diagram=" in capfd.readouterr().out
+    start = json.loads(trace.read_text("utf-8").splitlines()[0])["payload"]
+    assert start["settings"]["model"]["name"]
 
 
 @pytest.mark.parametrize("outcome", ["answered", "not_found", "clarify", "error"])
@@ -217,7 +227,14 @@ def test_python_agent_run_exports_automatically_for_each_outcome(tmp_path, outco
     )
     trace = tmp_path / "run.jsonl"
     result = run_agent(
-        "Demo", MockClient(replies), CalendarTools([]), trace, date(2026, 10, 16)
+        "Demo",
+        MockClient(replies),
+        CalendarTools([]),
+        trace,
+        date(2026, 10, 16),
+        max_steps=12,
+        max_cost_usd=0.10,
+        max_clarifications=3,
     )
     assert result.status == ("success" if outcome == "answered" else outcome)
     assert result.diagram_paths == (

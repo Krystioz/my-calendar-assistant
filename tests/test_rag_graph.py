@@ -45,6 +45,9 @@ def run(responses, tmp_path, doc_index, **kwargs):
         tools=tools,
         trace_path=trace,
         today=TODAY,
+        max_steps=12,
+        max_cost_usd=0.10,
+        max_clarifications=3,
         **kwargs,
     )
     events = [json.loads(line) for line in trace.read_text("utf-8").splitlines()]

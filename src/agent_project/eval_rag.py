@@ -16,6 +16,10 @@ from agent_project.tools import SOURCE_CALENDAR, CalendarTools, working_copy
 
 EVAL_QUESTIONS_PATH = Path("data/eval_questions.json")
 DEFAULT_TODAY = date(2026, 10, 16)
+# Fixed here, not read from calendar-agent.toml, so results stay comparable.
+EVAL_MAX_STEPS = 12
+EVAL_MAX_COST_PER_QUESTION_USD = 0.10
+EVAL_MAX_CLARIFICATIONS = 3
 
 
 def load_eval_questions(path: Path = EVAL_QUESTIONS_PATH) -> list[dict[str, Any]]:
@@ -116,7 +120,9 @@ def evaluate_agent_set(
             tools=CalendarTools.from_file(cal_path, doc_index=idx),
             trace_path=trace_path,
             today=today,
-            max_cost_usd=min(0.10, remaining),
+            max_steps=EVAL_MAX_STEPS,
+            max_cost_usd=min(EVAL_MAX_COST_PER_QUESTION_USD, remaining),
+            max_clarifications=EVAL_MAX_CLARIFICATIONS,
         )
         spent += run_res.cost_usd
         expected_status = (
@@ -210,7 +216,7 @@ def main() -> None:
     from agent_project.llm import OpenRouterClient
 
     model = "google/gemma-4-26b-a4b-it"
-    client = OpenRouterClient(model=model)
+    client = OpenRouterClient(model=model, temperature=0)
     repetitions = []
     for repetition in range(args.repeats):
         remaining = args.max_cost_usd - sum(r["cost_usd"] for r in repetitions)

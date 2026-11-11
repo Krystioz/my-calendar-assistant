@@ -42,7 +42,7 @@ def _response(provider: str, content: str | None, tool_calls=None, cost=0.001):
 
 def test_broken_reply_is_retried_on_another_provider(monkeypatch) -> None:
     monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
-    client = OpenRouterClient(model="test-model")
+    client = OpenRouterClient(model="test-model", temperature=0)
     call = SimpleNamespace(
         id="call_1", function=SimpleNamespace(name="search", arguments="{}")
     )

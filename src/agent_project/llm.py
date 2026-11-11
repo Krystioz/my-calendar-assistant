@@ -40,13 +40,14 @@ def is_broken_reply(text: str | None, tool_calls: list | None) -> bool:
 
 
 class OpenRouterClient:
-    def __init__(self, model: str | None = None, max_tokens: int = 1024) -> None:
+    def __init__(self, model: str, temperature: float, max_tokens: int = 1024) -> None:
         load_dotenv()
         api_key = os.getenv("OPENROUTER_API_KEY")
-        self.model = model or os.getenv("MODEL_NAME")
+        self.model = model
+        self.temperature = temperature
         self.max_tokens = max_tokens
-        if not api_key or not self.model:
-            raise ValueError("Set OPENROUTER_API_KEY and MODEL_NAME in .env")
+        if not api_key:
+            raise ValueError("Set OPENROUTER_API_KEY in .env")
         self.client = OpenAI(
             api_key=api_key,
             base_url="https://openrouter.ai/api/v1",
@@ -62,7 +63,7 @@ class OpenRouterClient:
         request: dict[str, Any] = {
             "model": self.model,
             "messages": messages,
-            "temperature": 0,
+            "temperature": self.temperature,
             "max_tokens": self.max_tokens,
             "extra_body": {"usage": {"include": True}},
         }

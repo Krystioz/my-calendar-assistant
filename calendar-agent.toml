@@ -1,0 +1,17 @@
+# Settings for `calendar-agent`. This file is the only source of these values:
+# edit it to experiment. Every key is required; unknown keys are an error.
+
+[limits]
+max_steps = 12          # model calls per turn (one CLI run)
+max_cost_usd = 0.10     # spend per turn
+max_clarifications = 3  # clarifying questions per conversation
+
+[storage]
+db = "workspace/conversations.sqlite"  # saved conversations, resumed with --thread
+
+[model]
+name = "google/gemma-4-26b-a4b-it"  # OpenRouter model id
+temperature = 0
+
+[agent]
+require_citations = false  # every answer needs a verified citation

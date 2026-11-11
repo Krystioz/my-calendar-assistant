@@ -3,12 +3,16 @@
 import json
 import logging
 import re
+import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any, Literal, TypedDict
 
+from langgraph.checkpoint.base import BaseCheckpointSaver
+from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import END, START, StateGraph
+from langgraph.types import Command, interrupt
 from pydantic import BaseModel, Field, ValidationError
 
 from agent_project.llm import ModelClient
@@ -21,8 +25,6 @@ from agent_project.tools import (
 from agent_project.trace_graph import export_trace
 from agent_project.tracing import append_trace
 
-MAX_STEPS = 12
-MAX_COST_USD = 0.10
 MAX_CALLS_PER_STEP = 5
 MAX_CONSECUTIVE_REJECTIONS = 3
 
@@ -124,6 +126,11 @@ class RunResult:
     trace_path: Path
     citations: list[str] = field(default_factory=list)
     diagram_paths: tuple[Path, Path] | None = None
+    thread_id: str | None = None
+
+
+class ConversationError(Exception):
+    """The --thread conversation cannot take an answer (unknown or ended)."""
 
 
 class AgentState(TypedDict):
@@ -131,7 +138,8 @@ class AgentState(TypedDict):
     pending_calls: list[dict[str, Any]]
     retrieved_ids: set[str]
     doc_retrieved_ids: set[str]
-    steps: int
+    steps: int  # model calls in the current turn; reset when the user answers
+    clarifications: int  # answered clarifying questions in this conversation
     rejections_in_a_row: int
     status: Status | None
     answer: str
@@ -235,8 +243,11 @@ def build_agent_graph(
     tools: CalendarTools,
     run_tracker: "_Run",
     schemas: list[dict[str, Any]],
-    max_steps: int = MAX_STEPS,
-    max_cost_usd: float = MAX_COST_USD,
+    *,
+    max_steps: int,
+    max_cost_usd: float,
+    max_clarifications: int,
+    checkpointer: BaseCheckpointSaver,
     confirm: Confirm | None = None,
     require_citations: bool = False,
 ):
@@ -377,6 +388,7 @@ def build_agent_graph(
         retrieved_ids = set(state["retrieved_ids"])
         doc_retrieved_ids = set(state["doc_retrieved_ids"])
         rejections = state["rejections_in_a_row"]
+        clarify_call = None
 
         for index, call in enumerate(state["pending_calls"]):
             if call["name"] == "finish":
@@ -385,6 +397,10 @@ def build_agent_graph(
                     retrieved_ids,
                     require_citations or bool(doc_retrieved_ids),
                 )
+                if isinstance(finished, FinishArgs) and finished.outcome == "clarify":
+                    # ask_clarification interrupts and answers this call later.
+                    clarify_call = call
+                    continue
                 if isinstance(finished, FinishArgs):
                     return {
                         "messages": messages,
@@ -436,6 +452,16 @@ def build_agent_graph(
             )
             rejections = 0 if observation["ok"] else rejections + 1
 
+        if clarify_call is not None:
+            return {
+                "messages": messages,
+                "pending_calls": [clarify_call],
+                "retrieved_ids": retrieved_ids,
+                "doc_retrieved_ids": doc_retrieved_ids,
+                "rejections_in_a_row": rejections,
+                "next_node": "ask_clarification",
+            }
+
         if rejections >= MAX_CONSECUTIVE_REJECTIONS:
             return {
                 "messages": messages,
@@ -468,15 +494,42 @@ def build_agent_graph(
         return _run_tool_batch(state)
 
     def ask_clarification(state: AgentState) -> dict[str, Any]:
+        # On resume this node restarts from the top: everything before
+        # interrupt() must stay a pure read of the state.
         call = state["pending_calls"][0]
         finished = _parse_finish(call["arguments"], state["retrieved_ids"])
         assert isinstance(finished, FinishArgs)
+        if state["clarifications"] >= max_clarifications:
+            return {
+                "pending_calls": [],
+                "status": "step_limit",
+                "answer": (
+                    f"Stopped: more than {max_clarifications} clarifying questions."
+                ),
+                "next_node": "end",
+            }
+
+        user_reply = interrupt(
+            {"question": finished.answer, "citations": finished.citations}
+        )
+
         return {
+            "messages": [
+                *state["messages"],
+                # The API needs a result for the finish call; the reply itself
+                # is the user's turn, so it is an instruction, not tool data.
+                {
+                    "role": "tool",
+                    "tool_call_id": call["id"],
+                    "content": json.dumps({"ok": True, "result": {"delivered": True}}),
+                },
+                {"role": "user", "content": user_reply},
+            ],
             "pending_calls": [],
-            "status": "clarify",
-            "answer": finished.answer,
-            "citations": finished.citations,
-            "next_node": "end",
+            "steps": 0,
+            "clarifications": state["clarifications"] + 1,
+            "rejections_in_a_row": 0,
+            "next_node": "call_model",
         }
 
     def abstain(state: AgentState) -> dict[str, Any]:
@@ -539,13 +592,18 @@ def build_agent_graph(
             lambda s: s["next_node"],
             {
                 "call_model": "call_model",
+                "ask_clarification": "ask_clarification",
                 "end": END,
             },
         )
-    graph.add_edge("ask_clarification", END)
+    graph.add_conditional_edges(
+        "ask_clarification",
+        lambda s: s["next_node"],
+        {"call_model": "call_model", "end": END},
+    )
     graph.add_edge("abstain", END)
 
-    return graph.compile()
+    return graph.compile(checkpointer=checkpointer)
 
 
 def run_agent(
@@ -554,19 +612,84 @@ def run_agent(
     tools: CalendarTools,
     trace_path: Path,
     today: date,
-    max_steps: int = MAX_STEPS,
-    max_cost_usd: float = MAX_COST_USD,
+    *,
+    max_steps: int,
+    max_cost_usd: float,
+    max_clarifications: int,
     confirm: Confirm | None = None,
     require_citations: bool = False,
+    checkpointer: BaseCheckpointSaver | None = None,
+    resume_thread: str | None = None,
+    settings: dict[str, Any] | None = None,
 ) -> RunResult:
+    """Start a conversation, or answer the question of `resume_thread`.
+
+    Without a checkpointer the conversation lives in memory for this call only.
+    `settings` is recorded in the trace as the configuration the run used.
+    """
     run = _Run(trace_path)
+    schemas = [*tool_schemas(include_docs=True), FINISH_TOOL]
+    compiled = build_agent_graph(
+        client=client,
+        tools=tools,
+        run_tracker=run,
+        schemas=schemas,
+        max_steps=max_steps,
+        max_cost_usd=max_cost_usd,
+        max_clarifications=max_clarifications,
+        checkpointer=checkpointer or InMemorySaver(),
+        confirm=confirm,
+        require_citations=require_citations,
+    )
+    thread_id = resume_thread or uuid.uuid4().hex
+    config = {
+        "configurable": {"thread_id": thread_id},
+        "recursion_limit": max_steps * 4 + 10,
+    }
+    if resume_thread:
+        saved = compiled.get_state(config)
+        if not saved.values:
+            raise ConversationError(f"No saved conversation {resume_thread!r}.")
+        if not saved.interrupts:
+            raise ConversationError(
+                f"Conversation {resume_thread!r} has ended; start a new one."
+            )
+
     run.trace(
         "run_start",
         goal=goal,
         today=today.isoformat(),
-        limits={"max_steps": max_steps, "max_cost_usd": max_cost_usd},
+        thread_id=thread_id,
+        resumed=bool(resume_thread),
+        require_citations=require_citations,
+        limits={
+            "max_steps": max_steps,
+            "max_cost_usd": max_cost_usd,
+            "max_clarifications": max_clarifications,
+        },
+        settings=settings,
     )
-    initial_state: AgentState = {
+    if resume_thread:
+        final_state = compiled.invoke(Command(resume=goal), config)
+    else:
+        final_state = compiled.invoke(_initial_state(goal, today), config)
+
+    if final_state.get("__interrupt__"):
+        asked = final_state["__interrupt__"][0].value
+        return run.end(
+            "clarify",
+            asked["question"],
+            citations=asked["citations"],
+            thread_id=thread_id,
+        )
+    status: Status = final_state.get("status") or "error"
+    answer: str = final_state.get("answer") or "Run ended without an answer."
+    citations: list[str] = final_state.get("citations") or []
+    return run.end(status, answer, citations=citations, thread_id=thread_id)
+
+
+def _initial_state(goal: str, today: date) -> AgentState:
+    return {
         "messages": [
             {
                 "role": "system",
@@ -580,30 +703,13 @@ def run_agent(
         "retrieved_ids": set(),
         "doc_retrieved_ids": set(),
         "steps": 0,
+        "clarifications": 0,
         "rejections_in_a_row": 0,
         "status": None,
         "answer": "",
         "citations": [],
         "next_node": "retrieve_docs",
     }
-    schemas = [*tool_schemas(include_docs=True), FINISH_TOOL]
-    compiled = build_agent_graph(
-        client=client,
-        tools=tools,
-        run_tracker=run,
-        schemas=schemas,
-        max_steps=max_steps,
-        max_cost_usd=max_cost_usd,
-        confirm=confirm,
-        require_citations=require_citations,
-    )
-    final_state = compiled.invoke(
-        initial_state, config={"recursion_limit": max_steps * 4 + 10}
-    )
-    status: Status = final_state.get("status") or "error"
-    answer: str = final_state.get("answer") or "Run ended without an answer."
-    citations: list[str] = final_state.get("citations") or []
-    return run.end(status, answer, citations=citations)
 
 
 def _parse_finish(
@@ -660,6 +766,7 @@ class _Run:
         status: Status,
         answer: str,
         citations: list[str] | None = None,
+        thread_id: str | None = None,
     ) -> RunResult:
         cited = citations or []
         self.trace(
@@ -691,4 +798,5 @@ class _Run:
             self.trace_path,
             citations=cited,
             diagram_paths=diagram_paths,
+            thread_id=thread_id,
         )
