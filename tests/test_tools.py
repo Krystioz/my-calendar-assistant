@@ -111,6 +111,7 @@ def test_tool_schemas_are_function_definitions() -> None:
         "list_tasks",
         "create_task",
         "complete_task",
+        "move_task",
         "delete_task",
     ]
     assert "query" in tool_schemas()[0]["function"]["parameters"]["required"]
@@ -289,9 +290,39 @@ def test_calendar_the_user_never_named_is_rejected(two_calendars) -> None:
     [
         ("Prywatne", "wpisz do prywatnego", True),
         ("Personal tasks", "put it in my personal task calendar", True),
+        ("Krysitan", "w kalendaruz krystian", True),
         ("Rodzina", "dodaj to do kalendarza", False),
         ("Personal tasks", "personal", False),
     ],
 )
 def test_named_in_matches_polish_word_forms_only(name, text, expected) -> None:
     assert named_in(name, text) is expected
+
+
+def test_search_with_empty_query_lists_date_range_and_saves_reminder(
+    writable, tmp_path
+) -> None:
+    listed = execute_tool_call(
+        writable,
+        "search_events",
+        {"query": "", "start": "2026-10-19", "end": "2026-10-25", "limit": 20},
+    )
+    assert listed["ok"]
+    assert listed["result"]["total_matches"] >= 5
+
+    created = execute_tool_call(
+        writable,
+        "create_event",
+        {
+            "title": "Wizyta z przypomnieniem",
+            "start": "2026-11-10T10:00",
+            "end": "2026-11-10T10:00",
+            "reminder_minutes": [1440, 60],
+        },
+    )
+    assert created["ok"]
+    assert created["result"]["created"]["end"] == "2026-11-10T10:30"
+    assert created["result"]["created"]["reminder_minutes"] == [1440, 60]
+    reloaded = CalendarTools.from_file(tmp_path / "calendar.ics")
+    saved = next(e for e in reloaded.events if e.title == "Wizyta z przypomnieniem")
+    assert saved.reminder_minutes == (1440, 60)

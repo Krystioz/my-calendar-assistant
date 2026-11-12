@@ -12,7 +12,13 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 # Chat-template tokens that some providers leak instead of a parsed tool call.
-_TEMPLATE_MARKERS = ("<|channel>", "<tool_call|>", "<|tool_call>", "<end_of_turn>")
+_TEMPLATE_MARKERS = (
+    "<|channel>",
+    "<tool_call|>",
+    "<|tool_call>",
+    "<end_of_turn>",
+    '<|"|>',
+)
 _SUMMED_USAGE = ("prompt_tokens", "completion_tokens", "total_tokens", "cost")
 
 

@@ -31,7 +31,7 @@ def build_server(tools: CalendarTools) -> MCPServer:
         return execute_tool_call(tools, name, given, confirm=None)
 
     def search_events(
-        query: str,
+        query: str | None = None,
         start: str | None = None,
         end: str | None = None,
         order: str | None = None,
@@ -46,9 +46,10 @@ def build_server(tools: CalendarTools) -> MCPServer:
     def create_event(
         title: str,
         start: str,
-        end: str,
+        end: str | None = None,
         location: str | None = None,
         calendar: str | None = None,
+        reminder_minutes: int | list[int] | None = None,
     ) -> dict[str, Any]:
         return call("create_event", locals())
 
@@ -60,13 +61,20 @@ def build_server(tools: CalendarTools) -> MCPServer:
         due_by: str | None = None,
         include_completed: bool | None = None,
         limit: int | None = None,
+        task_list: str | None = None,
     ) -> dict[str, Any]:
         return call("list_tasks", locals())
 
     def create_task(
-        title: str, due: str | None = None, notes: str | None = None
+        title: str,
+        due: str | None = None,
+        notes: str | None = None,
+        task_list: str | None = None,
     ) -> dict[str, Any]:
         return call("create_task", locals())
+
+    def move_task(id: str, task_list: str) -> dict[str, Any]:
+        return call("move_task", locals())
 
     def complete_task(id: str) -> dict[str, Any]:
         return call("complete_task", locals())
@@ -83,6 +91,7 @@ def build_server(tools: CalendarTools) -> MCPServer:
         create_task,
         complete_task,
         delete_task,
+        move_task,
     ):
         function.__doc__ = _DESCRIPTIONS[function.__name__]
         server.tool()(function)

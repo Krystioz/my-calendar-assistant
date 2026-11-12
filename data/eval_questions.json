@@ -355,5 +355,23 @@
         "pattern": "książ|ksiaz|bibliotek"
       }
     ]
+  },
+  {
+    "id": "r07_deadline_hour_with_reminders_is_event",
+    "question": "Jutro do 12 muszę wysłać promotorowi poprawioną listę tematów. Przypomnij mi o tym kilka razy godziny wcześniej.",
+    "expected_outcome": "answered",
+    "expected_sources": [],
+    "expected_tools": [
+      "create_event"
+    ],
+    "forbidden_tools": [
+      "create_task"
+    ],
+    "answer_rubric": [
+      {
+        "fact": "deadline",
+        "pattern": "12[:.]00|\\b12\\b"
+      }
+    ]
   }
 ]

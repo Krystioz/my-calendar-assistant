@@ -28,8 +28,9 @@ from pydantic import (
 )
 
 MAX_RESULTS = 20
-MAX_FREE_BUSY_DAYS = 14
+MAX_FREE_BUSY_DAYS = 31
 MAX_EVENT_HOURS = 24
+MAX_REMINDER_MINUTES = 40320  # 4 weeks (Google Calendar API limit)
 SOURCE_CALENDAR = Path("data/calendar.ics")
 WORKING_CALENDAR = Path("workspace/calendar.ics")
 
@@ -59,6 +60,7 @@ class Event:
     description: str = ""
     all_day: bool = False
     calendar: str = ""  # display name; empty for the local file
+    reminder_minutes: tuple[int, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -71,6 +73,11 @@ class Event:
             "all_day": self.all_day,
             "location": self.location,
             "description": self.description,
+            **(
+                {"reminder_minutes": list(self.reminder_minutes)}
+                if self.reminder_minutes
+                else {}
+            ),
         }
 
     def to_ical(self) -> icalendar.Event:
@@ -84,6 +91,12 @@ class Event:
             item.add("location", self.location)
         if self.description:
             item.add("description", self.description)
+        for minutes in self.reminder_minutes:
+            alarm = icalendar.Alarm()
+            alarm.add("action", "DISPLAY")
+            alarm.add("description", self.title)
+            alarm.add("trigger", -timedelta(minutes=minutes))
+            item.add_component(alarm)
         return item
 
 
@@ -94,10 +107,12 @@ class Task:
     due: date | None = None  # Google Tasks keeps only the date of a due time
     notes: str = ""
     completed: bool = False
+    task_list: str = ""  # Google Tasks list name; empty for the local file
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "id": self.uid,
+            **({"task_list": self.task_list} if self.task_list else {}),
             "title": self.title,
             "due": self.due.isoformat() if self.due else None,
             "notes": self.notes,
@@ -153,6 +168,12 @@ def load_events(path: Path) -> list[Event]:
             end = _as_datetime(item.decoded("DTEND"))
         else:
             end = start + (timedelta(days=1) if all_day else timedelta(hours=1))
+        reminders = []
+        for alarm in item.walk("VALARM"):
+            if "TRIGGER" in alarm:
+                trigger = alarm.decoded("TRIGGER")
+                if isinstance(trigger, timedelta):
+                    reminders.append(max(0, int(-trigger.total_seconds() // 60)))
         events.append(
             Event(
                 uid=str(item.get("UID", "")),
@@ -162,6 +183,7 @@ def load_events(path: Path) -> list[Event]:
                 location=str(item.get("LOCATION", "")),
                 description=str(item.get("DESCRIPTION", "")),
                 all_day=all_day,
+                reminder_minutes=tuple(reminders),
             )
         )
     return sorted(events, key=lambda event: event.start)
@@ -188,24 +210,38 @@ def _fold(text: str) -> str:
 
 
 def named_in(name: str, text: str) -> bool:
-    """True if every word of the calendar name appears in text.
+    """True if every word of the calendar name appears in text (stem or 1-typo fuzzy).
 
-    shortcut: a word matches by its stem (all but the last 2 letters, at least 4),
-    so Polish forms ("prywatnym" for "Prywatne") pass but nicknames do not;
-    upgrade to an alias list if users name calendars by nicknames.
+    shortcut: matches by stem or >=0.8 similarity on words >=5 chars (so 'krystian'
+    matches 'Krysitan'), while rejecting unrelated words; upgrade to an alias list
+    if users name calendars by completely different nicknames.
     """
+    from difflib import SequenceMatcher
+
     folded = _fold(text)
-    return all(_fold(word)[: max(4, len(word) - 2)] in folded for word in name.split())
+    tokens = [w for w in "".join(c if c.isalnum() else " " for c in folded).split()]
+    for word in name.split():
+        fw = _fold(word)
+        stem = fw[: max(4, len(fw) - 2)]
+        if stem in folded:
+            continue
+        if len(fw) >= 5 and any(
+            SequenceMatcher(None, fw, tok[: len(fw) + 2]).ratio() >= 0.8
+            or SequenceMatcher(None, stem, tok[: len(stem) + 1]).ratio() >= 0.8
+            for tok in tokens
+        ):
+            continue
+        return False
+    return True
 
 
 class SearchEventsArgs(BaseModel):
-    """Find events whose title, location or description contains a keyword."""
+    """Find events by keyword and/or date range."""
 
     query: str = Field(
-        min_length=2,
         max_length=100,
-        description="One or two keywords; an event matches only if it contains "
-        "all of them. Calendar entries are mostly in Polish.",
+        description="Keywords to match in title, location or description; pass '' "
+        "(empty string) when start or end is given to list all events in that range.",
     )
     start: date | None = Field(None, description="Earliest day, YYYY-MM-DD.")
     end: date | None = Field(None, description="Latest day (inclusive), YYYY-MM-DD.")
@@ -219,11 +255,18 @@ class SearchEventsArgs(BaseModel):
     def _check_range(self) -> "SearchEventsArgs":
         if self.start and self.end and self.start > self.end:
             raise ValueError("start must not be after end")
+        q = self.query.strip()
+        if not q and not (self.start or self.end or self.calendar):
+            raise ValueError("provide a query (at least 2 chars) or a start/end date")
+        if q and len(q) < 2:
+            raise ValueError(
+                "query must have at least 2 characters (or be empty with start/end)"
+            )
         # A live run sent "*|*" and read the empty result as "no events that day".
-        if any(not any(ch.isalnum() for ch in word) for word in self.query.split()):
+        if q and any(not any(ch.isalnum() for ch in word) for word in q.split()):
             raise ValueError(
                 "query takes plain keywords, not wildcards or symbols; to list "
-                "everything on a day, call free_busy for that day instead"
+                "everything on a day, call free_busy or pass query='' with start/end"
             )
         return self
 
@@ -248,22 +291,53 @@ class CreateEventArgs(BaseModel):
 
     title: str = Field(min_length=1, max_length=200)
     start: LocalDateTime = Field(description="Event start, YYYY-MM-DDTHH:MM.")
-    end: LocalDateTime = Field(description="Event end, YYYY-MM-DDTHH:MM.")
+    end: LocalDateTime | None = Field(
+        None,
+        description="Event end, YYYY-MM-DDTHH:MM (defaults to 30 min after start "
+        "when omitted or equal to start).",
+    )
     location: str = Field("", max_length=200)
     calendar: str | None = Field(
         None,
         max_length=100,
         description="Name of the calendar to add it to, as the user said it. "
-        "When the user did not name one, do not guess: ask which calendar.",
+        "Omit it when the user did not name one: the default calendar is used.",
+    )
+    reminder_minutes: int | list[int] | None = Field(
+        None,
+        description="Optional popup reminder(s) in minutes before start, e.g. 60 or "
+        "[1440, 60] for 1 day and 1 hour before (up to 5 reminders).",
     )
 
     @model_validator(mode="after")
     def _check_range(self) -> "CreateEventArgs":
-        if self.start >= self.end:
+        if self.end is None or self.end == self.start:
+            self.end = self.start + timedelta(minutes=30)
+        if self.start > self.end:
             raise ValueError("start must be before end")
         if self.end - self.start > timedelta(hours=MAX_EVENT_HOURS):
             raise ValueError(f"an event can last at most {MAX_EVENT_HOURS} hours")
+        if self.reminder_minutes is not None:
+            items = (
+                [self.reminder_minutes]
+                if isinstance(self.reminder_minutes, int)
+                else list(self.reminder_minutes)
+            )
+            if not (1 <= len(items) <= 5) or any(
+                m < 0 or m > MAX_REMINDER_MINUTES for m in items
+            ):
+                raise ValueError(
+                    "reminder_minutes: 1 to 5 values between 0 and "
+                    f"{MAX_REMINDER_MINUTES}"
+                )
         return self
+
+    def reminders_tuple(self) -> tuple[int, ...]:
+        if self.reminder_minutes is None:
+            return ()
+        if isinstance(self.reminder_minutes, int):
+            return (self.reminder_minutes,)
+        return tuple(dict.fromkeys(self.reminder_minutes))
 
 
 class DeleteEventArgs(BaseModel):
@@ -283,6 +357,9 @@ class ListTasksArgs(BaseModel):
     )
     include_completed: bool = False
     limit: int = Field(MAX_RESULTS, ge=1, le=MAX_RESULTS)
+    task_list: str | None = Field(
+        None, max_length=100, description="Only tasks of this task list (by name)."
+    )
 
 
 class CreateTaskArgs(BaseModel):
@@ -291,12 +368,23 @@ class CreateTaskArgs(BaseModel):
     title: str = Field(min_length=1, max_length=200)
     due: date | None = Field(None, description="Due day, YYYY-MM-DD (no time).")
     notes: str = Field("", max_length=1000)
+    task_list: str | None = Field(
+        None,
+        max_length=100,
+        description="Task list name the user said; omit for the default list.",
+    )
 
 
 class TaskIdArgs(BaseModel):
     """One task by its id."""
 
     id: str = Field(min_length=1, max_length=200, description="Task id from a list.")
+
+
+class MoveTaskArgs(TaskIdArgs):
+    """Move one task to another task list."""
+
+    task_list: str = Field(min_length=1, max_length=100, description="Target list.")
 
 
 class SearchDocsArgs(BaseModel):
@@ -338,6 +426,8 @@ class CalendarTools:
         self.doc_index = doc_index
         self.tasks = tasks if tasks is not None else []
         self.calendars: list[str] = []  # writable calendar names; empty: one file
+        self.default_calendar = ""  # used when the user names no calendar
+        self.task_lists: list[str] = []  # task list names; empty: one local list
 
     @classmethod
     def from_file(cls, path: Path, doc_index: Any | None = None) -> "CalendarTools":
@@ -372,6 +462,26 @@ class CalendarTools:
         self.tasks.remove(task)
         self._save()
 
+    def _move_task(self, task: Task, task_list: str) -> Task:
+        raise ToolError("not_supported", "The local file has only one task list.")
+
+    def _target_list(self, name: str | None) -> str:
+        """The task list the user named; "" means the default list."""
+        if not name or not self.task_lists:
+            return ""
+        match = next((n for n in self.task_lists if _fold(n) == _fold(name)), None)
+        match = match or next(
+            (n for n in self.task_lists if named_in(n, name) or named_in(name, n)),
+            None,
+        )
+        if match is None:
+            raise ToolError(
+                "task_list_not_found",
+                f"No task list named {name!r}; nothing was changed.",
+                task_lists=self.task_lists,
+            )
+        return match
+
     def _find(self, event_id: str) -> Event:
         event = next((e for e in self.events if e.uid == event_id), None)
         if event is None:
@@ -388,6 +498,8 @@ class CalendarTools:
         """The writable calendar the user named; "" when there is only the file."""
         if not self.calendars:
             return ""
+        if not name and self.default_calendar:
+            return self.default_calendar
         if not name:
             raise ToolError(
                 "calendar_not_specified",
@@ -396,7 +508,10 @@ class CalendarTools:
             )
         match = next((c for c in self.calendars if _fold(c) == _fold(name)), None)
         if match is None:
-            match = next((c for c in self.calendars if named_in(c, name)), None)
+            match = next(
+                (c for c in self.calendars if named_in(c, name) or named_in(name, c)),
+                None,
+            )
         if match is None:
             raise ToolError(
                 "calendar_not_found",
@@ -435,6 +550,7 @@ class CalendarTools:
         return {
             "total_matches": len(matches),
             "returned": min(len(matches), args.limit),
+            **({"calendars": self.calendars} if self.calendars else {}),
             "events": [event.to_dict() for event in matches[: args.limit]],
         }
 
@@ -451,6 +567,7 @@ class CalendarTools:
             free.append((cursor, args.end))
         return {
             "is_free": not any(not e.all_day for e in busy),
+            **({"calendars": self.calendars} if self.calendars else {}),
             "busy": [e.to_dict() for e in busy],
             "free_slots": [
                 {
@@ -479,6 +596,7 @@ class CalendarTools:
             for e in self.events
             if not e.all_day and e.start < args.end and e.end > args.start
         ]
+        assert args.end is not None
         event = Event(
             uid=f"agent-{uuid.uuid4().hex[:8]}@calendar.local",
             title=args.title,
@@ -486,6 +604,7 @@ class CalendarTools:
             end=args.end,
             location=args.location,
             calendar=calendar,
+            reminder_minutes=args.reminders_tuple(),
         )
         event = self._insert_event(event)
         return {"created": event.to_dict(), "conflicts": conflicts}
@@ -497,10 +616,12 @@ class CalendarTools:
 
     def list_tasks(self, args: ListTasksArgs) -> dict[str, Any]:
         words = [_fold(word) for word in (args.query or "").split()]
+        task_list = self._target_list(args.task_list)
         matches = [
             task
             for task in self.tasks
             if (args.include_completed or not task.completed)
+            and (not task_list or task.task_list == task_list)
             and (args.due_by is None or (task.due and task.due <= args.due_by))
             and all(word in _fold(f"{task.title} {task.notes}") for word in words)
         ]
@@ -509,9 +630,11 @@ class CalendarTools:
             "total_matches": len(matches),
             "returned": min(len(matches), args.limit),
             "tasks": [task.to_dict() for task in matches[: args.limit]],
+            **({"task_lists": self.task_lists} if self.task_lists else {}),
         }
 
     def create_task(self, args: CreateTaskArgs) -> dict[str, Any]:
+        task_list = self._target_list(args.task_list)
         title = _fold(args.title).strip()
         for task in self.tasks:
             if not task.completed and _fold(task.title).strip() == title:
@@ -525,6 +648,7 @@ class CalendarTools:
             title=args.title,
             due=args.due,
             notes=args.notes,
+            task_list=task_list,
         )
         return {"created": self._insert_task(task).to_dict()}
 
@@ -535,6 +659,13 @@ class CalendarTools:
         task = self._find_task(args.id)
         self._remove_task(task)
         return {"deleted": task.to_dict()}
+
+    def move_task(self, args: MoveTaskArgs) -> dict[str, Any]:
+        task = self._find_task(args.id)
+        task_list = self._target_list(args.task_list) or args.task_list
+        if task.task_list == task_list:
+            return {"moved": task.to_dict(), "unchanged": True}
+        return {"moved": self._move_task(task, task_list).to_dict()}
 
     def search_docs(self, args: SearchDocsArgs) -> dict[str, Any]:
         if self.doc_index is None:
@@ -556,26 +687,28 @@ TOOL_SPECS = (
     ToolSpec(
         "search_events",
         SearchEventsArgs,
-        "Search past and future calendar events by keyword (no wildcards). Returns "
-        "full event details including description and calendar name. Use it for "
-        "questions about history or to look up a specific event. To see everything "
-        "on a day, use free_busy instead.",
+        "Search past and future calendar events by keyword (no wildcards) or list "
+        "events in a date range (query='' with start/end). Returns full event "
+        "details including description, calendar name, and available calendars.",
     ),
     ToolSpec(
         "free_busy",
         FreeBusyArgs,
-        "Check a time window: returns the events that overlap it and the free "
-        "gaps. Use it to check availability or find conflicts.",
+        "Check a time window (up to 31 days): returns the events that overlap it, "
+        "the free gaps, and available calendars.",
     ),
     ToolSpec(
         "create_event",
         CreateEventArgs,
-        "Add one event: something that happens at a set time and takes time "
-        "(a meeting, a visit, an appointment, a slot the user names). Returns the "
+        "Add one event: anything with a time of day (a meeting, a visit, a slot "
+        "the user names, or a deadline such as 'do 12' as a 15-minute event at "
+        "that time), and anything that needs reminders hours or minutes before "
+        "(reminder_minutes). Returns the "
         "created event and any overlapping events, or already_exists when an event "
         "with the same title, or any event with exactly the same start and end, is "
-        "already in the calendar. calendar_not_specified or calendar_not_found "
-        "lists the calendars: ask the user which one, never pick it yourself.",
+        "already in the calendar. Without calendar it goes to the default "
+        "calendar; never pick another one yourself. calendar_not_specified or "
+        "calendar_not_found lists the calendars: ask the user which one.",
     ),
     ToolSpec(
         "delete_event",
@@ -588,22 +721,31 @@ TOOL_SPECS = (
         "list_tasks",
         ListTasksArgs,
         "List open to-do tasks (Google Tasks or the local task list), sorted by "
-        "due day. For 'what do I have today' use due_by=today together with "
-        "free_busy for today.",
+        "due day, with each task's list and the names of all task lists. For "
+        "'what do I have today' use due_by=today together with free_busy for today.",
     ),
     ToolSpec(
         "create_task",
         CreateTaskArgs,
-        "Add one to-do task: something to do and check off without a set time "
-        "(call someone, buy something, send something), with an optional due day. "
-        "Use it when the user says task/todo/zadanie/przypomnij or gives only a "
-        "day, not a time. Never create both a task and an event for one thing. "
-        "Returns already_exists when an open task has the same title.",
+        "Add one to-do task: something to do and check off with only a day or "
+        "no date and no time of day (call someone, buy something), with an "
+        "optional due day. Tasks have no reminders at a time: when the user gives "
+        "a time or deadline hour, or wants reminders before it, use create_event. "
+        "Use it when the user says task/todo/zadanie or gives only a day. Never "
+        "create both a task and an event for one thing. "
+        "Without task_list it goes to the default list. Returns already_exists "
+        "when an open task with the same title is in any list.",
     ),
     ToolSpec(
         "complete_task",
         TaskIdArgs,
         "Mark one task done by its id from list_tasks.",
+    ),
+    ToolSpec(
+        "move_task",
+        MoveTaskArgs,
+        "Move one task (id from list_tasks or already_exists) to another task "
+        "list by name; task_list_not_found lists the lists.",
     ),
     ToolSpec(
         "delete_task",

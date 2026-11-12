@@ -9,6 +9,7 @@ the Tasks API enabled, saved as workspace/credentials.json. The first run opens
 a browser to sign in and caches the token in workspace/token.json.
 """
 
+import os
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -24,7 +25,6 @@ CREDENTIALS = Path("workspace/credentials.json")
 TOKEN = Path("workspace/token.json")
 TIME_ZONE = "Europe/Warsaw"
 WINDOW_DAYS = 180
-TASK_LIST = "@default"
 WRITABLE_ROLES = ("owner", "writer")
 
 
@@ -47,9 +47,13 @@ def _local(value: dict[str, str]) -> datetime:
     return moment.astimezone(ZoneInfo(TIME_ZONE)).replace(tzinfo=None)
 
 
-def _event(item: dict[str, Any], calendar_id: str, calendar_name: str) -> Event:
+def _event(item: dict[str, Any], calendar_name: str) -> Event:
+    overrides = (item.get("reminders") or {}).get("overrides") or []
+    reminders = tuple(
+        int(o["minutes"]) for o in overrides if o.get("minutes") is not None
+    )
     return Event(
-        uid=f"gcal:{calendar_id}/{item['id']}",
+        uid=f"gcal:{calendar_name}/{item['id']}",
         title=item.get("summary", ""),
         start=_local(item["start"]),
         end=_local(item["end"]),
@@ -57,18 +61,25 @@ def _event(item: dict[str, Any], calendar_id: str, calendar_name: str) -> Event:
         description=item.get("description", ""),
         all_day="date" in item["start"],
         calendar=calendar_name,
+        reminder_minutes=reminders,
     )
 
 
-def _task(item: dict[str, Any]) -> Task:
+def _task(item: dict[str, Any], list_id: str, list_name: str) -> Task:
     due = item.get("due")  # RFC 3339; only the date part is meaningful
     return Task(
-        uid=f"gtask:{item['id']}",
+        uid=f"gtask:{list_id}/{item['id']}",
         title=item.get("title", ""),
         due=date.fromisoformat(due[:10]) if due else None,
         notes=item.get("notes", ""),
         completed=item.get("status") == "completed",
+        task_list=list_name,
     )
+
+
+def _task_ref(task: Task) -> tuple[str, str]:
+    list_id, _, task_id = task.uid.removeprefix("gtask:").rpartition("/")
+    return list_id, task_id
 
 
 class GoogleCalendarTools(CalendarTools):
@@ -93,11 +104,16 @@ class GoogleCalendarTools(CalendarTools):
             if c.get("selected") and not c.get("hidden")
         ]
         self._calendar_ids: dict[str, str] = {}
+        primary = ""
+        self._all_calendar_ids: dict[str, str] = {}
         events = []
         for calendar in visible:
             name = calendar.get("summaryOverride") or calendar.get("summary", "")
+            self._all_calendar_ids[name] = calendar["id"]
             if calendar.get("accessRole") in WRITABLE_ROLES:
                 self._calendar_ids[name] = calendar["id"]
+                if calendar.get("primary"):
+                    primary = name
             items = _pages(
                 calendar_api.events().list,
                 calendarId=calendar["id"],
@@ -107,23 +123,42 @@ class GoogleCalendarTools(CalendarTools):
                 maxResults=2500,
             )
             events += [
-                _event(item, calendar["id"], name)
+                _event(item, name)
                 for item in items
                 if item.get("status") != "cancelled" and "start" in item
             ]
-        tasks = _pages(
-            tasks_api.tasks().list,
-            tasklist=TASK_LIST,
-            showCompleted=True,
-            showHidden=True,
-            maxResults=100,
-        )
+        default_list = tasks_api.tasklists().get(tasklist="@default").execute()["id"]
+        self._list_ids: dict[str, str] = {}
+        tasks = []
+        for task_list in _pages(tasks_api.tasklists().list, maxResults=100):
+            name, list_id = task_list["title"], task_list["id"]
+            if list_id == default_list:
+                self._default_list = name
+            self._list_ids[name] = list_id
+            tasks += [
+                _task(item, list_id, name)
+                for item in _pages(
+                    tasks_api.tasks().list,
+                    tasklist=list_id,
+                    showCompleted=True,
+                    showHidden=True,
+                    maxResults=100,
+                )
+            ]
         super().__init__(
             sorted(events, key=lambda e: e.start),
             doc_index=doc_index,
-            tasks=[_task(item) for item in tasks],
+            tasks=tasks,
         )
         self.calendars = list(self._calendar_ids)
+        # GOOGLE_DEFAULT_CALENDAR (a name) overrides your primary calendar.
+        self.default_calendar = os.environ.get("GOOGLE_DEFAULT_CALENDAR") or primary
+        if self.default_calendar and self.default_calendar not in self._calendar_ids:
+            raise SystemExit(
+                f"GOOGLE_DEFAULT_CALENDAR={self.default_calendar!r} is not a "
+                f"writable calendar; choose one of {self.calendars}."
+            )
+        self.task_lists = list(self._list_ids)
 
     @classmethod
     def connect(cls, doc_index: Any | None = None) -> "GoogleCalendarTools":
@@ -161,23 +196,35 @@ class GoogleCalendarTools(CalendarTools):
         )
 
     def _event_ref(self, event: Event) -> tuple[str, str]:
-        calendar_id, _, event_id = event.uid.removeprefix("gcal:").rpartition("/")
-        return calendar_id, event_id
+        cal_key, _, event_id = event.uid.removeprefix("gcal:").rpartition("/")
+        return self._all_calendar_ids.get(cal_key, cal_key), event_id
 
     def _insert_event(self, event: Event) -> Event:
         calendar_id = self._calendar_ids[event.calendar]
+        reminders: dict[str, Any] = (
+            {
+                "useDefault": False,
+                "overrides": [
+                    {"method": "popup", "minutes": m} for m in event.reminder_minutes
+                ],
+            }
+            if event.reminder_minutes
+            else {"useDefault": True}
+        )
         body = {
             "summary": event.title,
             "location": event.location,
             "start": {"dateTime": event.start.isoformat(), "timeZone": TIME_ZONE},
             "end": {"dateTime": event.end.isoformat(), "timeZone": TIME_ZONE},
+            "reminders": reminders,
         }
         created = (
             self.calendar_api.events()
             .insert(calendarId=calendar_id, body=body, sendUpdates="none")
             .execute()
         )
-        saved = _event(created, calendar_id, event.calendar)
+        # Report what Google stored, so a dropped reminder is visible, not hidden.
+        saved = _event(created, event.calendar)
         self.events.append(saved)
         self.events.sort(key=lambda e: e.start)
         return saved
@@ -198,28 +245,37 @@ class GoogleCalendarTools(CalendarTools):
         body: dict[str, Any] = {"title": task.title, "notes": task.notes}
         if task.due:
             body["due"] = f"{task.due.isoformat()}T00:00:00.000Z"
-        saved = _task(
-            self.tasks_api.tasks().insert(tasklist=TASK_LIST, body=body).execute()
-        )
+        name = task.task_list or self._default_list
+        list_id = self._list_ids[name]
+        created = self.tasks_api.tasks().insert(tasklist=list_id, body=body).execute()
+        saved = _task(created, list_id, name)
         self.tasks.append(saved)
         return saved
 
     def _complete_task(self, task: Task) -> Task:
+        list_id, task_id = _task_ref(task)
         updated = (
             self.tasks_api.tasks()
-            .patch(
-                tasklist=TASK_LIST,
-                task=task.uid.removeprefix("gtask:"),
-                body={"status": "completed"},
-            )
+            .patch(tasklist=list_id, task=task_id, body={"status": "completed"})
             .execute()
         )
-        done = _task(updated)
+        done = _task(updated, list_id, task.task_list)
         self.tasks[self.tasks.index(task)] = done
         return done
 
     def _remove_task(self, task: Task) -> None:
-        self.tasks_api.tasks().delete(
-            tasklist=TASK_LIST, task=task.uid.removeprefix("gtask:")
-        ).execute()
+        list_id, task_id = _task_ref(task)
+        self.tasks_api.tasks().delete(tasklist=list_id, task=task_id).execute()
         self.tasks.remove(task)
+
+    def _move_task(self, task: Task, task_list: str) -> Task:
+        list_id, task_id = _task_ref(task)
+        target = self._list_ids[task_list]
+        moved = (
+            self.tasks_api.tasks()
+            .move(tasklist=list_id, task=task_id, destinationTasklist=target)
+            .execute()
+        )
+        saved = _task(moved, target, task_list)
+        self.tasks[self.tasks.index(task)] = saved
+        return saved

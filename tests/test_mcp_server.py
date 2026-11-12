@@ -35,6 +35,7 @@ async def test_server_lists_the_same_calendar_and_task_tools(server) -> None:
         "delete_task",
         "free_busy",
         "list_tasks",
+        "move_task",
         "search_events",
     ]
 

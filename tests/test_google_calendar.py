@@ -69,17 +69,33 @@ def _apis():
         "summary": "Kino",
         "start": {"dateTime": "2026-11-14T18:00:00+01:00"},
         "end": {"dateTime": "2026-11-14T20:00:00+01:00"},
+        # The real API echoes the stored reminders back.
+        "reminders": {
+            "useDefault": False,
+            "overrides": [
+                {"method": "popup", "minutes": 1440},
+                {"method": "popup", "minutes": 30},
+            ],
+        },
     }
-    tasks_api.tasks.return_value.list.return_value.execute.return_value = {
+    tasks_api.tasklists.return_value.get.return_value.execute.return_value = {
+        "id": "L1"
+    }
+    tasks_api.tasklists.return_value.list.return_value.execute.return_value = {
         "items": [
-            {
-                "id": "t1",
-                "title": "Kupić mleko",
-                "due": "2026-11-12T00:00:00.000Z",
-                "status": "needsAction",
-            }
+            {"id": "L1", "title": "Moje zadania"},
+            {"id": "L2", "title": "Codzienne"},
         ]
     }
+    milk = {
+        "id": "t1",
+        "title": "Kupić mleko",
+        "due": "2026-11-12T00:00:00.000Z",
+        "status": "needsAction",
+    }
+    tasks_api.tasks.return_value.list.side_effect = lambda tasklist, **_: MagicMock(
+        execute=MagicMock(return_value={"items": [milk] if tasklist == "L1" else []})
+    )
     return calendar_api, tasks_api
 
 
@@ -87,12 +103,14 @@ def test_reads_visible_calendars_as_naive_warsaw_times() -> None:
     tools = GoogleCalendarTools(*_apis(), today=date(2026, 11, 12))
     assert tools.calendars == ["Prywatne", "Rodzina"]  # holidays are read-only
     dentist = next(e for e in tools.events if e.title == "Dentysta")
-    assert dentist.uid == "gcal:me@gmail.com/e1"
+    assert dentist.uid == "gcal:Prywatne/e1"
     assert dentist.start == datetime(2026, 11, 13, 17, 0)
     assert dentist.calendar == "Prywatne"
     assert "Ukryty" not in {e.calendar for e in tools.events}
     assert len(tools.events) == 3  # cancelled one skipped
-    assert tools.tasks[0].uid == "gtask:t1" and tools.tasks[0].due == date(2026, 11, 12)
+    assert tools.tasks[0].uid == "gtask:L1/t1" and tools.tasks[0].due == date(
+        2026, 11, 12
+    )
 
 
 def test_create_event_writes_to_the_named_calendar_without_emails() -> None:
@@ -106,6 +124,7 @@ def test_create_event_writes_to_the_named_calendar_without_emails() -> None:
             "start": "2026-11-14T18:00",
             "end": "2026-11-14T20:00",
             "calendar": "rodzina",
+            "reminder_minutes": [1440, 30],
         },
         user_text="dodaj kino w sobotę o 18 do kalendarza Rodzina",
     )
@@ -117,9 +136,17 @@ def test_create_event_writes_to_the_named_calendar_without_emails() -> None:
         "dateTime": "2026-11-14T18:00:00",
         "timeZone": "Europe/Warsaw",
     }
+    assert kwargs["body"]["reminders"] == {
+        "useDefault": False,
+        "overrides": [
+            {"method": "popup", "minutes": 1440},
+            {"method": "popup", "minutes": 30},
+        ],
+    }
     created = result["result"]["created"]
-    assert created["id"] == "gcal:fam@group.calendar.google.com/new1"
+    assert created["id"] == "gcal:Rodzina/new1"
     assert created["calendar"] == "Rodzina"
+    assert created["reminder_minutes"] == [1440, 30]
 
 
 def test_delete_event_and_complete_task_call_the_api() -> None:
@@ -131,13 +158,13 @@ def test_delete_event_and_complete_task_call_the_api() -> None:
         "status": "completed",
     }
     deleted = execute_tool_call(
-        tools, "delete_event", {"id": "gcal:me@gmail.com/e1"}, confirm=lambda q: True
+        tools, "delete_event", {"id": "gcal:Prywatne/e1"}, confirm=lambda q: True
     )
     assert deleted["ok"]
     calendar_api.events.return_value.delete.assert_called_once_with(
         calendarId="me@gmail.com", eventId="e1", sendUpdates="none"
     )
-    done = execute_tool_call(tools, "complete_task", {"id": "gtask:t1"})
+    done = execute_tool_call(tools, "complete_task", {"id": "gtask:L1/t1"})
     assert done["result"]["completed"]["completed"] is True
     assert tasks_api.tasks.return_value.patch.call_args.kwargs["task"] == "t1"
 
@@ -146,7 +173,71 @@ def test_read_only_calendar_event_is_not_deleted() -> None:
     calendar_api, tasks_api = _apis()
     tools = GoogleCalendarTools(calendar_api, tasks_api, today=date(2026, 11, 12))
     result = execute_tool_call(
-        tools, "delete_event", {"id": "gcal:pl#holiday/h1"}, confirm=lambda q: True
+        tools, "delete_event", {"id": "gcal:Święta/h1"}, confirm=lambda q: True
     )
     assert result["error"]["code"] == "read_only_calendar"
     calendar_api.events.return_value.delete.assert_not_called()
+
+
+def test_tasks_use_every_list_and_move_between_them() -> None:
+    calendar_api, tasks_api = _apis()
+    tools = GoogleCalendarTools(calendar_api, tasks_api, today=date(2026, 11, 12))
+    assert tools.task_lists == ["Moje zadania", "Codzienne"]
+    assert tools.tasks[0].task_list == "Moje zadania"
+
+    tasks_api.tasks.return_value.insert.return_value.execute.return_value = {
+        "id": "t2",
+        "title": "Skorupki",
+        "status": "needsAction",
+    }
+    created = execute_tool_call(
+        tools, "create_task", {"title": "Skorupki", "task_list": "codzienne"}
+    )
+    assert tasks_api.tasks.return_value.insert.call_args.kwargs["tasklist"] == "L2"
+    assert created["result"]["created"]["id"] == "gtask:L2/t2"
+
+    tasks_api.tasks.return_value.move.return_value.execute.return_value = {
+        "id": "t1",
+        "title": "Kupić mleko",
+        "status": "needsAction",
+    }
+    moved = execute_tool_call(
+        tools, "move_task", {"id": "gtask:L1/t1", "task_list": "Codzienne"}
+    )
+    tasks_api.tasks.return_value.move.assert_called_once_with(
+        tasklist="L1", task="t1", destinationTasklist="L2"
+    )
+    assert moved["result"]["moved"]["task_list"] == "Codzienne"
+    daily = execute_tool_call(tools, "list_tasks", {"task_list": "Codzienne"})
+    assert [t["title"] for t in daily["result"]["tasks"]] == ["Kupić mleko", "Skorupki"]
+    missing = execute_tool_call(
+        tools, "move_task", {"id": "gtask:L2/t1", "task_list": "Praca"}
+    )
+    assert missing["error"]["code"] == "task_list_not_found"
+
+
+def test_primary_calendar_is_the_default_unless_env_names_another(monkeypatch):
+    import pytest
+
+    calendar_api, tasks_api = _apis()
+    listing = calendar_api.calendarList.return_value.list.return_value.execute
+    listing.return_value = {
+        "items": [{**CALENDARS[0], "primary": True}, *CALENDARS[1:]]
+    }
+    monkeypatch.delenv("GOOGLE_DEFAULT_CALENDAR", raising=False)
+    tools = GoogleCalendarTools(calendar_api, tasks_api, today=date(2026, 11, 12))
+    created = execute_tool_call(
+        tools,
+        "create_event",
+        {"title": "Kino", "start": "2026-11-14T18:00", "end": "2026-11-14T20:00"},
+        user_text="dodaj kino w sobotę o 18",
+    )
+    insert = calendar_api.events.return_value.insert
+    assert insert.call_args.kwargs["calendarId"] == "me@gmail.com"
+    assert created["result"]["created"]["calendar"] == "Prywatne"
+
+    monkeypatch.setenv("GOOGLE_DEFAULT_CALENDAR", "Rodzina")
+    assert GoogleCalendarTools(*_apis()).default_calendar == "Rodzina"
+    monkeypatch.setenv("GOOGLE_DEFAULT_CALENDAR", "Praca")
+    with pytest.raises(SystemExit, match="not a writable calendar"):
+        GoogleCalendarTools(*_apis())
