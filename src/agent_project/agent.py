@@ -235,6 +235,11 @@ def verify_citations_in_code(
     return True, all_cited, None
 
 
+# Result keys that hold citable records (lists of them, or one record).
+RESULT_LISTS = ("fragments", "events", "busy", "conflicts", "tasks")
+RESULT_ITEMS = ("created", "deleted", "completed", "moved")
+
+
 def _collect_retrieved_ids(
     tool_name: str, observation: dict[str, Any]
 ) -> tuple[set[str], set[str]]:
@@ -243,42 +248,10 @@ def _collect_retrieved_ids(
         existing = (observation.get("error") or {}).get("existing") or {}
         return ({existing["id"]} if "id" in existing else set()), set()
     res = observation.get("result") or {}
-    all_ids: set[str] = set()
-    doc_ids: set[str] = set()
-
-    if tool_name == "search_docs":
-        for frag in res.get("fragments", []):
-            if "id" in frag:
-                all_ids.add(frag["id"])
-                doc_ids.add(frag["id"])
-    elif tool_name == "search_events":
-        for ev in res.get("events", []):
-            if "id" in ev:
-                all_ids.add(ev["id"])
-    elif tool_name == "free_busy":
-        for ev in res.get("busy", []):
-            if "id" in ev:
-                all_ids.add(ev["id"])
-    elif tool_name == "create_event":
-        created = res.get("created") or {}
-        if "id" in created:
-            all_ids.add(created["id"])
-        for ev in res.get("conflicts", []):
-            if "id" in ev:
-                all_ids.add(ev["id"])
-    elif tool_name == "list_tasks":
-        all_ids.update(task["id"] for task in res.get("tasks", []) if "id" in task)
-    elif tool_name in (
-        "delete_event",
-        "create_task",
-        "complete_task",
-        "delete_task",
-        "move_task",
-    ):
-        for key in ("deleted", "created", "completed", "moved"):
-            if "id" in (res.get(key) or {}):
-                all_ids.add(res[key]["id"])
-
+    items = [item for key in RESULT_LISTS for item in res.get(key, [])]
+    items += [res[key] for key in RESULT_ITEMS if isinstance(res.get(key), dict)]
+    all_ids = {item["id"] for item in items if "id" in item}
+    doc_ids = {f["id"] for f in res.get("fragments", []) if "id" in f}
     return all_ids, doc_ids
 
 

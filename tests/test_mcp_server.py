@@ -67,3 +67,16 @@ async def test_delete_over_mcp_needs_confirmation_and_changes_nothing(
     assert result.structured_content["error"]["code"] == "confirmation_required"
     ids = [e.uid for e in CalendarTools.from_file(tmp_path / "calendar.ics").events]
     assert "evt-018@calendar.local" in ids
+
+
+@pytest.mark.anyio
+async def test_mcp_tools_match_the_shared_tool_specs(server) -> None:
+    # The wrappers repeat each signature; this catches drift when a tool changes.
+    from agent_project.tools import TOOL_SPECS
+
+    async with Client(server) as client:
+        listed = {tool.name: tool for tool in (await client.list_tools()).tools}
+    assert set(listed) == {spec.name for spec in TOOL_SPECS}
+    for spec in TOOL_SPECS:
+        params = set(listed[spec.name].input_schema["properties"])
+        assert params == set(spec.args_model.model_fields), spec.name

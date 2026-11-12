@@ -156,13 +156,19 @@ and delete nothing.
    and caches the token in `workspace/token.json`.
 
 The agent reads every calendar shown in the Google Calendar UI, from 180 days
-before today to 180 days after, and the default Google Tasks list. All
-calendars count for free/busy. New events go only to a calendar you named:
-without one the agent asks, and a calendar name you never said is rejected in
-code. Writes send no e-mail invitations. Things with a set time become events;
-things to check off with only a day become tasks, which Google Calendar shows
-on their due day. In the local file, tasks are `VTODO` entries in the same
-`.ics`.
+before today to 180 days after, and every Google Tasks list. Questions about
+days outside that window are refused (`outside_loaded_range`), not answered as
+free. All calendars count for free/busy, except all-day events and events marked
+"available". A new event goes to the calendar you named; without one it goes to
+your primary calendar, or to `GOOGLE_DEFAULT_CALENDAR` (a calendar name) from
+`.env`. A calendar name you never said is rejected in code. Writes send no
+e-mail invitations; `reminder_minutes` sets popup reminders.
+
+Anything with a time of day, a deadline hour ("do 12") or reminders before it
+becomes an event; things to check off with only a day become tasks, which
+Google Calendar shows on their due day. A task goes to the list you named, or to
+the default list; `move_task` moves it to another list. In the local file,
+tasks are `VTODO` entries in the same `.ics`, in one list.
 
 ## Project Brief
 

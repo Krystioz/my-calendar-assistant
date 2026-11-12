@@ -61,6 +61,12 @@ class Event:
     all_day: bool = False
     calendar: str = ""  # display name; empty for the local file
     reminder_minutes: tuple[int, ...] = ()
+    busy: bool = True  # False for "show as available" (TRANSP:TRANSPARENT)
+
+    @property
+    def blocks_time(self) -> bool:
+        """All-day entries (birthdays) and available-marked events do not block."""
+        return self.busy and not self.all_day
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -87,6 +93,8 @@ class Event:
         item.add("summary", self.title)
         item.add("dtstart", self.start.date() if self.all_day else self.start)
         item.add("dtend", self.end.date() if self.all_day else self.end)
+        if not self.busy:
+            item.add("transp", "TRANSPARENT")
         if self.location:
             item.add("location", self.location)
         if self.description:
@@ -184,6 +192,7 @@ def load_events(path: Path) -> list[Event]:
                 description=str(item.get("DESCRIPTION", "")),
                 all_day=all_day,
                 reminder_minutes=tuple(reminders),
+                busy=str(item.get("TRANSP", "")).upper() != "TRANSPARENT",
             )
         )
     return sorted(events, key=lambda event: event.start)
@@ -223,12 +232,18 @@ def named_in(name: str, text: str) -> bool:
     for word in name.split():
         fw = _fold(word)
         stem = fw[: max(4, len(fw) - 2)]
-        if stem in folded:
+        if any(t.startswith(stem) and len(t) <= len(fw) + 3 for t in tokens):
             continue
-        if len(fw) >= 5 and any(
-            SequenceMatcher(None, fw, tok[: len(fw) + 2]).ratio() >= 0.8
-            or SequenceMatcher(None, stem, tok[: len(stem) + 1]).ratio() >= 0.8
-            for tok in tokens
+        if (
+            len(fw) >= 5
+            and any(
+                len(tok) <= len(fw) + 3  # a longer word is another word, not a typo
+                and (
+                    SequenceMatcher(None, fw, tok[: len(fw) + 2]).ratio() >= 0.8
+                    or SequenceMatcher(None, stem, tok[: len(stem) + 1]).ratio() >= 0.8
+                )
+                for tok in tokens
+            )
         ):
             continue
         return False
@@ -312,6 +327,8 @@ class CreateEventArgs(BaseModel):
     @model_validator(mode="after")
     def _check_range(self) -> "CreateEventArgs":
         if self.end is None or self.end == self.start:
+            if self.start > datetime.max - timedelta(minutes=30):
+                raise ValueError("start is too far in the future")
             self.end = self.start + timedelta(minutes=30)
         if self.start > self.end:
             raise ValueError("start must be before end")
@@ -428,6 +445,8 @@ class CalendarTools:
         self.calendars: list[str] = []  # writable calendar names; empty: one file
         self.default_calendar = ""  # used when the user names no calendar
         self.task_lists: list[str] = []  # task list names; empty: one local list
+        # Days loaded from a remote backend; None means every event is in memory.
+        self.loaded_range: tuple[date, date] | None = None
 
     @classmethod
     def from_file(cls, path: Path, doc_index: Any | None = None) -> "CalendarTools":
@@ -494,6 +513,18 @@ class CalendarTools:
             raise ToolError("not_found", f"No task with id {task_id!r}.")
         return task
 
+    def _check_loaded(self, start: date | None, end: date | None) -> None:
+        """Refuse answers about days that were never read from the backend."""
+        if self.loaded_range is None:
+            return
+        first, last = self.loaded_range
+        if (start and start < first) or (end and end > last):
+            raise ToolError(
+                "outside_loaded_range",
+                f"Only {first} to {last} is loaded; nothing outside it can be "
+                "checked or changed.",
+            )
+
     def _target_calendar(self, name: str | None) -> str:
         """The writable calendar the user named; "" when there is only the file."""
         if not self.calendars:
@@ -533,6 +564,7 @@ class CalendarTools:
         raise ValueError(f"{name} has no confirmation question")
 
     def search_events(self, args: SearchEventsArgs) -> dict[str, Any]:
+        self._check_loaded(args.start, args.end)
         words = [_fold(word) for word in args.query.split() if len(word) >= 2]
         matches = []
         for event in self.events:
@@ -555,18 +587,19 @@ class CalendarTools:
         }
 
     def free_busy(self, args: FreeBusyArgs) -> dict[str, Any]:
+        self._check_loaded(args.start.date(), args.end.date())
         busy = [e for e in self.events if e.start < args.end and e.end > args.start]
         free, cursor = [], args.start
         for event in busy:
-            if event.all_day:
-                continue  # all-day entries (birthdays) do not block time
+            if not event.blocks_time:
+                continue
             if event.start > cursor:
                 free.append((cursor, event.start))
             cursor = max(cursor, event.end)
         if cursor < args.end:
             free.append((cursor, args.end))
         return {
-            "is_free": not any(not e.all_day for e in busy),
+            "is_free": not any(e.blocks_time for e in busy),
             **({"calendars": self.calendars} if self.calendars else {}),
             "busy": [e.to_dict() for e in busy],
             "free_slots": [
@@ -579,6 +612,7 @@ class CalendarTools:
         }
 
     def create_event(self, args: CreateEventArgs) -> dict[str, Any]:
+        self._check_loaded(args.start.date(), args.end.date())
         calendar = self._target_calendar(args.calendar)
         title = _fold(args.title).strip()
         for event in self.events:
@@ -594,7 +628,7 @@ class CalendarTools:
         conflicts = [
             e.to_dict()
             for e in self.events
-            if not e.all_day and e.start < args.end and e.end > args.start
+            if e.blocks_time and e.start < args.end and e.end > args.start
         ]
         assert args.end is not None
         event = Event(
@@ -808,21 +842,20 @@ def execute_tool_call(
         return parsed
     spec, args = parsed
 
-    # The prompt says "ask which calendar"; this makes a guessed one impossible.
+    # The prompt says "never pick a calendar"; this makes a guessed one impossible.
     chosen = getattr(args, "calendar", None)
-    if (
-        spec.name == "create_event"
-        and tools.calendars
-        and user_text is not None
-        and chosen
-        and not named_in(chosen, user_text)
-    ):
-        return _error(
-            "calendar_not_specified",
-            f"The user never named the calendar {chosen!r}. Ask the user which "
-            "calendar to use; nothing was added.",
-            calendars=tools.calendars,
-        )
+    if spec.name == "create_event" and tools.calendars and user_text is not None:
+        try:
+            target = tools._target_calendar(chosen) if chosen else None
+        except ToolError:
+            target = None  # create_event reports calendar_not_found itself
+        if target and not named_in(target, user_text):
+            return _error(
+                "calendar_not_specified",
+                f"The user never named the calendar {target!r}. Ask the user "
+                "which calendar to use; nothing was added.",
+                calendars=tools.calendars,
+            )
 
     try:
         if spec.sensitive:

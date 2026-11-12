@@ -101,7 +101,8 @@ def _apis():
 
 def test_reads_visible_calendars_as_naive_warsaw_times() -> None:
     tools = GoogleCalendarTools(*_apis(), today=date(2026, 11, 12))
-    assert tools.calendars == ["Prywatne", "Rodzina"]  # holidays are read-only
+    # Holidays are read-only; the deselected "Ukryty" stays writable, not read.
+    assert tools.calendars == ["Prywatne", "Rodzina", "Ukryty"]
     dentist = next(e for e in tools.events if e.title == "Dentysta")
     assert dentist.uid == "gcal:Prywatne/e1"
     assert dentist.start == datetime(2026, 11, 13, 17, 0)
@@ -241,3 +242,43 @@ def test_primary_calendar_is_the_default_unless_env_names_another(monkeypatch):
     monkeypatch.setenv("GOOGLE_DEFAULT_CALENDAR", "Praca")
     with pytest.raises(SystemExit, match="not a writable calendar"):
         GoogleCalendarTools(*_apis())
+
+
+def test_duplicate_names_get_unique_identities_and_available_does_not_block():
+    calendar_api, tasks_api = _apis()
+    listing = calendar_api.calendarList.return_value.list.return_value.execute
+    twin = {**CALENDARS[1], "id": "twin@group.calendar.google.com"}
+    listing.return_value = {"items": [*CALENDARS, twin]}
+    calendar_api.events.return_value.list.side_effect = lambda calendarId, **_: (
+        MagicMock(
+            execute=MagicMock(
+                return_value={
+                    "items": [
+                        {
+                            "id": "free1",
+                            "summary": "Może kawa",
+                            "transparency": "transparent",
+                            "start": {"dateTime": "2026-11-16T10:00:00+01:00"},
+                            "end": {"dateTime": "2026-11-16T11:00:00+01:00"},
+                        }
+                    ]
+                    if calendarId == "twin@group.calendar.google.com"
+                    else EVENTS.get(calendarId, [])
+                }
+            )
+        )
+    )
+    tools = GoogleCalendarTools(calendar_api, tasks_api, today=date(2026, 11, 12))
+    assert "Rodzina (twin@group.calendar.google.com)" in tools.calendars
+    free = execute_tool_call(
+        tools, "free_busy", {"start": "2026-11-16T09:00", "end": "2026-11-16T12:00"}
+    )
+    assert free["result"]["is_free"] is True
+
+
+def test_days_outside_the_loaded_window_are_refused() -> None:
+    tools = GoogleCalendarTools(*_apis(), today=date(2026, 11, 12))
+    result = execute_tool_call(
+        tools, "free_busy", {"start": "2028-01-10T09:00", "end": "2028-01-10T12:00"}
+    )
+    assert result["error"]["code"] == "outside_loaded_range"

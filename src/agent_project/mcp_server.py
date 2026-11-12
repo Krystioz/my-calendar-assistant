@@ -31,7 +31,7 @@ def build_server(tools: CalendarTools) -> MCPServer:
         return execute_tool_call(tools, name, given, confirm=None)
 
     def search_events(
-        query: str | None = None,
+        query: str = "",
         start: str | None = None,
         end: str | None = None,
         order: str | None = None,

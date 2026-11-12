@@ -326,3 +326,23 @@ def test_search_with_empty_query_lists_date_range_and_saves_reminder(
     reloaded = CalendarTools.from_file(tmp_path / "calendar.ics")
     saved = next(e for e in reloaded.events if e.title == "Wizyta z przypomnieniem")
     assert saved.reminder_minutes == (1440, 60)
+
+
+def test_guard_checks_the_resolved_calendar_not_the_raw_string(two_calendars):
+    # Regression: "na" passed the guard (it is in the text) and resolved to Rodzina.
+    sneaky = execute_tool_call(
+        two_calendars,
+        "create_event",
+        {**EVENT, "calendar": "na"},
+        user_text="dodaj dentystę na jutro o 10",
+    )
+    assert sneaky["ok"] is False
+    assert not named_in("Praca", "Dodaj spotkanie z pracownikiem jutro o 10")
+    assert named_in("Praca", "wpisz to do pracy")
+
+
+def test_far_future_start_is_a_validation_error_not_a_crash(writable) -> None:
+    result = execute_tool_call(
+        writable, "create_event", {"title": "X", "start": "9999-12-31T23:59"}
+    )
+    assert result["error"]["code"] == "invalid_arguments"

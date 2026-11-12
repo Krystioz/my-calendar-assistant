@@ -111,18 +111,21 @@ def test_all_questions_have_compilable_rubrics():
             re.compile(fact["pattern"])
 
 
-def test_routing_counts_only_successful_tool_calls(tmp_path):
+def test_routing_needs_successful_expected_and_no_forbidden_attempt(tmp_path):
     import json
 
     trace = tmp_path / "t.jsonl"
     trace.write_text(
         "\n".join(
             json.dumps({"event": "tool_result", "payload": {"name": n, "ok": ok}})
-            for n, ok in [("create_event", False), ("create_task", True)]
+            for n, ok in [("list_tasks", False), ("create_task", True)]
         ),
         encoding="utf-8",
     )
     task = {"expected_tools": ["create_task"], "forbidden_tools": ["create_event"]}
     assert eval_rag.score_routing(trace, task) is True
+    # A rejected forbidden call still means the model routed wrong.
+    wrong = {"expected_tools": ["create_task"], "forbidden_tools": ["list_tasks"]}
+    assert eval_rag.score_routing(trace, wrong) is False
     assert eval_rag.score_routing(trace, {"expected_tools": ["list_tasks"]}) is False
     assert eval_rag.score_routing(trace, {}) is None

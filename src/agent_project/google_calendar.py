@@ -62,7 +62,13 @@ def _event(item: dict[str, Any], calendar_name: str) -> Event:
         all_day="date" in item["start"],
         calendar=calendar_name,
         reminder_minutes=reminders,
+        busy=item.get("transparency") != "transparent",
     )
+
+
+def _unique(name: str, item_id: str, taken: dict[str, str]) -> str:
+    """Names are identities here, so a repeated name gets its id appended."""
+    return f"{name} ({item_id})" if name in taken else name
 
 
 def _task(item: dict[str, Any], list_id: str, list_name: str) -> Task:
@@ -98,22 +104,22 @@ class GoogleCalendarTools(CalendarTools):
         end = datetime.combine(today + timedelta(days=WINDOW_DAYS), datetime.min.time())
         zone = ZoneInfo(TIME_ZONE)
 
-        visible = [
-            c
-            for c in _pages(calendar_api.calendarList().list)
-            if c.get("selected") and not c.get("hidden")
-        ]
         self._calendar_ids: dict[str, str] = {}
         primary = ""
         self._all_calendar_ids: dict[str, str] = {}
         events = []
-        for calendar in visible:
+        # Hidden calendars stay writable (a deselected primary is still the
+        # default); only visible ones are read.
+        for calendar in _pages(calendar_api.calendarList().list):
             name = calendar.get("summaryOverride") or calendar.get("summary", "")
+            name = _unique(name, calendar["id"], self._all_calendar_ids)
             self._all_calendar_ids[name] = calendar["id"]
             if calendar.get("accessRole") in WRITABLE_ROLES:
                 self._calendar_ids[name] = calendar["id"]
                 if calendar.get("primary"):
                     primary = name
+            if not calendar.get("selected") or calendar.get("hidden"):
+                continue
             items = _pages(
                 calendar_api.events().list,
                 calendarId=calendar["id"],
@@ -131,7 +137,8 @@ class GoogleCalendarTools(CalendarTools):
         self._list_ids: dict[str, str] = {}
         tasks = []
         for task_list in _pages(tasks_api.tasklists().list, maxResults=100):
-            name, list_id = task_list["title"], task_list["id"]
+            list_id = task_list["id"]
+            name = _unique(task_list["title"], list_id, self._list_ids)
             if list_id == default_list:
                 self._default_list = name
             self._list_ids[name] = list_id
@@ -151,6 +158,7 @@ class GoogleCalendarTools(CalendarTools):
             tasks=tasks,
         )
         self.calendars = list(self._calendar_ids)
+        self.loaded_range = (start.date(), end.date())
         # GOOGLE_DEFAULT_CALENDAR (a name) overrides your primary calendar.
         self.default_calendar = os.environ.get("GOOGLE_DEFAULT_CALENDAR") or primary
         if self.default_calendar and self.default_calendar not in self._calendar_ids:

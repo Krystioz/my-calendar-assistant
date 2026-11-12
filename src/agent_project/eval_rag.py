@@ -98,12 +98,11 @@ def score_routing(trace_path: Path, item: dict[str, Any]) -> bool | None:
     if not expected and not forbidden:
         return None
     records = [json.loads(line) for line in trace_path.read_text("utf-8").splitlines()]
-    called = {
-        r["payload"]["name"]
-        for r in records
-        if r["event"] == "tool_result" and r["payload"].get("ok")
-    }
-    return expected <= called and not called & forbidden
+    results = [r["payload"] for r in records if r["event"] == "tool_result"]
+    succeeded = {p["name"] for p in results if p.get("ok")}
+    # A forbidden call counts even when rejected: the model still routed wrong.
+    attempted = {p["name"] for p in results}
+    return expected <= succeeded and not attempted & forbidden
 
 
 def evaluate_agent_set(
