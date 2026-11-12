@@ -2,7 +2,7 @@
 
 The server calls make_graph for every run and keeps the conversations itself,
 so the graph gets no checkpointer here. Settings come from calendar-agent.toml
-and the calendar is the CLI's working copy.
+and the calendar is CALENDAR_BACKEND from .env, else the CLI's working copy.
 """
 
 import asyncio
@@ -15,7 +15,7 @@ from langchain_core.runnables import RunnableConfig
 from agent_project.agent import AGENT_TOOL_SCHEMAS, _Run, build_agent_graph
 from agent_project.config import load_settings
 from agent_project.llm import OpenRouterClient
-from agent_project.tools import CalendarTools, working_copy
+from agent_project.tools import open_calendar
 
 
 async def make_graph(config: RunnableConfig):
@@ -34,7 +34,7 @@ def _build_graph():
     settings = load_settings()
     return build_agent_graph(
         client=_client(settings.model.name, settings.model.temperature),
-        tools=CalendarTools.from_file(working_copy()),
+        tools=open_calendar(),
         # Trace only: Studio shows the run itself, so no run_end and no diagram.
         run_tracker=_Run(
             Path("traces", f"studio-{datetime.now():%Y%m%d-%H%M%S-%f}.jsonl")

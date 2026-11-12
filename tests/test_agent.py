@@ -385,3 +385,48 @@ def test_only_true_resumes_a_confirmation_as_yes(tmp_path) -> None:
     assert tool_message["error"]["code"] == "declined_by_user"
     assert LAB_ID in [e.uid for e in CalendarTools.from_file(calendar).events]
     assert "Today is 2026-10-16" in final["messages"][0]["content"]
+
+
+def test_guessed_calendar_is_rejected_and_task_ids_are_citable(tmp_path) -> None:
+    from agent_project.tools import Task
+
+    tools = CalendarTools.from_file(working_copy(CALENDAR, tmp_path / "calendar.ics"))
+    tools.calendars = ["Prywatne", "Rodzina"]
+    tools.tasks.append(Task("task-1@calendar.local", "Kupić mleko"))
+    event = {"title": "Kino", "start": "2026-10-24T18:00", "end": "2026-10-24T20:00"}
+    trace = tmp_path / "trace.jsonl"
+    result = run_agent(
+        goal="Dodaj kino w sobotę o 18 i pokaż moje zadania",
+        client=MockClient(
+            [
+                reply(
+                    ("create_event", {**event, "calendar": "Rodzina"}),
+                    ("list_tasks", {}),
+                ),
+                reply(
+                    (
+                        "finish",
+                        {
+                            "outcome": "answered",
+                            "answer": "Masz zadanie [task-1@calendar.local].",
+                            "citations": ["task-1@calendar.local"],
+                        },
+                    )
+                ),
+            ]
+        ),
+        tools=tools,
+        trace_path=trace,
+        today=TODAY,
+        **LIMITS,
+    )
+    events = [json.loads(line) for line in trace.read_text("utf-8").splitlines()]
+    codes = [
+        e["payload"]["error"]["code"]
+        for e in events
+        if e["event"] == "tool_result" and "error" in e["payload"]
+    ]
+    assert codes == ["calendar_not_specified"]
+    assert result.status == "success"
+    assert result.citations == ["task-1@calendar.local"]
+    assert not any(e.title == "Kino" for e in tools.events)

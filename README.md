@@ -37,8 +37,10 @@ The agent prints its answer and a status line with the number of steps, the
 cost, and the trace file. Before any deletion the terminal asks
 `Delete '...'? [y/N]`; only an explicit `y` deletes. Options:
 
-- `--calendar PATH` — working calendar the agent reads and changes (default
-  `workspace/calendar.ics`, copied from `data/calendar.ics` on first use);
+- `--calendar PATH|google` — working calendar the agent reads and changes
+  (default `CALENDAR_BACKEND` from `.env`, else `workspace/calendar.ics`, copied
+  from `data/calendar.ics` on first use); `google` uses Google Calendar and
+  Google Tasks (see below);
 - `--today YYYY-MM-DD` — fixed "today" for reproducible runs;
 - `--trace PATH` — trace file (default `traces/run-<timestamp>.jsonl`);
 - `--thread ID` — answer the agent's clarifying question in that conversation.
@@ -139,8 +141,28 @@ uv run mcp dev src/agent_project/mcp_server.py
 
 The second command opens the MCP Inspector (needs `npx`). The server uses the
 same working calendar as the CLI. It has no way to ask the user, so
-`delete_event` over MCP always returns `confirmation_required` and deletes
-nothing.
+`delete_event` and `delete_task` over MCP always return `confirmation_required`
+and delete nothing.
+
+### Google Calendar and Google Tasks
+
+1. In Google Cloud Console create a project, enable the **Google Calendar
+   API** and the **Google Tasks API**, and add yourself as a test user on the
+   OAuth consent screen.
+2. Create an OAuth client of type **Desktop app** and save its JSON as
+   `workspace/credentials.json` (ignored by Git).
+3. Run with `--calendar google`, or set `CALENDAR_BACKEND=google` in `.env` for
+   the CLI, Studio and the MCP server. The first run opens a browser to sign in
+   and caches the token in `workspace/token.json`.
+
+The agent reads every calendar shown in the Google Calendar UI, from 180 days
+before today to 180 days after, and the default Google Tasks list. All
+calendars count for free/busy. New events go only to a calendar you named:
+without one the agent asks, and a calendar name you never said is rejected in
+code. Writes send no e-mail invitations. Things with a set time become events;
+things to check off with only a day become tasks, which Google Calendar shows
+on their due day. In the local file, tasks are `VTODO` entries in the same
+`.ics`.
 
 ## Project Brief
 
@@ -249,8 +271,10 @@ flowchart TD
 
 ## Repository Layout
 
-- `src/agent_project/tools.py` — calendar loading and saving, the four tools,
-  request checks and the confirmation rule;
+- `src/agent_project/tools.py` — calendar and task loading and saving, the
+  event and task tools, request checks and the confirmation rule;
+- `src/agent_project/google_calendar.py` — Google Calendar and Tasks backend
+  for the same tools;
 - `src/agent_project/agent.py` — the bounded agent loop and tracing;
 - `src/agent_project/rag.py` — local FastEmbed index and semantic retrieval;
 - `src/agent_project/eval_rag.py` — separate retrieval and answer evaluation;

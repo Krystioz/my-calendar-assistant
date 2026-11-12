@@ -24,13 +24,17 @@ def server(tmp_path):
 
 
 @pytest.mark.anyio
-async def test_server_lists_the_same_four_tools(server) -> None:
+async def test_server_lists_the_same_calendar_and_task_tools(server) -> None:
     async with Client(server) as client:
         listed = await client.list_tools()
     assert sorted(tool.name for tool in listed.tools) == [
+        "complete_task",
         "create_event",
+        "create_task",
         "delete_event",
+        "delete_task",
         "free_busy",
+        "list_tasks",
         "search_events",
     ]
 

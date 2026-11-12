@@ -31,14 +31,15 @@ MAX_CALLS_PER_STEP = 5
 MAX_CONSECUTIVE_REJECTIONS = 3
 
 INLINE_CITATION_RE = re.compile(
-    r"\[([^\[\]]*(?:#chunk-|@calendar\.local)[^\[\]]*)\]", re.IGNORECASE
+    r"\[([^\[\]]*(?:#chunk-|@calendar\.local|gcal:|gtask:)[^\[\]]*)\]",
+    re.IGNORECASE,
 )
 
 SYSTEM_PROMPT = """\
 You are a calendar and study assistant. You answer questions about the user's \
 calendar and local documents (syllabi, WMI regulations, study plan, seminars, \
-cinema repertoire, organizational notes), and add or delete calendar events, \
-using only the tools.
+cinema repertoire, organizational notes), add or delete calendar events, and \
+manage to-do tasks, using only the tools.
 
 Today is {today} ({weekday}). All times are local (Europe/Warsaw).
 
@@ -67,8 +68,18 @@ abstain from guessing, and explicitly name what information is missing.
 - Before adding an event, you may check the time with `free_busy`. If \
 `create_event` returns already_exists, do not add it again: tell the user it is \
 already there. If it reports conflicts, mention them.
+- Event or task: a set time or duration (a meeting, a visit, "at 15:00") is an \
+event; something to check off with only a day or no date (call someone, buy \
+something) is a task. A calendar named by the user means an event; the words \
+task, todo, zadanie, przypomnij mean a task. Never create both for one thing. \
+Ask only when these rules cannot decide (no day and no time given).
+- Events go to a calendar the user named. If the user did not name one and \
+several calendars exist, ask which one (list the names); never pick it yourself.
+- For "what do I have today", use `free_busy` for today and `list_tasks` with \
+due_by=today, and answer with both.
 - To delete an event, find its id with `search_events`, then call \
-`delete_event`. The application asks the user to confirm; you never confirm on \
+`delete_event`. Tasks are deleted the same way with `list_tasks` and \
+`delete_task`. The application asks the user to confirm; you never confirm on \
 the user's behalf. If the result is declined_by_user, the user has already \
 answered no: do not retry and do not ask again; call `finish` and say that \
 nothing was deleted.
@@ -246,10 +257,12 @@ def _collect_retrieved_ids(
         for ev in res.get("conflicts", []):
             if "id" in ev:
                 all_ids.add(ev["id"])
-    elif tool_name == "delete_event":
-        deleted = res.get("deleted") or {}
-        if "id" in deleted:
-            all_ids.add(deleted["id"])
+    elif tool_name == "list_tasks":
+        all_ids.update(task["id"] for task in res.get("tasks", []) if "id" in task)
+    elif tool_name in ("delete_event", "create_task", "complete_task", "delete_task"):
+        for key in ("deleted", "created", "completed"):
+            if "id" in (res.get(key) or {}):
+                all_ids.add(res[key]["id"])
 
     return all_ids, doc_ids
 
@@ -431,6 +444,10 @@ def build_agent_graph(
         doc_retrieved_ids = set(state["doc_retrieved_ids"])
         rejections = state["rejections_in_a_row"]
         clarify_call = None
+        # What the user said, so a calendar name the model invented is rejected.
+        user_text = " ".join(
+            m["content"] for m in messages if m["role"] == "user" and m.get("content")
+        )
 
         # Ask every confirmation before any call runs: on resume this node
         # restarts from the top, so nothing above here may change the calendar.
@@ -488,6 +505,7 @@ def build_agent_graph(
                     call["name"],
                     call["arguments"],
                     confirm=None if approved is None else lambda _, a=approved: a,
+                    user_text=user_text,
                 )
                 new_all, new_doc = _collect_retrieved_ids(call["name"], observation)
                 retrieved_ids.update(new_all)

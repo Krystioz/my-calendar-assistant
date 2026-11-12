@@ -5,6 +5,7 @@ import pytest
 from agent_project.tools import (
     CalendarTools,
     execute_tool_call,
+    named_in,
     tool_schemas,
     working_copy,
 )
@@ -102,7 +103,16 @@ def test_invalid_requests_are_rejected(tools, name, arguments, code) -> None:
 
 def test_tool_schemas_are_function_definitions() -> None:
     names = [schema["function"]["name"] for schema in tool_schemas()]
-    assert names == ["search_events", "free_busy", "create_event", "delete_event"]
+    assert names == [
+        "search_events",
+        "free_busy",
+        "create_event",
+        "delete_event",
+        "list_tasks",
+        "create_task",
+        "complete_task",
+        "delete_task",
+    ]
     assert "query" in tool_schemas()[0]["function"]["parameters"]["required"]
 
 
@@ -204,3 +214,84 @@ def test_wildcard_query_is_rejected_with_free_busy_hint(tools, query) -> None:
     result = execute_tool_call(tools, "search_events", {"query": query})
     assert result["error"]["code"] == "invalid_arguments"
     assert "free_busy" in result["error"]["message"]
+
+
+def test_tasks_live_in_the_working_copy_and_complete_or_delete(writable, tmp_path):
+    created = execute_tool_call(
+        writable,
+        "create_task",
+        {"title": "Zadzwonić do Kowalskiego", "due": "2026-10-20"},
+    )
+    task_id = created["result"]["created"]["id"]
+    again = execute_tool_call(
+        writable, "create_task", {"title": "zadzwonic do kowalskiego"}
+    )
+    assert again["error"]["code"] == "already_exists"
+
+    due = execute_tool_call(writable, "list_tasks", {"due_by": "2026-10-20"})
+    assert [t["id"] for t in due["result"]["tasks"]] == [task_id]
+    assert (
+        execute_tool_call(writable, "list_tasks", {"due_by": "2026-10-19"})["result"][
+            "tasks"
+        ]
+        == []
+    )
+
+    execute_tool_call(writable, "complete_task", {"id": task_id})
+    saved = CalendarTools.from_file(tmp_path / "calendar.ics")
+    assert [t.completed for t in saved.tasks] == [True]
+    assert len(saved.events) == 22  # tasks never become events
+    assert execute_tool_call(saved, "list_tasks", {})["result"]["tasks"] == []
+
+    refused = execute_tool_call(saved, "delete_task", {"id": task_id})
+    assert refused["error"]["code"] == "confirmation_required"
+    deleted = execute_tool_call(
+        saved, "delete_task", {"id": task_id}, confirm=lambda q: True
+    )
+    assert (
+        deleted["ok"] and CalendarTools.from_file(tmp_path / "calendar.ics").tasks == []
+    )
+
+
+@pytest.fixture
+def two_calendars(writable) -> CalendarTools:
+    writable.calendars = ["Prywatne", "Rodzina"]
+    return writable
+
+
+EVENT = {"title": "Dentysta", "start": "2026-11-02T10:00", "end": "2026-11-02T11:00"}
+
+
+def test_create_event_needs_a_calendar_when_several_exist(two_calendars) -> None:
+    missing = execute_tool_call(two_calendars, "create_event", EVENT)
+    assert missing["error"]["code"] == "calendar_not_specified"
+    assert missing["error"]["calendars"] == ["Prywatne", "Rodzina"]
+    unknown = execute_tool_call(
+        two_calendars, "create_event", {**EVENT, "calendar": "Praca"}
+    )
+    assert unknown["error"]["code"] == "calendar_not_found"
+
+
+def test_calendar_the_user_never_named_is_rejected(two_calendars) -> None:
+    args = {**EVENT, "calendar": "Rodzina"}
+    guessed = execute_tool_call(
+        two_calendars, "create_event", args, user_text="dodaj dentystę jutro o 10"
+    )
+    assert guessed["error"]["code"] == "calendar_not_specified"
+    named = execute_tool_call(
+        two_calendars, "create_event", args, user_text="dodaj w kalendarzu rodzinnym"
+    )
+    assert named["result"]["created"]["calendar"] == "Rodzina"
+
+
+@pytest.mark.parametrize(
+    ("name", "text", "expected"),
+    [
+        ("Prywatne", "wpisz do prywatnego", True),
+        ("Personal tasks", "put it in my personal task calendar", True),
+        ("Rodzina", "dodaj to do kalendarza", False),
+        ("Personal tasks", "personal", False),
+    ],
+)
+def test_named_in_matches_polish_word_forms_only(name, text, expected) -> None:
+    assert named_in(name, text) is expected

@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 
 from agent_project import MockClient, studio
-from agent_project.tools import working_copy
+from agent_project.tools import CalendarTools, working_copy
 
 CALENDAR = Path(__file__).parents[1] / "data" / "calendar.ics"
 
@@ -18,7 +18,9 @@ def test_studio_graph_takes_only_a_goal_and_leaves_storage_to_the_server(
 ) -> None:
     monkeypatch.setattr(studio, "_client", lambda *_: MockClient([]))
     monkeypatch.setattr(
-        studio, "working_copy", lambda: working_copy(CALENDAR, tmp_path / "c.ics")
+        studio,
+        "open_calendar",
+        lambda: CalendarTools.from_file(working_copy(CALENDAR, tmp_path / "c.ics")),
     )
     graph = asyncio.run(studio.make_graph({}))
     assert graph.get_input_jsonschema()["required"] == ["goal"]
@@ -32,7 +34,9 @@ def test_empty_goal_is_a_clear_error(tmp_path, monkeypatch) -> None:
 
     monkeypatch.setattr(studio, "_client", lambda *_: MockClient([]))
     monkeypatch.setattr(
-        studio, "working_copy", lambda: working_copy(CALENDAR, tmp_path / "c.ics")
+        studio,
+        "open_calendar",
+        lambda: CalendarTools.from_file(working_copy(CALENDAR, tmp_path / "c.ics")),
     )
     graph = asyncio.run(studio.make_graph({}))
     with pytest.raises(ValueError, match="non-empty 'goal'"):

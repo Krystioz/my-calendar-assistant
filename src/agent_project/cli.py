@@ -12,7 +12,7 @@ from pydantic import ValidationError
 from agent_project.agent import ConversationError, run_agent
 from agent_project.config import CONFIG_PATH, load_settings
 from agent_project.llm import OpenRouterClient
-from agent_project.tools import WORKING_CALENDAR, CalendarTools, working_copy
+from agent_project.tools import WORKING_CALENDAR, open_calendar
 
 
 def ask_user(question: str) -> bool:
@@ -38,10 +38,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--calendar",
-        type=Path,
-        default=WORKING_CALENDAR,
-        help="Working calendar the agent reads and changes; created from "
-        "data/calendar.ics if missing. Delete it to start over.",
+        help="'google' for Google Calendar and Tasks, or a working calendar file "
+        "the agent reads and changes; created from data/calendar.ics if missing. "
+        f"Default: CALENDAR_BACKEND from .env, else {WORKING_CALENDAR.as_posix()}.",
     )
     parser.add_argument(
         "--today",
@@ -76,7 +75,7 @@ def main(argv: list[str] | None = None) -> int:
                     model=settings.model.name,
                     temperature=settings.model.temperature,
                 ),
-                tools=CalendarTools.from_file(working_copy(target=args.calendar)),
+                tools=open_calendar(args.calendar),
                 trace_path=trace_path,
                 today=args.today,
                 max_steps=settings.limits.max_steps,
