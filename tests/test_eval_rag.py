@@ -109,3 +109,20 @@ def test_all_questions_have_compilable_rubrics():
         assert question["answer_rubric"]
         for fact in question["answer_rubric"]:
             re.compile(fact["pattern"])
+
+
+def test_routing_counts_only_successful_tool_calls(tmp_path):
+    import json
+
+    trace = tmp_path / "t.jsonl"
+    trace.write_text(
+        "\n".join(
+            json.dumps({"event": "tool_result", "payload": {"name": n, "ok": ok}})
+            for n, ok in [("create_event", False), ("create_task", True)]
+        ),
+        encoding="utf-8",
+    )
+    task = {"expected_tools": ["create_task"], "forbidden_tools": ["create_event"]}
+    assert eval_rag.score_routing(trace, task) is True
+    assert eval_rag.score_routing(trace, {"expected_tools": ["list_tasks"]}) is False
+    assert eval_rag.score_routing(trace, {}) is None

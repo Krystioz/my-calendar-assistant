@@ -72,7 +72,7 @@ already there. If it reports conflicts, mention them.
 event; something to check off with only a day or no date (call someone, buy \
 something) is a task. A calendar named by the user means an event; the words \
 task, todo, zadanie, przypomnij mean a task. Never create both for one thing. \
-Ask only when these rules cannot decide (no day and no time given).
+If it sounds like an appointment but has no time, ask for the time.
 - Events go to a calendar the user named. If the user did not name one and \
 several calendars exist, ask which one (list the names); never pick it yourself.
 - For "what do I have today", use `free_busy` for today and `list_tasks` with \

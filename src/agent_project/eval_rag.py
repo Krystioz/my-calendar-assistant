@@ -91,6 +91,21 @@ def score_answer(answer: str, rubric: list[dict[str, str]]) -> dict[str, Any]:
     }
 
 
+def score_routing(trace_path: Path, item: dict[str, Any]) -> bool | None:
+    """Did the run call every expected tool and none of the forbidden ones?"""
+    expected = set(item.get("expected_tools", []))
+    forbidden = set(item.get("forbidden_tools", []))
+    if not expected and not forbidden:
+        return None
+    records = [json.loads(line) for line in trace_path.read_text("utf-8").splitlines()]
+    called = {
+        r["payload"]["name"]
+        for r in records
+        if r["event"] == "tool_result" and r["payload"].get("ok")
+    }
+    return expected <= called and not called & forbidden
+
+
 def evaluate_agent_set(
     client: ModelClient,
     trace_dir: Path = Path("traces/eval"),
@@ -148,17 +163,20 @@ def evaluate_agent_set(
                 "cost_usd": run_res.cost_usd,
                 "answer": run_res.answer,
                 "trace": _portable_path(trace_path),
+                "routing_ok": score_routing(trace_path, item),
                 **score_answer(run_res.answer, item.get("answer_rubric", [])),
             }
         )
     citations = [r["citations_ok"] for r in results if r["citations_ok"] is not None]
     coverage = [r["fact_coverage"] for r in results if r["fact_coverage"] is not None]
+    routing = [r["routing_ok"] for r in results if r["routing_ok"] is not None]
     return {
         "total_questions": len(results),
         "planned_questions": len(items),
         "complete": len(results) == len(items),
         "outcome_accuracy": mean(r["status_ok"] for r in results) if results else None,
         "citation_accuracy": mean(citations) if citations else None,
+        "routing_accuracy": mean(routing) if routing else None,
         "fact_coverage": mean(coverage) if coverage else None,
         "all_facts_accuracy": mean(
             r["all_facts_present"]
@@ -229,6 +247,7 @@ def main() -> None:
         metrics = (
             "outcome_accuracy",
             "citation_accuracy",
+            "routing_accuracy",
             "fact_coverage",
             "all_facts_accuracy",
         )

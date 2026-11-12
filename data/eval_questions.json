@@ -245,5 +245,115 @@
         "pattern": "brak|nie (?:ma|mam|znalaz|podano|jest|zawiera|znam)|niedostępn"
       }
     ]
+  },
+  {
+    "id": "r01_reminder_call_is_task",
+    "question": "Przypomnij mi, żebym jutro zadzwonił do Kowalskiego.",
+    "expected_outcome": "answered",
+    "expected_sources": [],
+    "expected_tools": [
+      "create_task"
+    ],
+    "forbidden_tools": [
+      "create_event"
+    ],
+    "answer_rubric": [
+      {
+        "fact": "saved",
+        "pattern": "dodał|zapisał|utworzył|dodan|zapisan|utworzon"
+      }
+    ]
+  },
+  {
+    "id": "r02_dentist_with_time_is_event",
+    "question": "Dodaj wizytę u dentysty w poniedziałek 19.10 o 10:00 na godzinę.",
+    "expected_outcome": "answered",
+    "expected_sources": [],
+    "expected_tools": [
+      "create_event"
+    ],
+    "forbidden_tools": [
+      "create_task"
+    ],
+    "answer_rubric": [
+      {
+        "fact": "time",
+        "pattern": "10[:.]00"
+      }
+    ]
+  },
+  {
+    "id": "r03_explicit_task_word",
+    "question": "Dodaj zadanie: kupić prezent dla mamy do czwartku 22.10.",
+    "expected_outcome": "answered",
+    "expected_sources": [],
+    "expected_tools": [
+      "create_task"
+    ],
+    "forbidden_tools": [
+      "create_event"
+    ],
+    "answer_rubric": [
+      {
+        "fact": "due",
+        "pattern": "22[. /-]10|22\\s+października|czwart"
+      }
+    ]
+  },
+  {
+    "id": "r04_meeting_with_duration_is_event",
+    "question": "Spotkanie z promotorem we wtorek 20.10 o 14:00, 30 minut.",
+    "expected_outcome": "answered",
+    "expected_sources": [],
+    "expected_tools": [
+      "create_event"
+    ],
+    "forbidden_tools": [
+      "create_task"
+    ],
+    "answer_rubric": [
+      {
+        "fact": "time",
+        "pattern": "14[:.]00"
+      }
+    ]
+  },
+  {
+    "id": "r05_today_lists_events_and_tasks",
+    "question": "Co mam dzisiaj do zrobienia?",
+    "expected_outcome": "answered",
+    "expected_sources": [],
+    "expected_tools": [
+      "free_busy",
+      "list_tasks"
+    ],
+    "forbidden_tools": [
+      "create_task",
+      "create_event"
+    ],
+    "answer_rubric": [
+      {
+        "fact": "mentions_tasks",
+        "pattern": "zada[nń]|zadani"
+      }
+    ]
+  },
+  {
+    "id": "r06_no_date_todo_is_task",
+    "question": "Nie mogę zapomnieć oddać książki do biblioteki.",
+    "expected_outcome": "answered",
+    "expected_sources": [],
+    "expected_tools": [
+      "create_task"
+    ],
+    "forbidden_tools": [
+      "create_event"
+    ],
+    "answer_rubric": [
+      {
+        "fact": "book",
+        "pattern": "książ|ksiaz|bibliotek"
+      }
+    ]
   }
 ]
