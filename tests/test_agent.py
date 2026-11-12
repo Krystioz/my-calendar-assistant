@@ -391,7 +391,7 @@ def test_guessed_calendar_is_rejected_and_task_ids_are_citable(tmp_path) -> None
     from agent_project.tools import Task
 
     tools = CalendarTools.from_file(working_copy(CALENDAR, tmp_path / "calendar.ics"))
-    tools.calendars = ["Prywatne", "Rodzina"]
+    tools.store.calendars = ["Prywatne", "Rodzina"]
     tools.tasks.append(Task("task-1@calendar.local", "Kupić mleko"))
     event = {"title": "Kino", "start": "2026-10-24T18:00", "end": "2026-10-24T20:00"}
     trace = tmp_path / "trace.jsonl"

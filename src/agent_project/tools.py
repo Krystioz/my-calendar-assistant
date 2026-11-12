@@ -15,7 +15,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any, Literal, Protocol
 
 import icalendar
 from dotenv import load_dotenv
@@ -425,81 +425,131 @@ class SearchDocsArgs(BaseModel):
         return self
 
 
-class CalendarTools:
-    """One calendar file and optional document index exposed to the model as tools.
+class CalendarStore(Protocol):
+    """Where events and tasks live: the seam between the tools and a backend.
 
-    Without a path the tools work in memory only (used by tests of read tools).
-    Writes go through the _insert/_remove/_complete hooks, which a backend such
-    as GoogleCalendarTools overrides; every check stays here, shared.
+    Adapters: IcsStore (one local .ics file) and GoogleStore (google_calendar.py).
+    A store owns its records: every write updates `events`/`tasks` itself and
+    returns the record as the backend saved it (ids and fields included). All
+    checks (duplicates, conflicts, names, confirmation) stay in CalendarTools.
     """
+
+    events: list[Event]  # sorted by start
+    tasks: list[Task]
+    calendars: list[str]  # writable calendar names; empty: one unnamed calendar
+    default_calendar: str  # for events without a named calendar; may be ""
+    task_lists: list[str]  # task list names; empty: one unnamed list
+    loaded_range: tuple[date, date] | None  # None: every event is in memory
+
+    def add_event(self, event: Event) -> Event: ...
+    def remove_event(self, event: Event) -> None: ...
+    def add_task(self, task: Task) -> Task: ...
+    def complete_task(self, task: Task) -> Task: ...
+    def remove_task(self, task: Task) -> None: ...
+    def move_task(self, task: Task, task_list: str) -> Task: ...
+
+
+class IcsStore:
+    """Events and tasks of one local .ics file; without a path, memory only."""
+
+    calendars: list[str] = []
+    default_calendar = ""
+    task_lists: list[str] = []
+    loaded_range = None
 
     def __init__(
         self,
-        events: list[Event],
-        path: Path | None = None,
-        doc_index: Any | None = None,
+        events: list[Event] | None = None,
         tasks: list[Task] | None = None,
+        path: Path | None = None,
     ) -> None:
-        self.events = events
-        self.path = path
-        self.doc_index = doc_index
+        self.events = events if events is not None else []
         self.tasks = tasks if tasks is not None else []
-        self.calendars: list[str] = []  # writable calendar names; empty: one file
-        self.default_calendar = ""  # used when the user names no calendar
-        self.task_lists: list[str] = []  # task list names; empty: one local list
-        # Days loaded from a remote backend; None means every event is in memory.
-        self.loaded_range: tuple[date, date] | None = None
+        self.path = path
 
     @classmethod
-    def from_file(cls, path: Path, doc_index: Any | None = None) -> "CalendarTools":
-        return cls(load_events(path), path, doc_index, tasks=load_tasks(path))
+    def from_file(cls, path: Path) -> "IcsStore":
+        return cls(load_events(path), load_tasks(path), path)
 
     def _save(self) -> None:
         self.events.sort(key=lambda event: event.start)
         if self.path:
             save_events(self.path, self.events, self.tasks)
 
-    def _insert_event(self, event: Event) -> Event:
+    def add_event(self, event: Event) -> Event:
         self.events.append(event)
         self._save()
         return event
 
-    def _remove_event(self, event: Event) -> None:
+    def remove_event(self, event: Event) -> None:
         self.events.remove(event)
         self._save()
 
-    def _insert_task(self, task: Task) -> Task:
+    def add_task(self, task: Task) -> Task:
         self.tasks.append(task)
         self._save()
         return task
 
-    def _complete_task(self, task: Task) -> Task:
+    def complete_task(self, task: Task) -> Task:
         done = Task(task.uid, task.title, task.due, task.notes, completed=True)
         self.tasks[self.tasks.index(task)] = done
         self._save()
         return done
 
-    def _remove_task(self, task: Task) -> None:
+    def remove_task(self, task: Task) -> None:
         self.tasks.remove(task)
         self._save()
 
-    def _move_task(self, task: Task, task_list: str) -> Task:
+    def move_task(self, task: Task, task_list: str) -> Task:
         raise ToolError("not_supported", "The local file has only one task list.")
+
+
+class CalendarTools:
+    """The tools the model calls, over one CalendarStore and an optional doc index.
+
+    Every check lives here, so each store only reads and writes records.
+    """
+
+    def __init__(self, store: CalendarStore, doc_index: Any | None = None) -> None:
+        self.store = store
+        self.doc_index = doc_index
+
+    @classmethod
+    def from_file(cls, path: Path, doc_index: Any | None = None) -> "CalendarTools":
+        return cls(IcsStore.from_file(path), doc_index)
+
+    @property
+    def events(self) -> list[Event]:
+        return self.store.events
+
+    @property
+    def tasks(self) -> list[Task]:
+        return self.store.tasks
+
+    @property
+    def calendars(self) -> list[str]:
+        return self.store.calendars
 
     def _target_list(self, name: str | None) -> str:
         """The task list the user named; "" means the default list."""
-        if not name or not self.task_lists:
+        if not name or not self.store.task_lists:
             return ""
-        match = next((n for n in self.task_lists if _fold(n) == _fold(name)), None)
+        match = next(
+            (n for n in self.store.task_lists if _fold(n) == _fold(name)), None
+        )
         match = match or next(
-            (n for n in self.task_lists if named_in(n, name) or named_in(name, n)),
+            (
+                n
+                for n in self.store.task_lists
+                if named_in(n, name) or named_in(name, n)
+            ),
             None,
         )
         if match is None:
             raise ToolError(
                 "task_list_not_found",
                 f"No task list named {name!r}; nothing was changed.",
-                task_lists=self.task_lists,
+                task_lists=self.store.task_lists,
             )
         return match
 
@@ -517,9 +567,9 @@ class CalendarTools:
 
     def _check_loaded(self, start: date | None, end: date | None) -> None:
         """Refuse answers about days that were never read from the backend."""
-        if self.loaded_range is None:
+        if self.store.loaded_range is None:
             return
-        first, last = self.loaded_range
+        first, last = self.store.loaded_range
         if (start and start < first) or (end and end > last):
             raise ToolError(
                 "outside_loaded_range",
@@ -531,8 +581,8 @@ class CalendarTools:
         """The writable calendar the user named; "" when there is only the file."""
         if not self.calendars:
             return ""
-        if not name and self.default_calendar:
-            return self.default_calendar
+        if not name and self.store.default_calendar:
+            return self.store.default_calendar
         if not name:
             raise ToolError(
                 "calendar_not_specified",
@@ -642,12 +692,12 @@ class CalendarTools:
             calendar=calendar,
             reminder_minutes=args.reminders_tuple(),
         )
-        event = self._insert_event(event)
+        event = self.store.add_event(event)
         return {"created": event.to_dict(), "conflicts": conflicts}
 
     def delete_event(self, args: DeleteEventArgs) -> dict[str, Any]:
         event = self._find(args.id)
-        self._remove_event(event)
+        self.store.remove_event(event)
         return {"deleted": event.to_dict()}
 
     def list_tasks(self, args: ListTasksArgs) -> dict[str, Any]:
@@ -666,7 +716,7 @@ class CalendarTools:
             "total_matches": len(matches),
             "returned": min(len(matches), args.limit),
             "tasks": [task.to_dict() for task in matches[: args.limit]],
-            **({"task_lists": self.task_lists} if self.task_lists else {}),
+            **({"task_lists": self.store.task_lists} if self.store.task_lists else {}),
         }
 
     def create_task(self, args: CreateTaskArgs) -> dict[str, Any]:
@@ -686,14 +736,16 @@ class CalendarTools:
             notes=args.notes,
             task_list=task_list,
         )
-        return {"created": self._insert_task(task).to_dict()}
+        return {"created": self.store.add_task(task).to_dict()}
 
     def complete_task(self, args: TaskIdArgs) -> dict[str, Any]:
-        return {"completed": self._complete_task(self._find_task(args.id)).to_dict()}
+        return {
+            "completed": self.store.complete_task(self._find_task(args.id)).to_dict()
+        }
 
     def delete_task(self, args: TaskIdArgs) -> dict[str, Any]:
         task = self._find_task(args.id)
-        self._remove_task(task)
+        self.store.remove_task(task)
         return {"deleted": task.to_dict()}
 
     def move_task(self, args: MoveTaskArgs) -> dict[str, Any]:
@@ -701,7 +753,7 @@ class CalendarTools:
         task_list = self._target_list(args.task_list) or args.task_list
         if task.task_list == task_list:
             return {"moved": task.to_dict(), "unchanged": True}
-        return {"moved": self._move_task(task, task_list).to_dict()}
+        return {"moved": self.store.move_task(task, task_list).to_dict()}
 
     def search_docs(self, args: SearchDocsArgs) -> dict[str, Any]:
         if self.doc_index is None:
@@ -941,9 +993,9 @@ def open_calendar(
     load_dotenv()  # CALENDAR_BACKEND may live in .env, also for the MCP server
     target = target or os.environ.get("CALENDAR_BACKEND") or WORKING_CALENDAR
     if str(target) == "google":
-        from agent_project.google_calendar import GoogleCalendarTools
+        from agent_project.google_calendar import GoogleStore
 
-        return GoogleCalendarTools.connect(doc_index=doc_index)
+        return CalendarTools(GoogleStore.connect(), doc_index)
     return CalendarTools.from_file(working_copy(target=Path(target)), doc_index)
 
 

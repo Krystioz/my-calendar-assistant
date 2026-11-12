@@ -208,7 +208,7 @@ def test_python_agent_run_exports_automatically_for_each_outcome(tmp_path, outco
 
     from agent_project import MockClient
     from agent_project.agent import run_agent
-    from agent_project.tools import CalendarTools
+    from agent_project.tools import CalendarTools, IcsStore
 
     replies = (
         []
@@ -229,7 +229,7 @@ def test_python_agent_run_exports_automatically_for_each_outcome(tmp_path, outco
     result = run_agent(
         "Demo",
         MockClient(replies),
-        CalendarTools([]),
+        CalendarTools(IcsStore()),
         trace,
         date(2026, 10, 16),
         max_steps=12,

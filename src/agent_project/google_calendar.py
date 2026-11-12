@@ -1,8 +1,9 @@
 """Google Calendar and Google Tasks as the backend of CalendarTools.
 
-Every visible calendar (selected in the Google Calendar UI) is read into memory
-for a window around today, so search, free/busy, duplicate and conflict checks
-are the same code as for the local file. Only writes call the API here.
+GoogleStore is a CalendarStore adapter: every visible calendar (selected in the
+Google Calendar UI) and every task list is read into memory for a window around
+today, so search, free/busy, duplicate and conflict checks are the same
+CalendarTools code as for the local file. Only writes call the API here.
 
 Setup once: a Google Cloud OAuth "Desktop app" client with the Calendar API and
 the Tasks API enabled, saved as workspace/credentials.json. The first run opens
@@ -15,7 +16,7 @@ from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
 
-from agent_project.tools import CalendarTools, Event, Task, ToolError
+from agent_project.tools import Event, Task, ToolError
 
 SCOPES = [
     "https://www.googleapis.com/auth/calendar",
@@ -88,13 +89,9 @@ def _task_ref(task: Task) -> tuple[str, str]:
     return list_id, task_id
 
 
-class GoogleCalendarTools(CalendarTools):
+class GoogleStore:
     def __init__(
-        self,
-        calendar_api: Any,
-        tasks_api: Any,
-        today: date | None = None,
-        doc_index: Any | None = None,
+        self, calendar_api: Any, tasks_api: Any, today: date | None = None
     ) -> None:
         self.calendar_api, self.tasks_api = calendar_api, tasks_api
         today = today or date.today()
@@ -152,11 +149,8 @@ class GoogleCalendarTools(CalendarTools):
                     maxResults=100,
                 )
             ]
-        super().__init__(
-            sorted(events, key=lambda e: e.start),
-            doc_index=doc_index,
-            tasks=tasks,
-        )
+        self.events = sorted(events, key=lambda e: e.start)
+        self.tasks = tasks
         self.calendars = list(self._calendar_ids)
         self.loaded_range = (start.date(), end.date())
         # GOOGLE_DEFAULT_CALENDAR (a name) overrides your primary calendar.
@@ -169,7 +163,7 @@ class GoogleCalendarTools(CalendarTools):
         self.task_lists = list(self._list_ids)
 
     @classmethod
-    def connect(cls, doc_index: Any | None = None) -> "GoogleCalendarTools":
+    def connect(cls) -> "GoogleStore":
         """Sign in (browser on the first run) and load every visible calendar."""
         try:
             from google.auth.transport.requests import Request
@@ -200,14 +194,13 @@ class GoogleCalendarTools(CalendarTools):
         return cls(
             build("calendar", "v3", credentials=creds),
             build("tasks", "v1", credentials=creds),
-            doc_index=doc_index,
         )
 
     def _event_ref(self, event: Event) -> tuple[str, str]:
         cal_key, _, event_id = event.uid.removeprefix("gcal:").rpartition("/")
         return self._all_calendar_ids.get(cal_key, cal_key), event_id
 
-    def _insert_event(self, event: Event) -> Event:
+    def add_event(self, event: Event) -> Event:
         calendar_id = self._calendar_ids[event.calendar]
         reminders: dict[str, Any] = (
             {
@@ -237,7 +230,7 @@ class GoogleCalendarTools(CalendarTools):
         self.events.sort(key=lambda e: e.start)
         return saved
 
-    def _remove_event(self, event: Event) -> None:
+    def remove_event(self, event: Event) -> None:
         calendar_id, event_id = self._event_ref(event)
         if calendar_id not in self._calendar_ids.values():
             raise ToolError(
@@ -249,7 +242,7 @@ class GoogleCalendarTools(CalendarTools):
         ).execute()
         self.events.remove(event)
 
-    def _insert_task(self, task: Task) -> Task:
+    def add_task(self, task: Task) -> Task:
         body: dict[str, Any] = {"title": task.title, "notes": task.notes}
         if task.due:
             body["due"] = f"{task.due.isoformat()}T00:00:00.000Z"
@@ -260,7 +253,7 @@ class GoogleCalendarTools(CalendarTools):
         self.tasks.append(saved)
         return saved
 
-    def _complete_task(self, task: Task) -> Task:
+    def complete_task(self, task: Task) -> Task:
         list_id, task_id = _task_ref(task)
         updated = (
             self.tasks_api.tasks()
@@ -271,12 +264,12 @@ class GoogleCalendarTools(CalendarTools):
         self.tasks[self.tasks.index(task)] = done
         return done
 
-    def _remove_task(self, task: Task) -> None:
+    def remove_task(self, task: Task) -> None:
         list_id, task_id = _task_ref(task)
         self.tasks_api.tasks().delete(tasklist=list_id, task=task_id).execute()
         self.tasks.remove(task)
 
-    def _move_task(self, task: Task, task_list: str) -> Task:
+    def move_task(self, task: Task, task_list: str) -> Task:
         list_id, task_id = _task_ref(task)
         target = self._list_ids[task_list]
         moved = (

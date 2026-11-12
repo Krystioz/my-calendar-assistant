@@ -1,8 +1,8 @@
 from datetime import date, datetime
 from unittest.mock import MagicMock
 
-from agent_project.google_calendar import GoogleCalendarTools
-from agent_project.tools import execute_tool_call
+from agent_project.google_calendar import GoogleStore
+from agent_project.tools import CalendarTools, execute_tool_call
 
 CALENDARS = [
     {
@@ -100,7 +100,7 @@ def _apis():
 
 
 def test_reads_visible_calendars_as_naive_warsaw_times() -> None:
-    tools = GoogleCalendarTools(*_apis(), today=date(2026, 11, 12))
+    tools = CalendarTools(GoogleStore(*_apis(), today=date(2026, 11, 12)))
     # Holidays are read-only; the deselected "Ukryty" stays writable, not read.
     assert tools.calendars == ["Prywatne", "Rodzina", "Ukryty"]
     dentist = next(e for e in tools.events if e.title == "Dentysta")
@@ -116,7 +116,9 @@ def test_reads_visible_calendars_as_naive_warsaw_times() -> None:
 
 def test_create_event_writes_to_the_named_calendar_without_emails() -> None:
     calendar_api, tasks_api = _apis()
-    tools = GoogleCalendarTools(calendar_api, tasks_api, today=date(2026, 11, 12))
+    tools = CalendarTools(
+        GoogleStore(calendar_api, tasks_api, today=date(2026, 11, 12))
+    )
     result = execute_tool_call(
         tools,
         "create_event",
@@ -152,7 +154,9 @@ def test_create_event_writes_to_the_named_calendar_without_emails() -> None:
 
 def test_delete_event_and_complete_task_call_the_api() -> None:
     calendar_api, tasks_api = _apis()
-    tools = GoogleCalendarTools(calendar_api, tasks_api, today=date(2026, 11, 12))
+    tools = CalendarTools(
+        GoogleStore(calendar_api, tasks_api, today=date(2026, 11, 12))
+    )
     tasks_api.tasks.return_value.patch.return_value.execute.return_value = {
         "id": "t1",
         "title": "Kupić mleko",
@@ -172,7 +176,9 @@ def test_delete_event_and_complete_task_call_the_api() -> None:
 
 def test_read_only_calendar_event_is_not_deleted() -> None:
     calendar_api, tasks_api = _apis()
-    tools = GoogleCalendarTools(calendar_api, tasks_api, today=date(2026, 11, 12))
+    tools = CalendarTools(
+        GoogleStore(calendar_api, tasks_api, today=date(2026, 11, 12))
+    )
     result = execute_tool_call(
         tools, "delete_event", {"id": "gcal:Święta/h1"}, confirm=lambda q: True
     )
@@ -182,8 +188,10 @@ def test_read_only_calendar_event_is_not_deleted() -> None:
 
 def test_tasks_use_every_list_and_move_between_them() -> None:
     calendar_api, tasks_api = _apis()
-    tools = GoogleCalendarTools(calendar_api, tasks_api, today=date(2026, 11, 12))
-    assert tools.task_lists == ["Moje zadania", "Codzienne"]
+    tools = CalendarTools(
+        GoogleStore(calendar_api, tasks_api, today=date(2026, 11, 12))
+    )
+    assert tools.store.task_lists == ["Moje zadania", "Codzienne"]
     assert tools.tasks[0].task_list == "Moje zadania"
 
     tasks_api.tasks.return_value.insert.return_value.execute.return_value = {
@@ -226,7 +234,9 @@ def test_primary_calendar_is_the_default_unless_env_names_another(monkeypatch):
         "items": [{**CALENDARS[0], "primary": True}, *CALENDARS[1:]]
     }
     monkeypatch.delenv("GOOGLE_DEFAULT_CALENDAR", raising=False)
-    tools = GoogleCalendarTools(calendar_api, tasks_api, today=date(2026, 11, 12))
+    tools = CalendarTools(
+        GoogleStore(calendar_api, tasks_api, today=date(2026, 11, 12))
+    )
     created = execute_tool_call(
         tools,
         "create_event",
@@ -238,10 +248,10 @@ def test_primary_calendar_is_the_default_unless_env_names_another(monkeypatch):
     assert created["result"]["created"]["calendar"] == "Prywatne"
 
     monkeypatch.setenv("GOOGLE_DEFAULT_CALENDAR", "Rodzina")
-    assert GoogleCalendarTools(*_apis()).default_calendar == "Rodzina"
+    assert GoogleStore(*_apis()).default_calendar == "Rodzina"
     monkeypatch.setenv("GOOGLE_DEFAULT_CALENDAR", "Praca")
     with pytest.raises(SystemExit, match="not a writable calendar"):
-        GoogleCalendarTools(*_apis())
+        CalendarTools(GoogleStore(*_apis()))
 
 
 def test_duplicate_names_get_unique_identities_and_available_does_not_block():
@@ -268,7 +278,9 @@ def test_duplicate_names_get_unique_identities_and_available_does_not_block():
             )
         )
     )
-    tools = GoogleCalendarTools(calendar_api, tasks_api, today=date(2026, 11, 12))
+    tools = CalendarTools(
+        GoogleStore(calendar_api, tasks_api, today=date(2026, 11, 12))
+    )
     assert "Rodzina (twin@group.calendar.google.com)" in tools.calendars
     free = execute_tool_call(
         tools, "free_busy", {"start": "2026-11-16T09:00", "end": "2026-11-16T12:00"}
@@ -277,7 +289,7 @@ def test_duplicate_names_get_unique_identities_and_available_does_not_block():
 
 
 def test_days_outside_the_loaded_window_are_refused() -> None:
-    tools = GoogleCalendarTools(*_apis(), today=date(2026, 11, 12))
+    tools = CalendarTools(GoogleStore(*_apis(), today=date(2026, 11, 12)))
     result = execute_tool_call(
         tools, "free_busy", {"start": "2028-01-10T09:00", "end": "2028-01-10T12:00"}
     )

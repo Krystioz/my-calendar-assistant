@@ -256,7 +256,7 @@ def test_tasks_live_in_the_working_copy_and_complete_or_delete(writable, tmp_pat
 
 @pytest.fixture
 def two_calendars(writable) -> CalendarTools:
-    writable.calendars = ["Prywatne", "Rodzina"]
+    writable.store.calendars = ["Prywatne", "Rodzina"]
     return writable
 
 
