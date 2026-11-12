@@ -1,21 +1,52 @@
+# Environment & secrets
 .env
+.env.*
+!.env.example
+
+# Virtual environments
 .venv/
+venv/
+
+# Python bytecode & packaging
 __pycache__/
 *.py[cod]
-.pytest_cache/
-.ruff_cache/
-.coverage
-htmlcov/
+*$py.class
 dist/
 build/
 *.egg-info/
+
+# Testing, linting & type checking caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyright/
+.coverage
+.coverage.*
+htmlcov/
+
+# Local model & tool caches (e.g. FastEmbed, LangGraph Studio)
+.cache/
+.langgraph_api/
+
+# Runtime traces, working calendar copy, local DBs & course notes
 traces/*
 !traces/.gitkeep
-.cache/
-.idea
+/workspace/
+/docs/
+*.sqlite
+*.sqlite3
+*.sqlite-*
+*.db
+*.db-*
 
-# Local working copy of the calendar and local notes
-workspace/
-docs/
+# IDEs & editors
 .idea/
-.langgraph_api/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
