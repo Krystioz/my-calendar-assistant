@@ -12,6 +12,7 @@ from typing import Any, Literal, TypedDict
 from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import END, START, StateGraph
+from langgraph.runtime import get_runtime
 from langgraph.types import Command, interrupt
 from pydantic import BaseModel, Field, ValidationError
 
@@ -19,6 +20,7 @@ from agent_project.llm import ModelClient
 from agent_project.tools import (
     CalendarTools,
     Confirm,
+    confirmation_needed,
     execute_tool_call,
     tool_schemas,
 )
@@ -105,6 +107,8 @@ FINISH_TOOL = {
     },
 }
 
+AGENT_TOOL_SCHEMAS = [*tool_schemas(include_docs=True), FINISH_TOOL]
+
 Status = Literal["success", "not_found", "clarify", "error", "step_limit", "cost_limit"]
 NextNode = Literal[
     "call_model",
@@ -133,7 +137,19 @@ class ConversationError(Exception):
     """The --thread conversation cannot take an answer (unknown or ended)."""
 
 
+@dataclass
+class AgentContext:
+    """Run settings that are not state; Studio shows them as assistant fields."""
+
+    today: str | None = None  # YYYY-MM-DD; empty means the real date
+
+
+class AgentInput(TypedDict):
+    goal: str  # the user's first message; the start node builds the state from it
+
+
 class AgentState(TypedDict):
+    goal: str
     messages: list[dict[str, Any]]
     pending_calls: list[dict[str, Any]]
     retrieved_ids: set[str]
@@ -247,18 +263,44 @@ def build_agent_graph(
     max_steps: int,
     max_cost_usd: float,
     max_clarifications: int,
-    checkpointer: BaseCheckpointSaver,
-    confirm: Confirm | None = None,
+    checkpointer: BaseCheckpointSaver | None,
+    can_confirm: bool = True,
     require_citations: bool = False,
 ):
-    """Build the explicit LangGraph StateGraph for the agent workflow."""
+    """Build the explicit LangGraph StateGraph for the agent workflow.
 
-    def traced_confirm(question: str) -> bool:
-        approved = bool(confirm(question))
-        run_tracker.trace(
-            "confirmation", step=run_tracker.steps, question=question, approved=approved
-        )
-        return approved
+    A sensitive tool pauses the graph with interrupt({"kind": "confirm"}); only
+    the resume value True approves it. With can_confirm=False nobody can answer,
+    so the tool returns confirmation_required instead. checkpointer=None lets the
+    LangGraph server (Studio) supply its own.
+    """
+
+    def start(state: AgentState) -> dict[str, Any]:
+        if not (state.get("goal") or "").strip():
+            raise ValueError("Input needs a non-empty 'goal'.")
+        given = get_runtime(AgentContext).context.today
+        today = date.fromisoformat(given) if given else date.today()
+        return {
+            "messages": [
+                {
+                    "role": "system",
+                    "content": SYSTEM_PROMPT.format(
+                        today=today.isoformat(), weekday=today.strftime("%A")
+                    ),
+                },
+                {"role": "user", "content": state["goal"]},
+            ],
+            "pending_calls": [],
+            "retrieved_ids": set(),
+            "doc_retrieved_ids": set(),
+            "steps": 0,
+            "clarifications": 0,
+            "rejections_in_a_row": 0,
+            "status": None,
+            "answer": "",
+            "citations": [],
+            "next_node": "call_model",
+        }
 
     def call_model(state: AgentState) -> dict[str, Any]:
         if state["steps"] >= max_steps:
@@ -390,6 +432,21 @@ def build_agent_graph(
         rejections = state["rejections_in_a_row"]
         clarify_call = None
 
+        # Ask every confirmation before any call runs: on resume this node
+        # restarts from the top, so nothing above here may change the calendar.
+        asked = []
+        for call in state["pending_calls"][:MAX_CALLS_PER_STEP] if can_confirm else []:
+            question = confirmation_needed(tools, call["name"], call["arguments"])
+            if question is not None:
+                answer = interrupt({"kind": "confirm", "question": question})
+                asked.append((call["id"], question, answer is True))
+        answers = {}
+        for call_id, question, approved in asked:
+            answers[call_id] = approved
+            run_tracker.trace(
+                "confirmation", step=step, question=question, approved=approved
+            )
+
         for index, call in enumerate(state["pending_calls"]):
             if call["name"] == "finish":
                 finished = _parse_finish(
@@ -425,11 +482,12 @@ def build_agent_graph(
                     },
                 }
             else:
+                approved = answers.get(call["id"])
                 observation = execute_tool_call(
                     tools,
                     call["name"],
                     call["arguments"],
-                    confirm=traced_confirm if confirm else None,
+                    confirm=None if approved is None else lambda _, a=approved: a,
                 )
                 new_all, new_doc = _collect_retrieved_ids(call["name"], observation)
                 retrieved_ids.update(new_all)
@@ -510,7 +568,11 @@ def build_agent_graph(
             }
 
         user_reply = interrupt(
-            {"question": finished.answer, "citations": finished.citations}
+            {
+                "kind": "clarify",
+                "question": finished.answer,
+                "citations": finished.citations,
+            }
         )
 
         return {
@@ -547,22 +609,22 @@ def build_agent_graph(
     def traced_node(name, action):
         def execute(state: AgentState):
             update = action(state)
+            after = {**state, **update}
             run_tracker.trace(
                 "graph_node",
                 node=name,
                 next_node=update.get("next_node", "end"),
-                step=update.get("steps", state["steps"]),
-                status=update.get("status", state["status"]),
-                retrieved_ids=sorted(
-                    update.get("retrieved_ids", state["retrieved_ids"])
-                ),
+                step=after["steps"],
+                status=after["status"],
+                retrieved_ids=sorted(after["retrieved_ids"]),
             )
             return update
 
         return execute
 
-    graph = StateGraph(AgentState)
+    graph = StateGraph(AgentState, context_schema=AgentContext, input_schema=AgentInput)
     for name, action in (
+        ("start", start),
         ("call_model", call_model),
         ("retrieve_docs", retrieve_docs),
         ("use_calendar_tools", use_calendar_tools),
@@ -572,7 +634,8 @@ def build_agent_graph(
     ):
         graph.add_node(name, traced_node(name, action))
 
-    graph.add_edge(START, "call_model")
+    graph.add_edge(START, "start")
+    graph.add_edge("start", "call_model")
     graph.add_conditional_edges(
         "call_model",
         lambda s: s["next_node"],
@@ -624,21 +687,22 @@ def run_agent(
 ) -> RunResult:
     """Start a conversation, or answer the question of `resume_thread`.
 
+    Confirmation pauses are answered here with `confirm`; a clarifying question
+    ends the call, and the next call answers it with `resume_thread`.
     Without a checkpointer the conversation lives in memory for this call only.
     `settings` is recorded in the trace as the configuration the run used.
     """
     run = _Run(trace_path)
-    schemas = [*tool_schemas(include_docs=True), FINISH_TOOL]
     compiled = build_agent_graph(
         client=client,
         tools=tools,
         run_tracker=run,
-        schemas=schemas,
+        schemas=AGENT_TOOL_SCHEMAS,
         max_steps=max_steps,
         max_cost_usd=max_cost_usd,
         max_clarifications=max_clarifications,
         checkpointer=checkpointer or InMemorySaver(),
-        confirm=confirm,
+        can_confirm=confirm is not None,
         require_citations=require_citations,
     )
     thread_id = resume_thread or uuid.uuid4().hex
@@ -669,13 +733,18 @@ def run_agent(
         },
         settings=settings,
     )
-    if resume_thread:
-        final_state = compiled.invoke(Command(resume=goal), config)
-    else:
-        final_state = compiled.invoke(_initial_state(goal, today), config)
+    graph_input = Command(resume=goal) if resume_thread else {"goal": goal}
+    while True:
+        final_state = compiled.invoke(
+            graph_input, config, context=AgentContext(today=today.isoformat())
+        )
+        paused = final_state.get("__interrupt__")
+        if not paused or paused[0].value["kind"] != "confirm":
+            break
+        graph_input = Command(resume=bool(confirm(paused[0].value["question"])))
 
-    if final_state.get("__interrupt__"):
-        asked = final_state["__interrupt__"][0].value
+    if paused:
+        asked = paused[0].value
         return run.end(
             "clarify",
             asked["question"],
@@ -686,30 +755,6 @@ def run_agent(
     answer: str = final_state.get("answer") or "Run ended without an answer."
     citations: list[str] = final_state.get("citations") or []
     return run.end(status, answer, citations=citations, thread_id=thread_id)
-
-
-def _initial_state(goal: str, today: date) -> AgentState:
-    return {
-        "messages": [
-            {
-                "role": "system",
-                "content": SYSTEM_PROMPT.format(
-                    today=today.isoformat(), weekday=today.strftime("%A")
-                ),
-            },
-            {"role": "user", "content": goal},
-        ],
-        "pending_calls": [],
-        "retrieved_ids": set(),
-        "doc_retrieved_ids": set(),
-        "steps": 0,
-        "clarifications": 0,
-        "rejections_in_a_row": 0,
-        "status": None,
-        "answer": "",
-        "citations": [],
-        "next_node": "retrieve_docs",
-    }
 
 
 def _parse_finish(

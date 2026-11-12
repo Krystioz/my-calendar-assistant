@@ -95,6 +95,38 @@ Partial traces are marked incomplete. One input file must contain one run.
 Diagram text is abbreviated; JSONL retains full details. Diagrams contain
 user questions and tool data, so review them before sharing.
 
+### LangGraph Studio
+
+Studio shows the agent graph in the browser and highlights each node as it
+runs. You can open the state after any node, and answer the agent's questions
+there.
+
+1. Create a free LangSmith account. Put its API key in `.env` as
+   `LANGSMITH_API_KEY`. Keep `LANGSMITH_TRACING=false`, so runs are not sent
+   to LangSmith.
+2. Run `uv run langgraph dev`. The command opens Studio for the server on
+   `http://127.0.0.1:2024`. With `LANGSMITH_TRACING=true`, run
+   `uv run langgraph dev --allow-blocking` instead: the LangSmith tracer reads
+   the working directory on the server's event loop, and without the flag the
+   dev server blocks that call and runs are not traced.
+3. In the graph view, choose `calendar_agent` and enter a `goal`.
+
+The page loads from LangChain's site, but the agent and its data stay on your
+computer. Studio uses `calendar-agent.toml` and the same working calendar as
+the CLI. It keeps its own conversations, separate from the CLI's
+`--thread` ones.
+
+When the graph stops, resume it with one of these values:
+
+| Pause `kind` | Why it stopped | Resume with |
+|---|---|---|
+| `clarify` | the model asks you a question | your answer as text |
+| `confirm` | `delete_event` needs your approval | `true` deletes; any other value declines |
+
+To set today's date, open the assistant at the bottom of the input panel and
+fill `Today` (for example `2026-10-16`); empty means the real date. Each Studio run writes `traces/studio-<time>.jsonl`.
+Studio runs have no `run_end` event and no diagram.
+
 ### MCP server
 
 The same tools are available to any MCP host (Claude Code, Claude Desktop,
@@ -169,6 +201,11 @@ goal -> model chooses a tool -> code checks the request -> code runs the tool
 | `create_event` | reversible write | title and times, at most 24 h; `already_exists` for the same title at the same start; overlaps returned as `conflicts` |
 | `delete_event` | sensitive | event exists (`not_found`); the user answers `y` in the terminal, otherwise `declined_by_user`; without a way to ask (MCP) `confirmation_required` |
 
+The confirmation is an `interrupt()` in the graph. Before a batch of tool calls
+runs, the graph asks about every sensitive call in it, one pause per question.
+The CLI answers each pause with the `y/N` prompt in the same run. Only the
+answer `True` approves a call.
+
 Domain outcomes such as `already_exists` or `declined_by_user` come back to the
 model as observations and change what it does next: it reports the duplicate
 instead of adding it again, and it does not retry a declined deletion.
@@ -220,6 +257,8 @@ flowchart TD
 - `src/agent_project/trace_graph.py` — automatic SVG/Mermaid run diagrams;
 - `src/agent_project/cli.py` — command line entry point and the `y/N` prompt;
 - `src/agent_project/mcp_server.py` — local MCP server over the same tools;
+- `src/agent_project/studio.py`, `langgraph.json` — the graph for LangGraph
+  Studio;
 - `src/agent_project/llm.py`, `tracing.py` — course starter code (OpenRouter
   client, mock client, trace helper);
 - `data/calendar.ics` — fictional sample calendar;

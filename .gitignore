@@ -18,3 +18,4 @@ traces/*
 workspace/
 docs/
 .idea/
+.langgraph_api/

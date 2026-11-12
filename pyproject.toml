@@ -21,6 +21,7 @@ calendar-mcp = "agent_project.mcp_server:main"
 
 [dependency-groups]
 dev = [
+    "langgraph-cli[inmem]>=0.4",
     "pytest>=8.4,<10",
     "ruff>=0.12,<1",
 ]

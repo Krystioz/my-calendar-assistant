@@ -75,6 +75,7 @@ def test_trace_records_provider_tokens_cost_and_latency(tmp_path) -> None:
     )
     assert [e["event"] for e in events] == [
         "run_start",
+        "graph_node",
         "model_call",
         "graph_node",
         "tool_result",
@@ -84,7 +85,7 @@ def test_trace_records_provider_tokens_cost_and_latency(tmp_path) -> None:
         "graph_node",
         "run_end",
     ]
-    call = events[1]["payload"]
+    call = events[2]["payload"]
     assert call["provider"] == "mock"
     assert call["latency_ms"] == 5
     assert call["usage"]["prompt_tokens"] == 100
@@ -94,12 +95,13 @@ def test_trace_records_provider_tokens_cost_and_latency(tmp_path) -> None:
     assert end["prompt_tokens"] == 200
     visits = [e["payload"] for e in events if e["event"] == "graph_node"]
     assert [v["node"] for v in visits] == [
+        "start",
         "call_model",
         "use_calendar_tools",
         "call_model",
         "verify_citations",
     ]
-    assert visits[0]["next_node"] == "use_calendar_tools"
+    assert visits[1]["next_node"] == "use_calendar_tools"
     assert visits[-1]["next_node"] == "end"
 
 
@@ -305,3 +307,81 @@ def test_delete_without_confirm_channel_is_blocked(tmp_path) -> None:
     assert observation["error"]["code"] == "confirmation_required"
     ids = [e.uid for e in CalendarTools.from_file(tmp_path / "calendar.ics").events]
     assert LAB_ID in ids
+
+
+def test_two_deletes_in_one_turn_are_each_confirmed_before_either_runs(
+    tmp_path,
+) -> None:
+    other_id = "evt-017@calendar.local"
+    questions = []
+    result, events = run(
+        [
+            reply(
+                ("delete_event", {"id": LAB_ID}),
+                ("free_busy", {"start": "2026-10-23T08:00", "end": "2026-10-23T20:00"}),
+                ("delete_event", {"id": other_id}),
+            ),
+            reply(("finish", {"outcome": "answered", "answer": "One deleted."})),
+        ],
+        tmp_path,
+        # Yes to the first question only.
+        confirm=lambda question: questions.append(question) or len(questions) == 1,
+    )
+    assert result.status == "success"
+    assert [q.split("'")[1] for q in questions] == [
+        "Laboratorium — Systemy operacyjne (gr. 2)",
+        "Korepetycje — matematyka",
+    ]
+    # The node restarts on every resume, but each tool runs once.
+    calls = [e["payload"]["call_id"] for e in events if e["event"] == "tool_result"]
+    assert calls == ["call_0", "call_1", "call_2"]
+    assert [
+        e["payload"]["approved"] for e in events if e["event"] == "confirmation"
+    ] == [
+        True,
+        False,
+    ]
+    ids = [e.uid for e in CalendarTools.from_file(tmp_path / "calendar.ics").events]
+    assert LAB_ID not in ids
+    assert other_id in ids
+
+
+def test_only_true_resumes_a_confirmation_as_yes(tmp_path) -> None:
+    from langgraph.checkpoint.memory import InMemorySaver
+    from langgraph.types import Command
+
+    from agent_project.agent import (
+        AGENT_TOOL_SCHEMAS,
+        AgentContext,
+        _Run,
+        build_agent_graph,
+    )
+
+    calendar = working_copy(CALENDAR, tmp_path / "calendar.ics")
+    graph = build_agent_graph(
+        client=MockClient(
+            [
+                reply(("delete_event", {"id": LAB_ID})),
+                reply(("finish", {"outcome": "answered", "answer": "Kept."})),
+            ]
+        ),
+        tools=CalendarTools.from_file(calendar),
+        run_tracker=_Run(tmp_path / "trace.jsonl"),
+        schemas=AGENT_TOOL_SCHEMAS,
+        checkpointer=InMemorySaver(),
+        **LIMITS,
+    )
+    config = {"configurable": {"thread_id": "t"}}
+    context = AgentContext(today=TODAY.isoformat())
+    paused = graph.invoke({"goal": "Usuń laborkę"}, config, context=context)[
+        "__interrupt__"
+    ][0]
+    assert paused.value["kind"] == "confirm"
+    assert paused.value["question"].startswith("Delete 'Laboratorium")
+
+    final = graph.invoke(Command(resume="tak"), config, context=context)
+    assert final["status"] == "success"
+    tool_message = json.loads(final["messages"][-2]["content"])
+    assert tool_message["error"]["code"] == "declined_by_user"
+    assert LAB_ID in [e.uid for e in CalendarTools.from_file(calendar).events]
+    assert "Today is 2026-10-16" in final["messages"][0]["content"]

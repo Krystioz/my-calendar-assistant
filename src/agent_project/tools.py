@@ -431,30 +431,10 @@ def execute_tool_call(
     Never raises: every problem becomes an error observation the model can read.
     """
     started = time.perf_counter()
-    spec = next((s for s in ALL_TOOL_SPECS if s.name == name), None)
-    if spec is None:
-        allowed = ", ".join(s.name for s in ALL_TOOL_SPECS)
-        return _error("unknown_tool", f"No tool named {name!r}. Allowed: {allowed}.")
-
-    try:
-        arguments = (
-            raw_arguments
-            if isinstance(raw_arguments, dict)
-            else json.loads(raw_arguments or "{}")
-        )
-    except json.JSONDecodeError as exc:
-        return _error("invalid_json", f"Arguments are not valid JSON: {exc.msg}.")
-    if not isinstance(arguments, dict):
-        return _error("invalid_json", "Arguments must be a JSON object.")
-
-    try:
-        args = spec.args_model.model_validate(arguments)
-    except ValidationError as exc:
-        details = "; ".join(
-            f"{'.'.join(map(str, err['loc'])) or 'arguments'}: {err['msg']}"
-            for err in exc.errors()
-        )
-        return _error("invalid_arguments", details)
+    parsed = _parse_call(name, raw_arguments)
+    if isinstance(parsed, dict):
+        return parsed
+    spec, args = parsed
 
     try:
         if spec.sensitive:
@@ -483,6 +463,52 @@ def execute_tool_call(
         "result": result,
         "duration_ms": round((time.perf_counter() - started) * 1000, 2),
     }
+
+
+def confirmation_needed(
+    tools: CalendarTools, name: str, raw_arguments: str | dict | None
+) -> str | None:
+    """The question a human must answer before this call runs, or None.
+
+    None also when the call is invalid: execute_tool_call reports that error.
+    """
+    parsed = _parse_call(name, raw_arguments)
+    if isinstance(parsed, dict) or not parsed[0].sensitive:
+        return None
+    try:
+        return tools.confirmation_question(name, parsed[1])
+    except ToolError:
+        return None
+
+
+def _parse_call(
+    name: str, raw_arguments: str | dict | None
+) -> tuple[ToolSpec, BaseModel] | dict[str, Any]:
+    """The tool and its validated arguments, or an error observation."""
+    spec = next((s for s in ALL_TOOL_SPECS if s.name == name), None)
+    if spec is None:
+        allowed = ", ".join(s.name for s in ALL_TOOL_SPECS)
+        return _error("unknown_tool", f"No tool named {name!r}. Allowed: {allowed}.")
+
+    try:
+        arguments = (
+            raw_arguments
+            if isinstance(raw_arguments, dict)
+            else json.loads(raw_arguments or "{}")
+        )
+    except json.JSONDecodeError as exc:
+        return _error("invalid_json", f"Arguments are not valid JSON: {exc.msg}.")
+    if not isinstance(arguments, dict):
+        return _error("invalid_json", "Arguments must be a JSON object.")
+
+    try:
+        return spec, spec.args_model.model_validate(arguments)
+    except ValidationError as exc:
+        details = "; ".join(
+            f"{'.'.join(map(str, err['loc'])) or 'arguments'}: {err['msg']}"
+            for err in exc.errors()
+        )
+        return _error("invalid_arguments", details)
 
 
 def _error(code: str, message: str, **details: Any) -> dict[str, Any]:
