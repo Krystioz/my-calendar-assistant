@@ -30,6 +30,8 @@ from pydantic import (
 MAX_RESULTS = 20
 MAX_FREE_BUSY_DAYS = 31
 MAX_EVENT_HOURS = 24
+# Same length the prompt gives a deadline ("do 12"), so the two never disagree.
+DEFAULT_EVENT_LENGTH = timedelta(minutes=15)
 MAX_REMINDER_MINUTES = 40320  # 4 weeks (Google Calendar API limit)
 SOURCE_CALENDAR = Path("data/calendar.ics")
 WORKING_CALENDAR = Path("workspace/calendar.ics")
@@ -308,7 +310,7 @@ class CreateEventArgs(BaseModel):
     start: LocalDateTime = Field(description="Event start, YYYY-MM-DDTHH:MM.")
     end: LocalDateTime | None = Field(
         None,
-        description="Event end, YYYY-MM-DDTHH:MM (defaults to 30 min after start "
+        description="Event end, YYYY-MM-DDTHH:MM (defaults to 15 min after start "
         "when omitted or equal to start).",
     )
     location: str = Field("", max_length=200)
@@ -327,9 +329,9 @@ class CreateEventArgs(BaseModel):
     @model_validator(mode="after")
     def _check_range(self) -> "CreateEventArgs":
         if self.end is None or self.end == self.start:
-            if self.start > datetime.max - timedelta(minutes=30):
+            if self.start > datetime.max - DEFAULT_EVENT_LENGTH:
                 raise ValueError("start is too far in the future")
-            self.end = self.start + timedelta(minutes=30)
+            self.end = self.start + DEFAULT_EVENT_LENGTH
         if self.start > self.end:
             raise ValueError("start must be before end")
         if self.end - self.start > timedelta(hours=MAX_EVENT_HOURS):

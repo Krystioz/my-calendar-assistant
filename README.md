@@ -142,7 +142,8 @@ uv run mcp dev src/agent_project/mcp_server.py
 The second command opens the MCP Inspector (needs `npx`). The server uses the
 same working calendar as the CLI. It has no way to ask the user, so
 `delete_event` and `delete_task` over MCP always return `confirmation_required`
-and delete nothing.
+and delete nothing. It cannot see what the user said either, so `create_event`
+over MCP has no calendar parameter: events always go to the default calendar.
 
 ### Google Calendar and Google Tasks
 

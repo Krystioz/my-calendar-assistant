@@ -321,7 +321,7 @@ def test_search_with_empty_query_lists_date_range_and_saves_reminder(
         },
     )
     assert created["ok"]
-    assert created["result"]["created"]["end"] == "2026-11-10T10:30"
+    assert created["result"]["created"]["end"] == "2026-11-10T10:15"
     assert created["result"]["created"]["reminder_minutes"] == [1440, 60]
     reloaded = CalendarTools.from_file(tmp_path / "calendar.ics")
     saved = next(e for e in reloaded.events if e.title == "Wizyta z przypomnieniem")

@@ -3,7 +3,9 @@
 Every tool forwards to ``execute_tool_call``, so validation, the duplicate check
 and the confirmation rule are shared with the agent, not implemented twice.
 MCP has no channel to ask the user here, so ``delete_event`` and ``delete_task``
-always return confirmation_required and change nothing.
+always return confirmation_required and change nothing. The server cannot see
+what the user said either, so ``create_event`` takes no calendar: events always
+go to the default calendar.
 
 Run it over stdio: ``uv run calendar-mcp``.
 """
@@ -20,6 +22,7 @@ from agent_project.tools import (
 )
 
 _DESCRIPTIONS = {spec.name: spec.description for spec in TOOL_SPECS}
+_DESCRIPTIONS["create_event"] += " Over MCP it always goes to the default calendar."
 
 
 def build_server(tools: CalendarTools) -> MCPServer:
@@ -48,7 +51,6 @@ def build_server(tools: CalendarTools) -> MCPServer:
         start: str,
         end: str | None = None,
         location: str | None = None,
-        calendar: str | None = None,
         reminder_minutes: int | list[int] | None = None,
     ) -> dict[str, Any]:
         return call("create_event", locals())

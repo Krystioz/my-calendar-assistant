@@ -79,4 +79,6 @@ async def test_mcp_tools_match_the_shared_tool_specs(server) -> None:
     assert set(listed) == {spec.name for spec in TOOL_SPECS}
     for spec in TOOL_SPECS:
         params = set(listed[spec.name].input_schema["properties"])
-        assert params == set(spec.args_model.model_fields), spec.name
+        # MCP cannot check a calendar name against the user's words.
+        hidden = {"calendar"} if spec.name == "create_event" else set()
+        assert params == set(spec.args_model.model_fields) - hidden, spec.name
