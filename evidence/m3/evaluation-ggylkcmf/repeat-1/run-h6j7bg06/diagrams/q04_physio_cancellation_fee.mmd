@@ -1,0 +1,37 @@
+flowchart TD
+  subgraph legend["Legenda"]
+    legend_boundary["Start / koniec"]:::boundary
+    legend_model["Komunikacja z LLM"]:::model
+    legend_tool["Narzędzie"]:::tool
+    legend_graph["Sterowanie LangGraph"]:::graph
+    legend_decision["Decyzja człowieka"]:::decision
+    legend_error["Błąd / odrzucenie"]:::error
+  end
+  note["Przebieg chronologiczny · strzałki = kolejność zdarzeń"]
+  n0["START · komenda użytkownika<br/>Mam wizytę w FizjoActive w środę 28.10. Na ile godzin przed wizytą mogę ją bezpłatnie odwołać i ile wynosi opłata, jeśli spóźnię się z odwołaniem?<br/>2026-11-09T18:49:42.014120+00:00"]:::boundary
+  n1["Tura LLM 1 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 580 ms · koszt narastająco: $0.00012<br/>Propozycja wywołania narzędzia: search_docs #123;#34;query#34;: #34;FizjoActive zasady odwoływania wizyt opłaty#34;#125;<br/>2026-11-09T18:49:42.599950+00:00"]:::model
+  n0 --> n1
+  n2["Tura LLM 1 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)<br/>Zebrane źródła: 0 · status: w toku<br/>2026-11-09T18:49:42.599950+00:00"]:::graph
+  n1 --> n2
+  n3["Tura LLM 1 · wynik obsługi narzędzia: search_docs<br/>Argumenty: #123;#34;query#34;: #34;FizjoActive zasady odwoływania wizyt opłaty#34;#125;<br/>Znaleziono fragmentów: 3<br/>notatki_organizacyjne.md#35;chunk-1 · score=0.6295<br/>regulamin_studiow_wmi.md#35;chunk-1 · score=0.5293<br/>regulamin_studiow_wmi.md#35;chunk-3 · score=0.4142<br/>2026-11-09T18:49:42.606606+00:00"]:::tool
+  n2 --> n3
+  n4["Tura LLM 1 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów<br/>Identyfikator w kodzie: retrieve_docs<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-09T18:49:42.606606+00:00"]:::graph
+  n3 --> n4
+  n5["Tura LLM 2 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 1128 ms · koszt narastająco: $0.00026<br/>Tekst odpowiedzi LLM: W gabinecie FizjoActive wizytę możesz bezpłatnie odwołać lub przełożyć najpóźniej **24 godziny przed planowanym terminem** #91;notatki_organizacyjne.md#35;chunk-1#93;. Jeśli odwołasz wizytę później, pobierana jest opłata rezerwacyjna w wysokości **…<br/>2026-11-09T18:49:43.734942+00:00"]:::model
+  n4 --> n5
+  n6["Tura LLM 2 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-09T18:49:43.736445+00:00"]:::graph
+  n5 --> n6
+  n7["Tura LLM 3 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 846 ms · koszt narastająco: $0.00042<br/>Propozycja wywołania narzędzia: finish #123;#34;answer#34;: #34;W gabinecie FizjoActive wizytę możesz bezpłatnie odwołać lub przełożyć najpóźniej 24 godziny przed planowanym terminem. Jeśli odwołasz wizytę później, pobierana jest opłata rezerwacyjna w wysokości 50% ceny wizyty (90 zł).#34;, #34;c…<br/>2026-11-09T18:49:44.583268+00:00"]:::model
+  n6 --> n7
+  n8["Tura LLM 3 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: weryfikacja cytowań (verify_citations)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-09T18:49:44.584269+00:00"]:::graph
+  n7 --> n8
+  n9["Tura LLM 3 · zakończono węzeł: weryfikacja cytowań<br/>Identyfikator w kodzie: verify_citations<br/>Przejście do: zakończenie przebiegu (end)<br/>Zebrane źródła: 3 · status: success<br/>2026-11-09T18:49:44.585771+00:00"]:::graph
+  n8 --> n9
+  n10["KONIEC · success<br/>W gabinecie FizjoActive wizytę możesz bezpłatnie odwołać lub przełożyć najpóźniej 24 godziny przed planowanym terminem. Jeśli odwołasz wizytę później, pobierana jest opłata rezerwacyjna w wysokości 50% ceny wizyty (90 zł).<br/>Liczba tur LLM: 3 · koszt: $0.00042 · czas: 2572 ms<br/>Cytowania: notatki_organizacyjne.md#35;chunk-1<br/>2026-11-09T18:49:44.585771+00:00"]:::boundary
+  n9 --> n10
+  classDef boundary fill:#edf2f7,stroke:#475569,color:#172033
+  classDef model fill:#dbeafe,stroke:#1d4ed8,color:#172033
+  classDef tool fill:#dcfce7,stroke:#15803d,color:#172033
+  classDef graph fill:#f3e8ff,stroke:#7e22ce,color:#172033
+  classDef decision fill:#fef3c7,stroke:#92400e,color:#172033
+  classDef error fill:#fee2e2,stroke:#b91c1c,color:#172033

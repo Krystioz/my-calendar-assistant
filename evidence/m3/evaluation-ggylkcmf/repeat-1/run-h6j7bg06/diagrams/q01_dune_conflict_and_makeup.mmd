@@ -1,0 +1,55 @@
+flowchart TD
+  subgraph legend["Legenda"]
+    legend_boundary["Start / koniec"]:::boundary
+    legend_model["Komunikacja z LLM"]:::model
+    legend_tool["Narzędzie"]:::tool
+    legend_graph["Sterowanie LangGraph"]:::graph
+    legend_decision["Decyzja człowieka"]:::decision
+    legend_error["Błąd / odrzucenie"]:::error
+  end
+  note["Przebieg chronologiczny · strzałki = kolejność zdarzeń"]
+  n0["START · komenda użytkownika<br/>Czy mogę iść do Kina Muza na 'Diunę: Część drugą' w piątek 23.10 o 18:00? Jeśli mam wtedy zajęcia, sprawdź w sylabusie i kalendarzu, kiedy i na jakich zasadach mogę je odrobić.<br/>2026-11-09T18:49:22.741289+00:00"]:::boundary
+  n1["Tura LLM 1 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 2270 ms · koszt narastająco: $0.00014<br/>Propozycja wywołania narzędzia: search_events #123;#34;end#34;: #34;2026-10-23#34;, #34;query#34;: #34;zajęcia#34;, #34;start#34;: #34;2026-10-23#34;#125;<br/>Propozycja wywołania narzędzia: search_docs #123;#34;query#34;: #34;Diuna: Część druga Kino Muza 23.10.2026#34;#125;<br/>2026-11-09T18:49:25.017556+00:00"]:::model
+  n0 --> n1
+  n2["Tura LLM 1 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)<br/>Zebrane źródła: 0 · status: w toku<br/>2026-11-09T18:49:25.018562+00:00"]:::graph
+  n1 --> n2
+  n3["Tura LLM 1 · wynik obsługi narzędzia: search_events<br/>Argumenty: #123;#34;end#34;: #34;2026-10-23#34;, #34;query#34;: #34;zajęcia#34;, #34;start#34;: #34;2026-10-23#34;#125;<br/>Wynik: #123;#34;total_matches#34;: 0, #34;returned#34;: 0, #34;events#34;: #91;#93;#125;<br/>2026-11-09T18:49:25.019561+00:00"]:::tool
+  n2 --> n3
+  n4["Tura LLM 1 · wynik obsługi narzędzia: search_docs<br/>Argumenty: #123;#34;query#34;: #34;Diuna: Część druga Kino Muza 23.10.2026#34;#125;<br/>Znaleziono fragmentów: 3<br/>repertuar_kina.md#35;chunk-2 · score=0.6217<br/>repertuar_kina.md#35;chunk-4 · score=0.6085<br/>repertuar_kina.md#35;chunk-3 · score=0.5905<br/>2026-11-09T18:49:25.024560+00:00"]:::tool
+  n3 --> n4
+  n5["Tura LLM 1 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów<br/>Identyfikator w kodzie: retrieve_docs<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-09T18:49:25.024560+00:00"]:::graph
+  n4 --> n5
+  n6["Tura LLM 2 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 634 ms · koszt narastająco: $0.00036<br/>Propozycja wywołania narzędzia: free_busy #123;#34;end#34;: #34;2026-10-23T21:00:00#34;, #34;start#34;: #34;2026-10-23T17:00:00#34;#125;<br/>2026-11-09T18:49:25.660588+00:00"]:::model
+  n5 --> n6
+  n7["Tura LLM 2 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa żądań narzędzi kalendarza (use_calendar_tools)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-09T18:49:25.661589+00:00"]:::graph
+  n6 --> n7
+  n8["Tura LLM 2 · wynik obsługi narzędzia: free_busy<br/>Argumenty: #123;#34;end#34;: #34;2026-10-23T21:00:00#34;, #34;start#34;: #34;2026-10-23T17:00:00#34;#125;<br/>Wynik: #123;#34;is_free#34;: false, #34;busy#34;: #91;#123;#34;id#34;: #34;evt-018@calendar.local#34;, #34;title#34;: #34;Laboratorium — Systemy operacyjne (gr. 2)#34;, #34;start#34;: #34;2026-10-23T17:30#34;, #34;end#34;: #34;2026-10-23T19:00#34;, #34;duration_min#34;: 90, #34;all_day#34;: false, #34;location#34;: #34;WMI UAM, sala A2-…<br/>2026-11-09T18:49:25.662588+00:00"]:::tool
+  n7 --> n8
+  n9["Tura LLM 2 · zakończono węzeł: obsługa żądań narzędzi kalendarza<br/>Identyfikator w kodzie: use_calendar_tools<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 4 · status: w toku<br/>2026-11-09T18:49:25.662588+00:00"]:::graph
+  n8 --> n9
+  n10["Tura LLM 3 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 857 ms · koszt narastająco: $0.00054<br/>Propozycja wywołania narzędzia: search_docs #123;#34;query#34;: #34;zasady odrabiania zajęć laboratoria systemy operacyjne#34;#125;<br/>2026-11-09T18:49:26.520237+00:00"]:::model
+  n9 --> n10
+  n11["Tura LLM 3 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)<br/>Zebrane źródła: 4 · status: w toku<br/>2026-11-09T18:49:26.521241+00:00"]:::graph
+  n10 --> n11
+  n12["Tura LLM 3 · wynik obsługi narzędzia: search_docs<br/>Argumenty: #123;#34;query#34;: #34;zasady odrabiania zajęć laboratoria systemy operacyjne#34;#125;<br/>Znaleziono fragmentów: 3<br/>sylabus_systemy_operacyjne.md#35;chunk-3 · score=0.6531<br/>sylabus_systemy_operacyjne.md#35;chunk-2 · score=0.5808<br/>regulamin_studiow_wmi.md#35;chunk-1 · score=0.5469<br/>2026-11-09T18:49:26.525238+00:00"]:::tool
+  n11 --> n12
+  n13["Tura LLM 3 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów<br/>Identyfikator w kodzie: retrieve_docs<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 7 · status: w toku<br/>2026-11-09T18:49:26.526781+00:00"]:::graph
+  n12 --> n13
+  n14["Tura LLM 4 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 3678 ms · koszt narastająco: $0.00082<br/>Tekst odpowiedzi LLM: Niestety nie możesz iść na seans o 18:00, ponieważ w tym czasie masz zaplanowane zajęcia. Oto szczegóły: * **Zajęcia:** Laboratorium — Systemy operacyjne (gr. 2) w godzinach **17:30–19:00** #91;evt-018@calendar.local#93;. * **Film:** #34;Diuna: Czę…<br/>2026-11-09T18:49:30.205755+00:00"]:::model
+  n13 --> n14
+  n15["Tura LLM 4 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 7 · status: w toku<br/>2026-11-09T18:49:30.205755+00:00"]:::graph
+  n14 --> n15
+  n16["Tura LLM 5 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 3931 ms · koszt narastająco: $0.00112<br/>Propozycja wywołania narzędzia: finish #123;#34;answer#34;: #34;Niestety nie możesz iść na seans o 18:00, ponieważ w tym czasie masz zaplanowane zajęcia.#92;n#92;nOto szczegóły:#92;n* **Zajęcia:** Laboratorium — Systemy operacyjne (gr. 2) w godzinach **17:30–19:00** #91;evt-018@calendar.local#93;.#92;n* **Fi…<br/>2026-11-09T18:49:34.138043+00:00"]:::model
+  n15 --> n16
+  n17["Tura LLM 5 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: weryfikacja cytowań (verify_citations)<br/>Zebrane źródła: 7 · status: w toku<br/>2026-11-09T18:49:34.139048+00:00"]:::graph
+  n16 --> n17
+  n18["Tura LLM 5 · zakończono węzeł: weryfikacja cytowań<br/>Identyfikator w kodzie: verify_citations<br/>Przejście do: zakończenie przebiegu (end)<br/>Zebrane źródła: 7 · status: success<br/>2026-11-09T18:49:34.140048+00:00"]:::graph
+  n17 --> n18
+  n19["KONIEC · success<br/>Niestety nie możesz iść na seans o 18:00, ponieważ w tym czasie masz zaplanowane zajęcia. Oto szczegóły: * **Zajęcia:** Laboratorium — Systemy operacyjne (gr. 2) w godzinach **17:30–19:00** #91;evt-018@calendar.local#93;. * **Film:** #34;Diuna: Część druga#34; w Kinie Muza ma seans w piątek 23.10 o godzinie **18:00–20:45** #91;repertuar_kina.md#35;chunk-2#93;. **Jak możesz odrobić te zajęcia?** Zgodnie z sylabusem przedmiotu Systemy operacyjne: * Pojedynczą nieobecność z grupy 2 (piątkowej) możesz odrobić z **grupą 1**, która ma zajęcia w **środę w godzinach 12:00–13:30** (sala A2-21) #91;sylabus_systemy_operacyjne.…<br/>Liczba tur LLM: 5 · koszt: $0.00112 · czas: 11399 ms<br/>Cytowania: evt-018@calendar.local, repertuar_kina.md#35;chunk-2, sylabus_systemy_operacyjne.md#35;chunk-2<br/>2026-11-09T18:49:34.140048+00:00"]:::boundary
+  n18 --> n19
+  classDef boundary fill:#edf2f7,stroke:#475569,color:#172033
+  classDef model fill:#dbeafe,stroke:#1d4ed8,color:#172033
+  classDef tool fill:#dcfce7,stroke:#15803d,color:#172033
+  classDef graph fill:#f3e8ff,stroke:#7e22ce,color:#172033
+  classDef decision fill:#fef3c7,stroke:#92400e,color:#172033
+  classDef error fill:#fee2e2,stroke:#b91c1c,color:#172033

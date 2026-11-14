@@ -1,0 +1,252 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" width="880" height="6233" viewBox="0 0 880 6233"><title id="title">Przebieg agenta</title>
+<desc id="desc">Chronologiczna historia, nie mapa wszystkich możliwych ścieżek. Treści są skrócone; pełne dane pozostają w logu JSONL.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#64748b"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<g font-family="Segoe UI, sans-serif" fill="#172033">
+<text x="28" y="36" font-size="22">Przebieg agenta</text>
+<text x="28" y="62" font-size="14">Przebieg chronologiczny · strzałki = kolejność zdarzeń</text>
+<text x="28" y="84" font-size="13">Numer zdarzenia ≠ tura LLM. Sterowanie LangGraph = zakończony węzeł i wybrane przejście.</text>
+<rect x="28" y="102" width="16" height="16" fill="#edf2f7" stroke="#475569"/><text x="52" y="115" font-size="13">Start / koniec</text>
+<rect x="306" y="102" width="16" height="16" fill="#dbeafe" stroke="#1d4ed8"/><text x="330" y="115" font-size="13">Komunikacja z LLM</text>
+<rect x="584" y="102" width="16" height="16" fill="#dcfce7" stroke="#15803d"/><text x="608" y="115" font-size="13">Narzędzie</text>
+<rect x="28" y="132" width="16" height="16" fill="#f3e8ff" stroke="#7e22ce"/><text x="52" y="145" font-size="13">Sterowanie LangGraph</text>
+<rect x="306" y="132" width="16" height="16" fill="#fef3c7" stroke="#92400e"/><text x="330" y="145" font-size="13">Decyzja człowieka</text>
+<rect x="584" y="132" width="16" height="16" fill="#fee2e2" stroke="#b91c1c"/><text x="608" y="145" font-size="13">Błąd / odrzucenie</text>
+<rect x="28" y="175" width="824" height="132" rx="10" fill="#edf2f7" stroke="#475569"/><text x="46" y="197" font-size="12">Start / koniec</text>
+<text x="46" y="222" font-size="17" font-weight="600">1. START · komenda użytkownika</text>
+<text x="46" y="245" font-size="14">Czy mogę iść do Kina Muza na &#x27;Diunę: Część drugą&#x27; w piątek 23.10 o 18:00? Jeśli mam wtedy</text>
+<text x="46" y="264" font-size="14">zajęcia, sprawdź w sylabusie i kalendarzu, kiedy i na jakich zasadach mogę je odrobić.</text>
+<text x="46" y="283" font-size="14">2026-11-09T18:51:13.804824+00:00</text>
+<line x1="440" y1="311" x2="440" y2="333" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="337" width="824" height="189" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="359" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="384" font-size="17" font-weight="600">2. Tura LLM 1 · odebrano odpowiedź LLM</text>
+<text x="46" y="407" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="426" font-size="14">Czas żądania: 653 ms · koszt narastająco: $0.00008</text>
+<text x="46" y="445" font-size="14">Propozycja wywołania narzędzia: search_events {&quot;end&quot;: &quot;2026-10-23&quot;, &quot;query&quot;: &quot;zajęcia&quot;, &quot;start&quot;:</text>
+<text x="46" y="464" font-size="14">&quot;2026-10-23&quot;}</text>
+<text x="46" y="483" font-size="14">Propozycja wywołania narzędzia: search_docs {&quot;query&quot;: &quot;Diuna: Część druga Kino Muza 23.10.2026&quot;}</text>
+<text x="46" y="502" font-size="14">2026-11-09T18:51:14.461118+00:00</text>
+<line x1="440" y1="530" x2="440" y2="552" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="556" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="578" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="603" font-size="17" font-weight="600">3. Tura LLM 1 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="626" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="645" font-size="14">Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)</text>
+<text x="46" y="664" font-size="14">Zebrane źródła: 0 · status: w toku</text>
+<text x="46" y="683" font-size="14">2026-11-09T18:51:14.462118+00:00</text>
+<line x1="440" y1="711" x2="440" y2="733" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="737" width="824" height="132" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="759" font-size="12">Narzędzie</text>
+<text x="46" y="784" font-size="17" font-weight="600">4. Tura LLM 1 · wynik obsługi narzędzia: search_events</text>
+<text x="46" y="807" font-size="14">Argumenty: {&quot;end&quot;: &quot;2026-10-23&quot;, &quot;query&quot;: &quot;zajęcia&quot;, &quot;start&quot;: &quot;2026-10-23&quot;}</text>
+<text x="46" y="826" font-size="14">Wynik: {&quot;total_matches&quot;: 0, &quot;returned&quot;: 0, &quot;events&quot;: []}</text>
+<text x="46" y="845" font-size="14">2026-11-09T18:51:14.463120+00:00</text>
+<line x1="440" y1="873" x2="440" y2="895" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="899" width="824" height="189" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="921" font-size="12">Narzędzie</text>
+<text x="46" y="946" font-size="17" font-weight="600">5. Tura LLM 1 · wynik obsługi narzędzia: search_docs</text>
+<text x="46" y="969" font-size="14">Argumenty: {&quot;query&quot;: &quot;Diuna: Część druga Kino Muza 23.10.2026&quot;}</text>
+<text x="46" y="988" font-size="14">Znaleziono fragmentów: 3</text>
+<text x="46" y="1007" font-size="14">repertuar_kina.md#chunk-2 · score=0.6217</text>
+<text x="46" y="1026" font-size="14">repertuar_kina.md#chunk-4 · score=0.6085</text>
+<text x="46" y="1045" font-size="14">repertuar_kina.md#chunk-3 · score=0.5905</text>
+<text x="46" y="1064" font-size="14">2026-11-09T18:51:14.467627+00:00</text>
+<line x1="440" y1="1092" x2="440" y2="1114" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1118" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="1140" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="1165" font-size="17" font-weight="600">6. Tura LLM 1 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów</text>
+<text x="46" y="1188" font-size="14">Identyfikator w kodzie: retrieve_docs</text>
+<text x="46" y="1207" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="1226" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="1245" font-size="14">2026-11-09T18:51:14.468628+00:00</text>
+<line x1="440" y1="1273" x2="440" y2="1295" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1299" width="824" height="170" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="1321" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="1346" font-size="17" font-weight="600">7. Tura LLM 2 · odebrano odpowiedź LLM</text>
+<text x="46" y="1369" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="1388" font-size="14">Czas żądania: 588 ms · koszt narastająco: $0.00025</text>
+<text x="46" y="1407" font-size="14">Propozycja wywołania narzędzia: search_events {&quot;end&quot;: &quot;2026-10-23&quot;, &quot;query&quot;: &quot;zajęcia&quot;, &quot;start&quot;:</text>
+<text x="46" y="1426" font-size="14">&quot;2026-10-23&quot;}</text>
+<text x="46" y="1445" font-size="14">2026-11-09T18:51:15.056598+00:00</text>
+<line x1="440" y1="1473" x2="440" y2="1495" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1499" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="1521" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="1546" font-size="17" font-weight="600">8. Tura LLM 2 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="1569" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="1588" font-size="14">Przejście do: obsługa żądań narzędzi kalendarza (use_calendar_tools)</text>
+<text x="46" y="1607" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="1626" font-size="14">2026-11-09T18:51:15.058102+00:00</text>
+<line x1="440" y1="1654" x2="440" y2="1676" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1680" width="824" height="132" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="1702" font-size="12">Narzędzie</text>
+<text x="46" y="1727" font-size="17" font-weight="600">9. Tura LLM 2 · wynik obsługi narzędzia: search_events</text>
+<text x="46" y="1750" font-size="14">Argumenty: {&quot;end&quot;: &quot;2026-10-23&quot;, &quot;query&quot;: &quot;zajęcia&quot;, &quot;start&quot;: &quot;2026-10-23&quot;}</text>
+<text x="46" y="1769" font-size="14">Wynik: {&quot;total_matches&quot;: 0, &quot;returned&quot;: 0, &quot;events&quot;: []}</text>
+<text x="46" y="1788" font-size="14">2026-11-09T18:51:15.058630+00:00</text>
+<line x1="440" y1="1816" x2="440" y2="1838" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1842" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="1864" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="1889" font-size="17" font-weight="600">10. Tura LLM 2 · zakończono węzeł: obsługa żądań narzędzi kalendarza</text>
+<text x="46" y="1912" font-size="14">Identyfikator w kodzie: use_calendar_tools</text>
+<text x="46" y="1931" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="1950" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="1969" font-size="14">2026-11-09T18:51:15.058630+00:00</text>
+<line x1="440" y1="1997" x2="440" y2="2019" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2023" width="824" height="170" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="2045" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="2070" font-size="17" font-weight="600">11. Tura LLM 3 · odebrano odpowiedź LLM</text>
+<text x="46" y="2093" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="2112" font-size="14">Czas żądania: 520 ms · koszt narastająco: $0.00038</text>
+<text x="46" y="2131" font-size="14">Propozycja wywołania narzędzia: search_events {&quot;end&quot;: &quot;2026-10-24&quot;, &quot;query&quot;: &quot;zajęcia&quot;, &quot;start&quot;:</text>
+<text x="46" y="2150" font-size="14">&quot;2026-10-23&quot;}</text>
+<text x="46" y="2169" font-size="14">2026-11-09T18:51:15.579822+00:00</text>
+<line x1="440" y1="2197" x2="440" y2="2219" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2223" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="2245" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="2270" font-size="17" font-weight="600">12. Tura LLM 3 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="2293" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="2312" font-size="14">Przejście do: obsługa żądań narzędzi kalendarza (use_calendar_tools)</text>
+<text x="46" y="2331" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="2350" font-size="14">2026-11-09T18:51:15.580328+00:00</text>
+<line x1="440" y1="2378" x2="440" y2="2400" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2404" width="824" height="132" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="2426" font-size="12">Narzędzie</text>
+<text x="46" y="2451" font-size="17" font-weight="600">13. Tura LLM 3 · wynik obsługi narzędzia: search_events</text>
+<text x="46" y="2474" font-size="14">Argumenty: {&quot;end&quot;: &quot;2026-10-24&quot;, &quot;query&quot;: &quot;zajęcia&quot;, &quot;start&quot;: &quot;2026-10-23&quot;}</text>
+<text x="46" y="2493" font-size="14">Wynik: {&quot;total_matches&quot;: 0, &quot;returned&quot;: 0, &quot;events&quot;: []}</text>
+<text x="46" y="2512" font-size="14">2026-11-09T18:51:15.581330+00:00</text>
+<line x1="440" y1="2540" x2="440" y2="2562" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2566" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="2588" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="2613" font-size="17" font-weight="600">14. Tura LLM 3 · zakończono węzeł: obsługa żądań narzędzi kalendarza</text>
+<text x="46" y="2636" font-size="14">Identyfikator w kodzie: use_calendar_tools</text>
+<text x="46" y="2655" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="2674" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="2693" font-size="14">2026-11-09T18:51:15.581330+00:00</text>
+<line x1="440" y1="2721" x2="440" y2="2743" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2747" width="824" height="170" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="2769" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="2794" font-size="17" font-weight="600">15. Tura LLM 4 · odebrano odpowiedź LLM</text>
+<text x="46" y="2817" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="2836" font-size="14">Czas żądania: 479 ms · koszt narastająco: $0.00052</text>
+<text x="46" y="2855" font-size="14">Propozycja wywołania narzędzia: search_events {&quot;end&quot;: &quot;2026-10-23&quot;, &quot;query&quot;: &quot;wykład&quot;, &quot;start&quot;:</text>
+<text x="46" y="2874" font-size="14">&quot;2026-10-23&quot;}</text>
+<text x="46" y="2893" font-size="14">2026-11-09T18:51:16.060981+00:00</text>
+<line x1="440" y1="2921" x2="440" y2="2943" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2947" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="2969" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="2994" font-size="17" font-weight="600">16. Tura LLM 4 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="3017" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="3036" font-size="14">Przejście do: obsługa żądań narzędzi kalendarza (use_calendar_tools)</text>
+<text x="46" y="3055" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="3074" font-size="14">2026-11-09T18:51:16.061980+00:00</text>
+<line x1="440" y1="3102" x2="440" y2="3124" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="3128" width="824" height="132" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="3150" font-size="12">Narzędzie</text>
+<text x="46" y="3175" font-size="17" font-weight="600">17. Tura LLM 4 · wynik obsługi narzędzia: search_events</text>
+<text x="46" y="3198" font-size="14">Argumenty: {&quot;end&quot;: &quot;2026-10-23&quot;, &quot;query&quot;: &quot;wykład&quot;, &quot;start&quot;: &quot;2026-10-23&quot;}</text>
+<text x="46" y="3217" font-size="14">Wynik: {&quot;total_matches&quot;: 0, &quot;returned&quot;: 0, &quot;events&quot;: []}</text>
+<text x="46" y="3236" font-size="14">2026-11-09T18:51:16.062981+00:00</text>
+<line x1="440" y1="3264" x2="440" y2="3286" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="3290" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="3312" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="3337" font-size="17" font-weight="600">18. Tura LLM 4 · zakończono węzeł: obsługa żądań narzędzi kalendarza</text>
+<text x="46" y="3360" font-size="14">Identyfikator w kodzie: use_calendar_tools</text>
+<text x="46" y="3379" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="3398" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="3417" font-size="14">2026-11-09T18:51:16.062981+00:00</text>
+<line x1="440" y1="3445" x2="440" y2="3467" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="3471" width="824" height="170" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="3493" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="3518" font-size="17" font-weight="600">19. Tura LLM 5 · odebrano odpowiedź LLM</text>
+<text x="46" y="3541" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="3560" font-size="14">Czas żądania: 1035 ms · koszt narastająco: $0.00080</text>
+<text x="46" y="3579" font-size="14">Propozycja wywołania narzędzia: search_events {&quot;end&quot;: &quot;2026-10-23&quot;, &quot;query&quot;: &quot;seminarium&quot;,</text>
+<text x="46" y="3598" font-size="14">&quot;start&quot;: &quot;2026-10-23&quot;}</text>
+<text x="46" y="3617" font-size="14">2026-11-09T18:51:17.098625+00:00</text>
+<line x1="440" y1="3645" x2="440" y2="3667" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="3671" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="3693" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="3718" font-size="17" font-weight="600">20. Tura LLM 5 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="3741" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="3760" font-size="14">Przejście do: obsługa żądań narzędzi kalendarza (use_calendar_tools)</text>
+<text x="46" y="3779" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="3798" font-size="14">2026-11-09T18:51:17.098625+00:00</text>
+<line x1="440" y1="3826" x2="440" y2="3848" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="3852" width="824" height="132" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="3874" font-size="12">Narzędzie</text>
+<text x="46" y="3899" font-size="17" font-weight="600">21. Tura LLM 5 · wynik obsługi narzędzia: search_events</text>
+<text x="46" y="3922" font-size="14">Argumenty: {&quot;end&quot;: &quot;2026-10-23&quot;, &quot;query&quot;: &quot;seminarium&quot;, &quot;start&quot;: &quot;2026-10-23&quot;}</text>
+<text x="46" y="3941" font-size="14">Wynik: {&quot;total_matches&quot;: 0, &quot;returned&quot;: 0, &quot;events&quot;: []}</text>
+<text x="46" y="3960" font-size="14">2026-11-09T18:51:17.100129+00:00</text>
+<line x1="440" y1="3988" x2="440" y2="4010" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="4014" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="4036" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="4061" font-size="17" font-weight="600">22. Tura LLM 5 · zakończono węzeł: obsługa żądań narzędzi kalendarza</text>
+<text x="46" y="4084" font-size="14">Identyfikator w kodzie: use_calendar_tools</text>
+<text x="46" y="4103" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="4122" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="4141" font-size="14">2026-11-09T18:51:17.100129+00:00</text>
+<line x1="440" y1="4169" x2="440" y2="4191" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="4195" width="824" height="151" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="4217" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="4242" font-size="17" font-weight="600">23. Tura LLM 6 · odebrano odpowiedź LLM</text>
+<text x="46" y="4265" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="4284" font-size="14">Czas żądania: 678 ms · koszt narastająco: $0.00095</text>
+<text x="46" y="4303" font-size="14">Propozycja wywołania narzędzia: search_docs {&quot;query&quot;: &quot;zasady odrabiania zajęć sylabus&quot;}</text>
+<text x="46" y="4322" font-size="14">2026-11-09T18:51:17.778867+00:00</text>
+<line x1="440" y1="4350" x2="440" y2="4372" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="4376" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="4398" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="4423" font-size="17" font-weight="600">24. Tura LLM 6 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="4446" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="4465" font-size="14">Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)</text>
+<text x="46" y="4484" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="4503" font-size="14">2026-11-09T18:51:17.779867+00:00</text>
+<line x1="440" y1="4531" x2="440" y2="4553" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="4557" width="824" height="189" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="4579" font-size="12">Narzędzie</text>
+<text x="46" y="4604" font-size="17" font-weight="600">25. Tura LLM 6 · wynik obsługi narzędzia: search_docs</text>
+<text x="46" y="4627" font-size="14">Argumenty: {&quot;query&quot;: &quot;zasady odrabiania zajęć sylabus&quot;}</text>
+<text x="46" y="4646" font-size="14">Znaleziono fragmentów: 3</text>
+<text x="46" y="4665" font-size="14">sylabus_systemy_operacyjne.md#chunk-3 · score=0.557</text>
+<text x="46" y="4684" font-size="14">regulamin_studiow_wmi.md#chunk-1 · score=0.4935</text>
+<text x="46" y="4703" font-size="14">sylabus_systemy_operacyjne.md#chunk-2 · score=0.4799</text>
+<text x="46" y="4722" font-size="14">2026-11-09T18:51:17.784931+00:00</text>
+<line x1="440" y1="4750" x2="440" y2="4772" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="4776" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="4798" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="4823" font-size="17" font-weight="600">26. Tura LLM 6 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów</text>
+<text x="46" y="4846" font-size="14">Identyfikator w kodzie: retrieve_docs</text>
+<text x="46" y="4865" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="4884" font-size="14">Zebrane źródła: 6 · status: w toku</text>
+<text x="46" y="4903" font-size="14">2026-11-09T18:51:17.784931+00:00</text>
+<line x1="440" y1="4931" x2="440" y2="4953" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="4957" width="824" height="189" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="4979" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="5004" font-size="17" font-weight="600">27. Tura LLM 7 · odebrano odpowiedź LLM</text>
+<text x="46" y="5027" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="5046" font-size="14">Czas żądania: 2448 ms · koszt narastająco: $0.00119</text>
+<text x="46" y="5065" font-size="14">Tekst odpowiedzi LLM: Tak, możesz iść do Kina Muza na &quot;Diunę: Część drugą&quot; w piątek 23.10 o</text>
+<text x="46" y="5084" font-size="14">18:00, ponieważ w Twoim kalendarzu nie widnieją żadne zajęcia w tym terminie. Jeśli jednak Twoje</text>
+<text x="46" y="5103" font-size="14">pytanie dotyczyło zajęć z przedmiotu **Systemy operacyjne**, to warto wi…</text>
+<text x="46" y="5122" font-size="14">2026-11-09T18:51:20.233933+00:00</text>
+<line x1="440" y1="5150" x2="440" y2="5172" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="5176" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="5198" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="5223" font-size="17" font-weight="600">28. Tura LLM 7 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="5246" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="5265" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="5284" font-size="14">Zebrane źródła: 6 · status: w toku</text>
+<text x="46" y="5303" font-size="14">2026-11-09T18:51:20.234454+00:00</text>
+<line x1="440" y1="5331" x2="440" y2="5353" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="5357" width="824" height="189" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="5379" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="5404" font-size="17" font-weight="600">29. Tura LLM 8 · odebrano odpowiedź LLM</text>
+<text x="46" y="5427" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="5446" font-size="14">Czas żądania: 1277 ms · koszt narastająco: $0.00146</text>
+<text x="46" y="5465" font-size="14">Propozycja wywołania narzędzia: finish {&quot;answer&quot;: &quot;Tak, możesz iść do Kina Muza na &#x27;Diunę: Część</text>
+<text x="46" y="5484" font-size="14">drugą&#x27; w piątek 23.10 o 18:00, ponieważ w Twoim kalendarzu nie widnieją żadne zajęcia w tym</text>
+<text x="46" y="5503" font-size="14">terminie.\n\nJeśli jednak Twoje pytanie dotyczyło zajęć z przedmiotu **Systemy operacyjne…</text>
+<text x="46" y="5522" font-size="14">2026-11-09T18:51:21.513146+00:00</text>
+<line x1="440" y1="5550" x2="440" y2="5572" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="5576" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="5598" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="5623" font-size="17" font-weight="600">30. Tura LLM 8 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="5646" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="5665" font-size="14">Przejście do: weryfikacja cytowań (verify_citations)</text>
+<text x="46" y="5684" font-size="14">Zebrane źródła: 6 · status: w toku</text>
+<text x="46" y="5703" font-size="14">2026-11-09T18:51:21.513146+00:00</text>
+<line x1="440" y1="5731" x2="440" y2="5753" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="5757" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="5779" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="5804" font-size="17" font-weight="600">31. Tura LLM 8 · zakończono węzeł: weryfikacja cytowań</text>
+<text x="46" y="5827" font-size="14">Identyfikator w kodzie: verify_citations</text>
+<text x="46" y="5846" font-size="14">Przejście do: zakończenie przebiegu (end)</text>
+<text x="46" y="5865" font-size="14">Zebrane źródła: 6 · status: success</text>
+<text x="46" y="5884" font-size="14">2026-11-09T18:51:21.514151+00:00</text>
+<line x1="440" y1="5912" x2="440" y2="5934" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="5938" width="824" height="265" rx="10" fill="#edf2f7" stroke="#475569"/><text x="46" y="5960" font-size="12">Start / koniec</text>
+<text x="46" y="5985" font-size="17" font-weight="600">32. KONIEC · success</text>
+<text x="46" y="6008" font-size="14">Tak, możesz iść do Kina Muza na &#x27;Diunę: Część drugą&#x27; w piątek 23.10 o 18:00, ponieważ w Twoim</text>
+<text x="46" y="6027" font-size="14">kalendarzu nie widnieją żadne zajęcia w tym terminie. Jeśli jednak Twoje pytanie dotyczyło zajęć</text>
+<text x="46" y="6046" font-size="14">z przedmiotu **Systemy operacyjne**, to warto wiedzieć, że Twoja grupa (Grupa 2) ma laboratoria</text>
+<text x="46" y="6065" font-size="14">w piątki w godzinach **17:30–19:00**. W Twoim kalendarzu nie ma ich jednak wpisanych na ten</text>
+<text x="46" y="6084" font-size="14">dzień. Gdybyś jednak musiał/a odrobić te zajęcia (zgodnie z sylabusem przedmiotu Systemy</text>
+<text x="46" y="6103" font-size="14">operacyjne): * **Zasada odrabiania:** Pojedynczą nieobecność z Grupy 2 (piątkowej) można odrobić</text>
+<text x="46" y="6122" font-size="14">w ramach Grupy 1, która odbywa się…</text>
+<text x="46" y="6141" font-size="14">Liczba tur LLM: 8 · koszt: $0.00146 · czas: 7711 ms</text>
+<text x="46" y="6160" font-size="14">Cytowania: repertuar_kina.md#chunk-2, sylabus_systemy_operacyjne.md#chunk-2</text>
+<text x="46" y="6179" font-size="14">2026-11-09T18:51:21.515150+00:00</text>
+</g></svg>

@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" width="880" height="2051" viewBox="0 0 880 2051"><title id="title">Przebieg agenta</title>
+<desc id="desc">Chronologiczna historia, nie mapa wszystkich możliwych ścieżek. Treści są skrócone; pełne dane pozostają w logu JSONL.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#64748b"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<g font-family="Segoe UI, sans-serif" fill="#172033">
+<text x="28" y="36" font-size="22">Przebieg agenta</text>
+<text x="28" y="62" font-size="14">Przebieg chronologiczny · strzałki = kolejność zdarzeń</text>
+<text x="28" y="84" font-size="13">Numer zdarzenia ≠ tura LLM. Sterowanie LangGraph = zakończony węzeł i wybrane przejście.</text>
+<rect x="28" y="102" width="16" height="16" fill="#edf2f7" stroke="#475569"/><text x="52" y="115" font-size="13">Start / koniec</text>
+<rect x="306" y="102" width="16" height="16" fill="#dbeafe" stroke="#1d4ed8"/><text x="330" y="115" font-size="13">Komunikacja z LLM</text>
+<rect x="584" y="102" width="16" height="16" fill="#dcfce7" stroke="#15803d"/><text x="608" y="115" font-size="13">Narzędzie</text>
+<rect x="28" y="132" width="16" height="16" fill="#f3e8ff" stroke="#7e22ce"/><text x="52" y="145" font-size="13">Sterowanie LangGraph</text>
+<rect x="306" y="132" width="16" height="16" fill="#fef3c7" stroke="#92400e"/><text x="330" y="145" font-size="13">Decyzja człowieka</text>
+<rect x="584" y="132" width="16" height="16" fill="#fee2e2" stroke="#b91c1c"/><text x="608" y="145" font-size="13">Błąd / odrzucenie</text>
+<rect x="28" y="175" width="824" height="132" rx="10" fill="#edf2f7" stroke="#475569"/><text x="46" y="197" font-size="12">Start / koniec</text>
+<text x="46" y="222" font-size="17" font-weight="600">1. START · komenda użytkownika</text>
+<text x="46" y="245" font-size="14">Jakich materiałów można używać na egzaminie z Kryptografii i jaki warunek trzeba spełnić do 15</text>
+<text x="46" y="264" font-size="14">grudnia, żeby podejść w pierwszym terminie?</text>
+<text x="46" y="283" font-size="14">2026-11-09T18:50:21.764799+00:00</text>
+<line x1="440" y1="311" x2="440" y2="333" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="337" width="824" height="170" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="359" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="384" font-size="17" font-weight="600">2. Tura LLM 1 · odebrano odpowiedź LLM</text>
+<text x="46" y="407" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="426" font-size="14">Czas żądania: 580 ms · koszt narastająco: $0.00007</text>
+<text x="46" y="445" font-size="14">Propozycja wywołania narzędzia: search_docs {&quot;query&quot;: &quot;Kryptografia egzamin materiały warunki</text>
+<text x="46" y="464" font-size="14">termin&quot;}</text>
+<text x="46" y="483" font-size="14">2026-11-09T18:50:22.349014+00:00</text>
+<line x1="440" y1="511" x2="440" y2="533" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="537" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="559" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="584" font-size="17" font-weight="600">3. Tura LLM 1 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="607" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="626" font-size="14">Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)</text>
+<text x="46" y="645" font-size="14">Zebrane źródła: 0 · status: w toku</text>
+<text x="46" y="664" font-size="14">2026-11-09T18:50:22.349519+00:00</text>
+<line x1="440" y1="692" x2="440" y2="714" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="718" width="824" height="189" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="740" font-size="12">Narzędzie</text>
+<text x="46" y="765" font-size="17" font-weight="600">4. Tura LLM 1 · wynik obsługi narzędzia: search_docs</text>
+<text x="46" y="788" font-size="14">Argumenty: {&quot;query&quot;: &quot;Kryptografia egzamin materiały warunki termin&quot;}</text>
+<text x="46" y="807" font-size="14">Znaleziono fragmentów: 3</text>
+<text x="46" y="826" font-size="14">sylabus_kryptografia.md#chunk-2 · score=0.7301</text>
+<text x="46" y="845" font-size="14">sylabus_kryptografia.md#chunk-1 · score=0.5688</text>
+<text x="46" y="864" font-size="14">sylabus_kryptografia.md#chunk-3 · score=0.4836</text>
+<text x="46" y="883" font-size="14">2026-11-09T18:50:22.354520+00:00</text>
+<line x1="440" y1="911" x2="440" y2="933" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="937" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="959" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="984" font-size="17" font-weight="600">5. Tura LLM 1 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów</text>
+<text x="46" y="1007" font-size="14">Identyfikator w kodzie: retrieve_docs</text>
+<text x="46" y="1026" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="1045" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="1064" font-size="14">2026-11-09T18:50:22.354520+00:00</text>
+<line x1="440" y1="1092" x2="440" y2="1114" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1118" width="824" height="265" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="1140" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="1165" font-size="17" font-weight="600">6. Tura LLM 2 · odebrano odpowiedź LLM</text>
+<text x="46" y="1188" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="1207" font-size="14">Czas żądania: 1530 ms · koszt narastająco: $0.00021</text>
+<text x="46" y="1226" font-size="14">Propozycja wywołania narzędzia: finish {&quot;answer&quot;: &quot;Na egzaminie z Kryptografii można korzystać z</text>
+<text x="46" y="1245" font-size="14">jednej własnoręcznie podpisanej kartki formatu A4 z notatkami (dwustronnej)</text>
+<text x="46" y="1264" font-size="14">[sylabus_kryptografia.md#chunk-2]. Zabronione jest natomiast używanie kalkulatorów</text>
+<text x="46" y="1283" font-size="14">programowalnych, telef…</text>
+<text x="46" y="1302" font-size="14">Tekst odpowiedzi LLM: Na egzaminie z Kryptografii można korzystać z jednej własnoręcznie</text>
+<text x="46" y="1321" font-size="14">podpisanej kartki formatu A4 z notatkami (dwustronnej) [sylabus_kryptografia.md#chunk-2].</text>
+<text x="46" y="1340" font-size="14">Zabronione jest natomiast używanie kalkulatorów programowalnych, telefonów oraz la…</text>
+<text x="46" y="1359" font-size="14">2026-11-09T18:50:23.885862+00:00</text>
+<line x1="440" y1="1387" x2="440" y2="1409" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1413" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="1435" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="1460" font-size="17" font-weight="600">7. Tura LLM 2 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="1483" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="1502" font-size="14">Przejście do: weryfikacja cytowań (verify_citations)</text>
+<text x="46" y="1521" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="1540" font-size="14">2026-11-09T18:50:23.886862+00:00</text>
+<line x1="440" y1="1568" x2="440" y2="1590" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1594" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="1616" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="1641" font-size="17" font-weight="600">8. Tura LLM 2 · zakończono węzeł: weryfikacja cytowań</text>
+<text x="46" y="1664" font-size="14">Identyfikator w kodzie: verify_citations</text>
+<text x="46" y="1683" font-size="14">Przejście do: zakończenie przebiegu (end)</text>
+<text x="46" y="1702" font-size="14">Zebrane źródła: 3 · status: success</text>
+<text x="46" y="1721" font-size="14">2026-11-09T18:50:23.887862+00:00</text>
+<line x1="440" y1="1749" x2="440" y2="1771" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1775" width="824" height="246" rx="10" fill="#edf2f7" stroke="#475569"/><text x="46" y="1797" font-size="12">Start / koniec</text>
+<text x="46" y="1822" font-size="17" font-weight="600">9. KONIEC · success</text>
+<text x="46" y="1845" font-size="14">Na egzaminie z Kryptografii można korzystać z jednej własnoręcznie podpisanej kartki formatu A4</text>
+<text x="46" y="1864" font-size="14">z notatkami (dwustronnej) [sylabus_kryptografia.md#chunk-2]. Zabronione jest natomiast używanie</text>
+<text x="46" y="1883" font-size="14">kalkulatorów programowalnych, telefonów oraz laptopów [sylabus_kryptografia.md#chunk-2]. Aby móc</text>
+<text x="46" y="1902" font-size="14">podejść do egzaminu w pierwszym terminie, należy do 15 grudnia 2026 r. uzyskać zaliczenie z</text>
+<text x="46" y="1921" font-size="14">projektu implementacyjnego (obejmującego szyfr blokowy oraz podpis cyfrowy RSA/ECDSA)</text>
+<text x="46" y="1940" font-size="14">[sylabus_kryptografia.md#chunk-2].</text>
+<text x="46" y="1959" font-size="14">Liczba tur LLM: 2 · koszt: $0.00021 · czas: 2123 ms</text>
+<text x="46" y="1978" font-size="14">Cytowania: sylabus_kryptografia.md#chunk-2</text>
+<text x="46" y="1997" font-size="14">2026-11-09T18:50:23.887862+00:00</text>
+</g></svg>

@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" width="880" height="2318" viewBox="0 0 880 2318"><title id="title">Przebieg agenta</title>
+<desc id="desc">Chronologiczna historia, nie mapa wszystkich możliwych ścieżek. Treści są skrócone; pełne dane pozostają w logu JSONL.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#64748b"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<g font-family="Segoe UI, sans-serif" fill="#172033">
+<text x="28" y="36" font-size="22">Przebieg agenta</text>
+<text x="28" y="62" font-size="14">Przebieg chronologiczny · strzałki = kolejność zdarzeń</text>
+<text x="28" y="84" font-size="13">Numer zdarzenia ≠ tura LLM. Sterowanie LangGraph = zakończony węzeł i wybrane przejście.</text>
+<rect x="28" y="102" width="16" height="16" fill="#edf2f7" stroke="#475569"/><text x="52" y="115" font-size="13">Start / koniec</text>
+<rect x="306" y="102" width="16" height="16" fill="#dbeafe" stroke="#1d4ed8"/><text x="330" y="115" font-size="13">Komunikacja z LLM</text>
+<rect x="584" y="102" width="16" height="16" fill="#dcfce7" stroke="#15803d"/><text x="608" y="115" font-size="13">Narzędzie</text>
+<rect x="28" y="132" width="16" height="16" fill="#f3e8ff" stroke="#7e22ce"/><text x="52" y="145" font-size="13">Sterowanie LangGraph</text>
+<rect x="306" y="132" width="16" height="16" fill="#fef3c7" stroke="#92400e"/><text x="330" y="145" font-size="13">Decyzja człowieka</text>
+<rect x="584" y="132" width="16" height="16" fill="#fee2e2" stroke="#b91c1c"/><text x="608" y="145" font-size="13">Błąd / odrzucenie</text>
+<rect x="28" y="175" width="824" height="132" rx="10" fill="#edf2f7" stroke="#475569"/><text x="46" y="197" font-size="12">Start / koniec</text>
+<text x="46" y="222" font-size="17" font-weight="600">1. START · komenda użytkownika</text>
+<text x="46" y="245" font-size="14">Mam wizytę w FizjoActive w środę 28.10. Na ile godzin przed wizytą mogę ją bezpłatnie odwołać i</text>
+<text x="46" y="264" font-size="14">ile wynosi opłata, jeśli spóźnię się z odwołaniem?</text>
+<text x="46" y="283" font-size="14">2026-11-09T18:51:26.320877+00:00</text>
+<line x1="440" y1="311" x2="440" y2="333" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="337" width="824" height="170" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="359" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="384" font-size="17" font-weight="600">2. Tura LLM 1 · odebrano odpowiedź LLM</text>
+<text x="46" y="407" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="426" font-size="14">Czas żądania: 564 ms · koszt narastająco: $0.00007</text>
+<text x="46" y="445" font-size="14">Propozycja wywołania narzędzia: search_docs {&quot;query&quot;: &quot;FizjoActive zasady odwoływania wizyt</text>
+<text x="46" y="464" font-size="14">opłaty&quot;}</text>
+<text x="46" y="483" font-size="14">2026-11-09T18:51:26.888393+00:00</text>
+<line x1="440" y1="511" x2="440" y2="533" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="537" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="559" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="584" font-size="17" font-weight="600">3. Tura LLM 1 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="607" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="626" font-size="14">Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)</text>
+<text x="46" y="645" font-size="14">Zebrane źródła: 0 · status: w toku</text>
+<text x="46" y="664" font-size="14">2026-11-09T18:51:26.890896+00:00</text>
+<line x1="440" y1="692" x2="440" y2="714" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="718" width="824" height="189" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="740" font-size="12">Narzędzie</text>
+<text x="46" y="765" font-size="17" font-weight="600">4. Tura LLM 1 · wynik obsługi narzędzia: search_docs</text>
+<text x="46" y="788" font-size="14">Argumenty: {&quot;query&quot;: &quot;FizjoActive zasady odwoływania wizyt opłaty&quot;}</text>
+<text x="46" y="807" font-size="14">Znaleziono fragmentów: 3</text>
+<text x="46" y="826" font-size="14">notatki_organizacyjne.md#chunk-1 · score=0.6295</text>
+<text x="46" y="845" font-size="14">regulamin_studiow_wmi.md#chunk-1 · score=0.5293</text>
+<text x="46" y="864" font-size="14">regulamin_studiow_wmi.md#chunk-3 · score=0.4142</text>
+<text x="46" y="883" font-size="14">2026-11-09T18:51:26.896415+00:00</text>
+<line x1="440" y1="911" x2="440" y2="933" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="937" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="959" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="984" font-size="17" font-weight="600">5. Tura LLM 1 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów</text>
+<text x="46" y="1007" font-size="14">Identyfikator w kodzie: retrieve_docs</text>
+<text x="46" y="1026" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="1045" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="1064" font-size="14">2026-11-09T18:51:26.897415+00:00</text>
+<line x1="440" y1="1092" x2="440" y2="1114" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1118" width="824" height="189" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="1140" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="1165" font-size="17" font-weight="600">6. Tura LLM 2 · odebrano odpowiedź LLM</text>
+<text x="46" y="1188" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="1207" font-size="14">Czas żądania: 1370 ms · koszt narastająco: $0.00021</text>
+<text x="46" y="1226" font-size="14">Tekst odpowiedzi LLM: W gabinecie FizjoActive wizytę możesz bezpłatnie odwołać lub przełożyć</text>
+<text x="46" y="1245" font-size="14">najpóźniej **24 godziny przed planowanym terminem** [notatki_organizacyjne.md#chunk-1]. Jeśli</text>
+<text x="46" y="1264" font-size="14">odwołasz wizytę później, pobierana jest opłata rezerwacyjna w wysokości **…</text>
+<text x="46" y="1283" font-size="14">2026-11-09T18:51:28.268206+00:00</text>
+<line x1="440" y1="1311" x2="440" y2="1333" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1337" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="1359" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="1384" font-size="17" font-weight="600">7. Tura LLM 2 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="1407" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="1426" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="1445" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="1464" font-size="14">2026-11-09T18:51:28.268206+00:00</text>
+<line x1="440" y1="1492" x2="440" y2="1514" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1518" width="824" height="189" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="1540" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="1565" font-size="17" font-weight="600">8. Tura LLM 3 · odebrano odpowiedź LLM</text>
+<text x="46" y="1588" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="1607" font-size="14">Czas żądania: 707 ms · koszt narastająco: $0.00037</text>
+<text x="46" y="1626" font-size="14">Propozycja wywołania narzędzia: finish {&quot;answer&quot;: &quot;W gabinecie FizjoActive wizytę możesz</text>
+<text x="46" y="1645" font-size="14">bezpłatnie odwołać lub przełożyć najpóźniej 24 godziny przed planowanym terminem. Jeśli odwołasz</text>
+<text x="46" y="1664" font-size="14">wizytę później, pobierana jest opłata rezerwacyjna w wysokości 50% ceny wizyty (90 zł).&quot;, &quot;c…</text>
+<text x="46" y="1683" font-size="14">2026-11-09T18:51:28.976956+00:00</text>
+<line x1="440" y1="1711" x2="440" y2="1733" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1737" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="1759" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="1784" font-size="17" font-weight="600">9. Tura LLM 3 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="1807" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="1826" font-size="14">Przejście do: weryfikacja cytowań (verify_citations)</text>
+<text x="46" y="1845" font-size="14">Zebrane źródła: 3 · status: w toku</text>
+<text x="46" y="1864" font-size="14">2026-11-09T18:51:28.976956+00:00</text>
+<line x1="440" y1="1892" x2="440" y2="1914" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1918" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="1940" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="1965" font-size="17" font-weight="600">10. Tura LLM 3 · zakończono węzeł: weryfikacja cytowań</text>
+<text x="46" y="1988" font-size="14">Identyfikator w kodzie: verify_citations</text>
+<text x="46" y="2007" font-size="14">Przejście do: zakończenie przebiegu (end)</text>
+<text x="46" y="2026" font-size="14">Zebrane źródła: 3 · status: success</text>
+<text x="46" y="2045" font-size="14">2026-11-09T18:51:28.977953+00:00</text>
+<line x1="440" y1="2073" x2="440" y2="2095" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2099" width="824" height="189" rx="10" fill="#edf2f7" stroke="#475569"/><text x="46" y="2121" font-size="12">Start / koniec</text>
+<text x="46" y="2146" font-size="17" font-weight="600">11. KONIEC · success</text>
+<text x="46" y="2169" font-size="14">W gabinecie FizjoActive wizytę możesz bezpłatnie odwołać lub przełożyć najpóźniej 24 godziny</text>
+<text x="46" y="2188" font-size="14">przed planowanym terminem. Jeśli odwołasz wizytę później, pobierana jest opłata rezerwacyjna w</text>
+<text x="46" y="2207" font-size="14">wysokości 50% ceny wizyty (90 zł).</text>
+<text x="46" y="2226" font-size="14">Liczba tur LLM: 3 · koszt: $0.00037 · czas: 2657 ms</text>
+<text x="46" y="2245" font-size="14">Cytowania: notatki_organizacyjne.md#chunk-1</text>
+<text x="46" y="2264" font-size="14">2026-11-09T18:51:28.978954+00:00</text>
+</g></svg>

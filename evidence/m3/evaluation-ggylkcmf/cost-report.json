@@ -1,0 +1,26 @@
+{
+  "evaluated_at_utc": "2026-11-09T18:52:43.340089+00:00",
+  "source_commit": "2c75be2efcf5c6a786981b6e3d2da8e63606d2f4",
+  "model": "google/gemma-4-26b-a4b-it",
+  "completed_questions": 30,
+  "repetitions": 3,
+  "model_requests": 123,
+  "current_evaluation_cost_usd": "0.0219244038",
+  "provider_usage_sum_usd": "0.0219244037999999999",
+  "previous_evaluation_cost_usd": "0.0184011975",
+  "both_evaluations_total_usd": "0.0403256013",
+  "previous_additional_probes_cost_usd": "0.00095951400000000004",
+  "evaluations_and_recorded_probes_total_usd": "0.04128511530000000004",
+  "cost_scope": "OpenRouter usage.cost for these two 30-question evaluations and the two separately recorded earlier classification probes only. Excludes manual CLI runs and coding/reviewer agents.",
+  "status_counts": {
+    "success": 24,
+    "not_found": 5,
+    "step_limit": 1
+  },
+  "rejected_tool_requests": {},
+  "citation_membership_checked_for_all_30_answers": true,
+  "independent_content_review_of_this_run": false,
+  "limitations": "Regex coverage does not establish factual correctness. This run did not repeat the earlier independent model review.",
+  "rubric_sha256_lf": "3445bee14175511d95fb4c95d6fbf38c4dddae66431abd7e79cca82b27d009db",
+  "index_sha256_lf": "99f7e8822412fe325fc03b1bff3a3b8b3d94c05bdaa5907ef84265548ee5802e"
+}

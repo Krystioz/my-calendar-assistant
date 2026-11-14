@@ -1,0 +1,37 @@
+flowchart TD
+  subgraph legend["Legenda"]
+    legend_boundary["Start / koniec"]:::boundary
+    legend_model["Komunikacja z LLM"]:::model
+    legend_tool["Narzędzie"]:::tool
+    legend_graph["Sterowanie LangGraph"]:::graph
+    legend_decision["Decyzja człowieka"]:::decision
+    legend_error["Błąd / odrzucenie"]:::error
+  end
+  note["Przebieg chronologiczny · strzałki = kolejność zdarzeń"]
+  n0["START · komenda użytkownika<br/>Ile punktów trzeba zdobyć, żeby zaliczyć laboratorium z Systemów operacyjnych na ocenę 3.0, a ile na 5.0?<br/>2026-11-09T18:51:23.777791+00:00"]:::boundary
+  n1["Tura LLM 1 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 540 ms · koszt narastająco: $0.00007<br/>Propozycja wywołania narzędzia: search_docs #123;#34;query#34;: #34;Systemy operacyjne laboratorium punkty zaliczenia ocena#34;#125;<br/>2026-11-09T18:51:24.321440+00:00"]:::model
+  n0 --> n1
+  n2["Tura LLM 1 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa żądań z wyszukiwaniem dokumentów (retrieve_docs)<br/>Zebrane źródła: 0 · status: w toku<br/>2026-11-09T18:51:24.323458+00:00"]:::graph
+  n1 --> n2
+  n3["Tura LLM 1 · wynik obsługi narzędzia: search_docs<br/>Argumenty: #123;#34;query#34;: #34;Systemy operacyjne laboratorium punkty zaliczenia ocena#34;#125;<br/>Znaleziono fragmentów: 3<br/>sylabus_systemy_operacyjne.md#35;chunk-3 · score=0.711<br/>notatki_organizacyjne.md#35;chunk-3 · score=0.4774<br/>sylabus_systemy_operacyjne.md#35;chunk-1 · score=0.46<br/>2026-11-09T18:51:24.328465+00:00"]:::tool
+  n2 --> n3
+  n4["Tura LLM 1 · zakończono węzeł: obsługa żądań z wyszukiwaniem dokumentów<br/>Identyfikator w kodzie: retrieve_docs<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-09T18:51:24.328465+00:00"]:::graph
+  n3 --> n4
+  n5["Tura LLM 2 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 1232 ms · koszt narastająco: $0.00022<br/>Tekst odpowiedzi LLM: Aby zaliczyć laboratorium z Systemów operacyjnych na ocenę 3.0, należy zdobyć co najmniej 55 punktów. Aby uzyskać ocenę 5.0, wymagane jest uzyskanie co najmniej 90 punktów #91;sylabus_systemy_operacyjne.md#35;chunk-3#93;. finish #123;outcome: #34;answered…<br/>2026-11-09T18:51:25.561913+00:00"]:::model
+  n4 --> n5
+  n6["Tura LLM 2 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: obsługa tury LLM (call_model)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-09T18:51:25.561913+00:00"]:::graph
+  n5 --> n6
+  n7["Tura LLM 3 · odebrano odpowiedź LLM<br/>Model: google/gemma-4-26b-a4b-it<br/>Czas żądania: 742 ms · koszt narastająco: $0.00037<br/>Propozycja wywołania narzędzia: finish #123;#34;answer#34;: #34;Aby zaliczyć laboratorium z Systemów operacyjnych na ocenę 3.0, należy zdobyć co najmniej 55 punktów. Aby uzyskać ocenę 5.0, wymagane jest uzyskanie co najmniej 90 punktów.#34;, #34;citations#34;: #91;#34;sylabus_systemy_operacyjne.md#35;chunk-3…<br/>2026-11-09T18:51:26.304813+00:00"]:::model
+  n6 --> n7
+  n8["Tura LLM 3 · zakończono węzeł: obsługa tury LLM<br/>Identyfikator w kodzie: call_model<br/>Przejście do: weryfikacja cytowań (verify_citations)<br/>Zebrane źródła: 3 · status: w toku<br/>2026-11-09T18:51:26.305812+00:00"]:::graph
+  n7 --> n8
+  n9["Tura LLM 3 · zakończono węzeł: weryfikacja cytowań<br/>Identyfikator w kodzie: verify_citations<br/>Przejście do: zakończenie przebiegu (end)<br/>Zebrane źródła: 3 · status: success<br/>2026-11-09T18:51:26.306813+00:00"]:::graph
+  n8 --> n9
+  n10["KONIEC · success<br/>Aby zaliczyć laboratorium z Systemów operacyjnych na ocenę 3.0, należy zdobyć co najmniej 55 punktów. Aby uzyskać ocenę 5.0, wymagane jest uzyskanie co najmniej 90 punktów.<br/>Liczba tur LLM: 3 · koszt: $0.00037 · czas: 2530 ms<br/>Cytowania: sylabus_systemy_operacyjne.md#35;chunk-3<br/>2026-11-09T18:51:26.307812+00:00"]:::boundary
+  n9 --> n10
+  classDef boundary fill:#edf2f7,stroke:#475569,color:#172033
+  classDef model fill:#dbeafe,stroke:#1d4ed8,color:#172033
+  classDef tool fill:#dcfce7,stroke:#15803d,color:#172033
+  classDef graph fill:#f3e8ff,stroke:#7e22ce,color:#172033
+  classDef decision fill:#fef3c7,stroke:#92400e,color:#172033
+  classDef error fill:#fee2e2,stroke:#b91c1c,color:#172033

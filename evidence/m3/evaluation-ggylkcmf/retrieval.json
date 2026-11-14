@@ -1,0 +1,107 @@
+{
+  "evaluated_queries": 7,
+  "hit_at_1": 0.857,
+  "hit_at_k": 0.857,
+  "top_k": 3,
+  "cases": [
+    {
+      "id": "q01_dune_conflict_and_makeup",
+      "query": "Diuna październik pokaz specjalny Kino Muza",
+      "expected_docs": [
+        "repertuar_kina.md#chunk-2",
+        "sylabus_systemy_operacyjne.md#chunk-2"
+      ],
+      "returned_ids": [
+        "repertuar_kina.md#chunk-2",
+        "repertuar_kina.md#chunk-3",
+        "repertuar_kina.md#chunk-4"
+      ],
+      "hit_at_1": true,
+      "hit_at_k": true
+    },
+    {
+      "id": "q02_crypto_exam_notes",
+      "query": "egzamin Kryptografia materiały dozwolone kartka A4 warunek grudzień",
+      "expected_docs": [
+        "sylabus_kryptografia.md#chunk-2"
+      ],
+      "returned_ids": [
+        "sylabus_kryptografia.md#chunk-2",
+        "sylabus_kryptografia.md#chunk-3",
+        "sylabus_kryptografia.md#chunk-1"
+      ],
+      "hit_at_1": true,
+      "hit_at_k": true
+    },
+    {
+      "id": "q03_os_passing_threshold",
+      "query": "zasady zaliczenia próg punktowy laboratorium systemy operacyjne",
+      "expected_docs": [
+        "sylabus_systemy_operacyjne.md#chunk-3"
+      ],
+      "returned_ids": [
+        "sylabus_systemy_operacyjne.md#chunk-3",
+        "sylabus_systemy_operacyjne.md#chunk-2",
+        "sylabus_systemy_operacyjne.md#chunk-1"
+      ],
+      "hit_at_1": true,
+      "hit_at_k": true
+    },
+    {
+      "id": "q04_physio_cancellation_fee",
+      "query": "FizjoActive odwołanie wizyty opłata rezerwacyjna",
+      "expected_docs": [
+        "notatki_organizacyjne.md#chunk-1"
+      ],
+      "returned_ids": [
+        "notatki_organizacyjne.md#chunk-1",
+        "regulamin_studiow_wmi.md#chunk-1",
+        "repertuar_kina.md#chunk-1"
+      ],
+      "hit_at_1": true,
+      "hit_at_k": true
+    },
+    {
+      "id": "q05_seminars_november",
+      "query": "seminarium dyplomowe listopad 2026 Marek Kowalski",
+      "expected_docs": [
+        "plan_studiow_i_seminaria.md#chunk-2"
+      ],
+      "returned_ids": [
+        "plan_studiow_i_seminaria.md#chunk-2",
+        "sylabus_systemy_operacyjne.md#chunk-1",
+        "repertuar_kina.md#chunk-2"
+      ],
+      "hit_at_1": true,
+      "hit_at_k": true
+    },
+    {
+      "id": "q06_ai_club_hackathon",
+      "query": "Koło Naukowe Golem AI hackathon Agentic Workflows rejestracja",
+      "expected_docs": [
+        "plan_studiow_i_seminaria.md#chunk-3"
+      ],
+      "returned_ids": [
+        "sylabus_systemy_operacyjne.md#chunk-3",
+        "notatki_organizacyjne.md#chunk-3",
+        "sylabus_systemy_operacyjne.md#chunk-1"
+      ],
+      "hit_at_1": false,
+      "hit_at_k": false
+    },
+    {
+      "id": "q07_ambiguous_wednesday_movie",
+      "query": "Łowca androidów 2049 środa 21 października godziny seansu",
+      "expected_docs": [
+        "repertuar_kina.md#chunk-2"
+      ],
+      "returned_ids": [
+        "repertuar_kina.md#chunk-2",
+        "plan_studiow_i_seminaria.md#chunk-3",
+        "notatki_organizacyjne.md#chunk-1"
+      ],
+      "hit_at_1": true,
+      "hit_at_k": true
+    }
+  ]
+}
