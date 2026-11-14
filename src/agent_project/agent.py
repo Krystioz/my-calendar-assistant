@@ -174,6 +174,7 @@ class AgentState(TypedDict):
     retrieved_ids: set[str]
     doc_retrieved_ids: set[str]
     steps: int  # model calls in the current turn; reset when the user answers
+    cost_usd: float  # model spend in the current turn; reset with steps
     clarifications: int  # answered clarifying questions in this conversation
     rejections_in_a_row: int
     status: Status | None
@@ -302,6 +303,7 @@ def build_agent_graph(
             "retrieved_ids": set(),
             "doc_retrieved_ids": set(),
             "steps": 0,
+            "cost_usd": 0.0,
             "clarifications": 0,
             "rejections_in_a_row": 0,
             "status": None,
@@ -335,6 +337,8 @@ def build_agent_graph(
 
         usage = reply.get("usage") or {}
         run_tracker.add_usage(usage)
+        # .get: conversations saved before cost_usd existed can still resume.
+        spent = state.get("cost_usd", 0.0) + (usage.get("cost") or 0.0)
         calls = reply.get("tool_calls") or []
         run_tracker.trace(
             "model_call",
@@ -352,6 +356,7 @@ def build_agent_graph(
         if run_tracker.cost > max_cost_usd:
             return {
                 "steps": step,
+                "cost_usd": spent,
                 "status": "cost_limit",
                 "answer": "Stopped: the cost limit was reached.",
                 "next_node": "end",
@@ -362,6 +367,7 @@ def build_agent_graph(
             if text:
                 return {
                     "steps": step,
+                "cost_usd": spent,
                     "messages": [
                         *state["messages"],
                         {"role": "assistant", "content": text},
@@ -379,6 +385,7 @@ def build_agent_graph(
                 }
             return {
                 "steps": step,
+                "cost_usd": spent,
                 "status": "error",
                 "answer": "The model returned an empty reply.",
                 "next_node": "end",
@@ -427,6 +434,7 @@ def build_agent_graph(
 
         return {
             "steps": step,
+            "cost_usd": spent,
             "messages": new_messages,
             "pending_calls": calls,
             "next_node": next_step,
@@ -602,6 +610,7 @@ def build_agent_graph(
             ],
             "pending_calls": [],
             "steps": 0,
+            "cost_usd": 0.0,
             "clarifications": state["clarifications"] + 1,
             "rejections_in_a_row": 0,
             "next_node": "call_model",

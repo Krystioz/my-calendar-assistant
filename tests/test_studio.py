@@ -20,7 +20,9 @@ def test_studio_graph_takes_only_a_goal_and_leaves_storage_to_the_server(
     monkeypatch.setattr(
         studio,
         "open_calendar",
-        lambda: CalendarTools.from_file(working_copy(CALENDAR, tmp_path / "c.ics")),
+        lambda _target: CalendarTools.from_file(
+            working_copy(CALENDAR, tmp_path / "c.ics")
+        ),
     )
     graph = asyncio.run(studio.make_graph({}))
     assert graph.get_input_jsonschema()["required"] == ["goal"]
@@ -36,8 +38,29 @@ def test_empty_goal_is_a_clear_error(tmp_path, monkeypatch) -> None:
     monkeypatch.setattr(
         studio,
         "open_calendar",
-        lambda: CalendarTools.from_file(working_copy(CALENDAR, tmp_path / "c.ics")),
+        lambda _target: CalendarTools.from_file(
+            working_copy(CALENDAR, tmp_path / "c.ics")
+        ),
     )
     graph = asyncio.run(studio.make_graph({}))
     with pytest.raises(ValueError, match="non-empty 'goal'"):
         graph.invoke({"goal": " "})
+
+
+def test_calendar_comes_from_the_run_config(tmp_path, monkeypatch) -> None:
+    import pytest
+
+    opened = []
+    monkeypatch.setattr(studio, "_client", lambda *_: MockClient([]))
+
+    def fake_open(target):
+        opened.append(target)
+        return CalendarTools.from_file(working_copy(CALENDAR, tmp_path / "c.ics"))
+
+    monkeypatch.setattr(studio, "open_calendar", fake_open)
+    asyncio.run(studio.make_graph({"configurable": {"calendar": "google"}}))
+    asyncio.run(studio.make_graph({"configurable": {"calendar": "local"}}))
+    asyncio.run(studio.make_graph({}))
+    assert opened == ["google", studio.WORKING_CALENDAR, None]
+    with pytest.raises(ValueError, match="Unknown calendar"):
+        asyncio.run(studio.make_graph({"configurable": {"calendar": "C:/x.ics"}}))

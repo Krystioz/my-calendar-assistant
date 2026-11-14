@@ -430,3 +430,37 @@ def test_guessed_calendar_is_rejected_and_task_ids_are_citable(tmp_path) -> None
     assert result.status == "success"
     assert result.citations == ["task-1@calendar.local"]
     assert not any(e.title == "Kino" for e in tools.events)
+
+
+def test_state_keeps_the_cost_of_the_current_turn(tmp_path) -> None:
+    from langgraph.checkpoint.memory import InMemorySaver
+
+    from agent_project.agent import (
+        AGENT_TOOL_SCHEMAS,
+        AgentContext,
+        _Run,
+        build_agent_graph,
+    )
+
+    graph = build_agent_graph(
+        client=MockClient(
+            [
+                reply(("search_events", {"query": "dentysta"}), cost=0.001),
+                reply(
+                    ("finish", {"outcome": "answered", "answer": "Done."}), cost=0.002
+                ),
+            ]
+        ),
+        tools=CalendarTools.from_file(working_copy(CALENDAR, tmp_path / "c.ics")),
+        run_tracker=_Run(tmp_path / "trace.jsonl"),
+        schemas=AGENT_TOOL_SCHEMAS,
+        checkpointer=InMemorySaver(),
+        **LIMITS,
+    )
+    state = graph.invoke(
+        {"goal": "test"},
+        {"configurable": {"thread_id": "t"}},
+        context=AgentContext(today=TODAY.isoformat()),
+    )
+    assert state["status"] == "success"
+    assert state["cost_usd"] == pytest.approx(0.003)

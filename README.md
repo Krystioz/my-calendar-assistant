@@ -126,8 +126,25 @@ When the graph stops, resume it with one of these values:
 | `confirm` | `delete_event` needs your approval | `true` deletes; any other value declines |
 
 To set today's date, open the assistant at the bottom of the input panel and
-fill `Today` (for example `2026-10-16`); empty means the real date. Each Studio run writes `traces/studio-<time>.jsonl`.
+fill `Today` (for example `2026-10-16`); empty means the real date. Each Studio run writes `traces/server-<time>.jsonl`.
 Studio runs have no `run_end` event and no diagram.
+
+### Chat UI
+
+A lightweight ChatGPT-style web interface lives in `ui/` and talks to the same
+LangGraph server. Start the server and the UI in two terminals:
+
+```bash
+uv run langgraph dev --no-browser
+```
+
+```bash
+cd ui && npm install && npm run dev
+```
+
+Open `http://localhost:5173` in your browser. LangGraph Studio (using the link
+printed by `langgraph dev`) remains available as the debug view of the same
+running server.
 
 ### MCP server
 

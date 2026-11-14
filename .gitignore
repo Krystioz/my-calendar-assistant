@@ -14,6 +14,8 @@ __pycache__/
 dist/
 build/
 *.egg-info/
+ui/node_modules/
+ui/dist/
 
 # Testing, linting & type checking caches
 .pytest_cache/
