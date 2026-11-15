@@ -133,12 +133,6 @@ def test_plain_text_requires_explicit_finish(tmp_path, text, outcome) -> None:
     assert result.steps == 2
 
 
-def test_repeated_plain_text_stops_at_step_limit(tmp_path) -> None:
-    result, events = run([reply(text="Nie wiem.")] * 4, tmp_path, max_steps=3)
-    assert result.status == "step_limit"
-    assert result.steps == 3
-    assert sum(e["event"] == "model_call" for e in events) == 3
-
 
 def test_plain_text_retry_retains_tool_context(tmp_path, monkeypatch) -> None:
     original_complete = MockClient.complete
@@ -585,3 +579,14 @@ def test_image_goes_to_the_model_but_cannot_choose_a_calendar(tmp_path) -> None:
 def test_bad_image_is_refused_before_any_model_call(tmp_path, url, message) -> None:
     with pytest.raises(ValueError, match=message):
         run([], tmp_path, image=url)
+
+
+def test_second_plain_text_answer_is_taken_as_the_answer(tmp_path) -> None:
+    # Live failure: the model kept answering in text after the nudge until step_limit.
+    result, events = run(
+        [reply(text="Masz dwa wydarzenia."), reply(text="Masz dwa wydarzenia.")],
+        tmp_path,
+    )
+    assert result.status == "success"
+    assert result.answer == "Masz dwa wydarzenia."
+    assert result.steps == 2

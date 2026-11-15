@@ -24,6 +24,7 @@ from pydantic import (
     AfterValidator,
     BaseModel,
     Field,
+    PrivateAttr,
     ValidationError,
     model_validator,
 )
@@ -337,11 +338,14 @@ class CreateEventArgs(BaseModel):
         None,
         description="Where the start time comes from: 'user' (the user typed it), "
         "'image' (read from the attached image) or 'none' (nobody gave a time). "
-        "Never invent a time: with 'none' nothing is added, ask the user instead.",
+        "Never invent a time: with 'none' nothing is added, ask the user instead. "
+        "With 'image', also give the end time shown in the image.",
     )
+    _end_given: bool = PrivateAttr(False)  # False when end is the 15 min default
 
     @model_validator(mode="after")
     def _check_range(self) -> "CreateEventArgs":
+        self._end_given = self.end is not None and self.end != self.start
         if self.end is None or self.end == self.start:
             if self.start > datetime.max - DEFAULT_EVENT_LENGTH:
                 raise ValueError("start is too far in the future")
@@ -954,6 +958,14 @@ def check_event_evidence(
             "no_image",
             "There is no image in this conversation; the time must come from the "
             "user. Nothing was added.",
+        )
+    # Every guessed time in the live runs came without an end; a real poster or
+    # timetable shows the range, so an image-sourced event must carry both ends.
+    if args.time_source == "image" and not args._end_given:
+        return _error(
+            "end_time_required",
+            "An event read from an image needs the end time shown in the image. "
+            "If the image shows no time range, ask the user. Nothing was added.",
         )
     if args.time_source == "user":
         minute = f"[:.]{args.start.minute:02d}" if args.start.minute else r"(?:[:.]00)?"

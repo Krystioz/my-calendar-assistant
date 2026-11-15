@@ -386,6 +386,8 @@ def test_search_calendar_filter_matches_like_writes_and_rejects_unknown(
             "weekday_mismatch",
         ),
         ("Dodaj to", True, {"time_source": None}, "time_source_required"),
+        # Live failure: guessed times all came without an end.
+        ("Dodaj to", True, {"end": None}, "end_time_required"),
         # The live failure: no time on the poster, the model picked one.
         ("Dodaj ten koncert", True, {"time_source": "none"}, "time_unknown"),
         ("Dodaj koncert 29.10", False, {"time_source": "image"}, "no_image"),

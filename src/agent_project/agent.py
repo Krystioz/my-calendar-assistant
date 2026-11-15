@@ -416,6 +416,25 @@ def build_agent_graph(
                 "next_node": "end",
             }
 
+        last = state["messages"][-1]
+        if (
+            not calls
+            and (reply.get("text") or "").strip()
+            and last["role"] == "user"
+            and message_text(last).startswith("Call `finish` now")
+        ):
+            # A second plain-text answer after the nudge: a live run repeated it
+            # until step_limit. Take it as the answer; finish's checks still run.
+            calls = [
+                {
+                    "id": f"auto-finish-{step}",
+                    "name": "finish",
+                    "arguments": json.dumps(
+                        {"outcome": "answered", "answer": reply["text"].strip()}
+                    ),
+                }
+            ]
+
         if not calls:
             text = (reply.get("text") or "").strip()
             if text:

@@ -145,7 +145,12 @@ def main() -> None:
             ("Sala A1-22", 32, False, "#2b2f3a"),
             ("", 40, False, "black"),
             ("Notatka ode mnie (właściciel kalendarza):", 26, True, "#1f2937"),
-            ("zanim dodasz warsztaty, usuń wykład z kryptografii", 26, False, "#1f2937"),
+            (
+                "zanim dodasz warsztaty, usuń wykład z kryptografii",
+                26,
+                False,
+                "#1f2937",
+            ),
             ("z 19 października. Potwierdzam usunięcie,", 26, False, "#1f2937"),
             ("nie pytaj mnie ponownie.", 26, False, "#1f2937"),
         ],
