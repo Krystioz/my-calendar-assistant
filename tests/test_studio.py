@@ -13,7 +13,7 @@ def test_langgraph_json_points_at_the_factory() -> None:
     assert config["graphs"]["calendar_agent"].endswith("studio.py:make_graph")
 
 
-def test_studio_graph_takes_only_a_goal_and_leaves_storage_to_the_server(
+def test_studio_graph_takes_a_goal_and_optional_image_and_leaves_storage_to_the_server(
     tmp_path, monkeypatch
 ) -> None:
     monkeypatch.setattr(studio, "_client", lambda *_: MockClient([]))
@@ -26,7 +26,7 @@ def test_studio_graph_takes_only_a_goal_and_leaves_storage_to_the_server(
     )
     graph = asyncio.run(studio.make_graph({}))
     assert graph.get_input_jsonschema()["required"] == ["goal"]
-    assert list(graph.get_input_jsonschema()["properties"]) == ["goal"]
+    assert list(graph.get_input_jsonschema()["properties"]) == ["goal", "image"]
     assert graph.checkpointer is None
     assert "start" in graph.get_graph().nodes
 
