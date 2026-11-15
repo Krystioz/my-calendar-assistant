@@ -184,7 +184,7 @@ def test_delete_unknown_event_is_not_found_before_asking(writable) -> None:
 
 
 def test_create_event_catches_translated_duplicate_in_same_slot(writable) -> None:
-    # Regression: a live run added "Gym" next to "Siłownia" (evidence/m2-*).
+    # Regression: a live run added "Gym" next to "Siłownia" (evidence/tools/*).
     result = execute_tool_call(
         writable,
         "create_event",

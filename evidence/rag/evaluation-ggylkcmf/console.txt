@@ -1,4 +1,4 @@
-{"output_dir": "evidence/m3/evaluation-ggylkcmf", "retrieval": {"evaluated_queries": 7, "hit_at_1": 0.857, "hit_at_k": 0.857, "top_k": 3}}
+{"output_dir": "evidence/rag/evaluation-ggylkcmf", "retrieval": {"evaluated_queries": 7, "hit_at_1": 0.857, "hit_at_k": 0.857, "top_k": 3}}
 Evaluating q01_dune_conflict_and_makeup (remaining budget $0.2500)
 Evaluating q02_crypto_exam_notes (remaining budget $0.2489)
 Evaluating q03_os_passing_threshold (remaining budget $0.2486)

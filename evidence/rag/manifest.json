@@ -14,7 +14,7 @@
     "chunks": 19,
     "all_texts_match": true
   },
-  "evaluation": "evidence/m3/evaluation-th9olglr/answers.json",
+  "evaluation": "evidence/rag/evaluation-th9olglr/answers.json",
   "versions": {
     "fastembed": "0.9.1",
     "langgraph": "1.2.20",
@@ -72,659 +72,659 @@
       "sha256": "99f7e8822412fe325fc03b1bff3a3b8b3d94c05bdaa5907ef84265548ee5802e"
     },
     {
-      "path": "evidence/m3/abstention-live.jsonl",
+      "path": "evidence/rag/abstention-live.jsonl",
       "sha256": "d8ce1670250e3397ff0c1f414a6565e27298fcd5b8339b3bd31535ea54a07858"
     },
     {
-      "path": "evidence/m3/after-finish-bypass.jsonl",
+      "path": "evidence/rag/after-finish-bypass.jsonl",
       "sha256": "5c6ddd3cd56988283e31e4471431ff9bbdfd62f11ae7e457d2785eff51707644"
     },
     {
-      "path": "evidence/m3/before-finish-bypass.jsonl",
+      "path": "evidence/rag/before-finish-bypass.jsonl",
       "sha256": "23e243b4afe899d2b629c187fe540212bded0069cf655016a4a9a70d838b3d19"
     },
     {
-      "path": "evidence/m3/citation-hardening/answered.jsonl",
+      "path": "evidence/rag/citation-hardening/answered.jsonl",
       "sha256": "8fdf5ac611869490587a659f309be963f0fb68fb7ee4c7a7ccd60824499dd024"
     },
     {
-      "path": "evidence/m3/citation-hardening/clarify.jsonl",
+      "path": "evidence/rag/citation-hardening/clarify.jsonl",
       "sha256": "b4a43fe6eafc0f2ec960a0c029a71cb124d78ec8632b301039bfce5d314664ba"
     },
     {
-      "path": "evidence/m3/citation-hardening/diagrams/answered.mmd",
+      "path": "evidence/rag/citation-hardening/diagrams/answered.mmd",
       "sha256": "ad0173637d0bde47f10108dc432474dd32408f70d31d447874f6d2d672073b03"
     },
     {
-      "path": "evidence/m3/citation-hardening/diagrams/answered.svg",
+      "path": "evidence/rag/citation-hardening/diagrams/answered.svg",
       "sha256": "20af8f4b32b1819c16f69c1e3d5873e48788d80cf735d5d1028e877332b6be87"
     },
     {
-      "path": "evidence/m3/citation-hardening/diagrams/clarify.mmd",
+      "path": "evidence/rag/citation-hardening/diagrams/clarify.mmd",
       "sha256": "9e7fab3ec4b5d82d4515c1de501fb33b14705e536b1393b88bd3dd24c7c1bc8b"
     },
     {
-      "path": "evidence/m3/citation-hardening/diagrams/clarify.svg",
+      "path": "evidence/rag/citation-hardening/diagrams/clarify.svg",
       "sha256": "855b35f02d3cd0aaa31f91a24cfbb8839a9ec158320725df6d48674c50d6b031"
     },
     {
-      "path": "evidence/m3/citation-hardening/diagrams/not_found.mmd",
+      "path": "evidence/rag/citation-hardening/diagrams/not_found.mmd",
       "sha256": "4d20d90d983fc75d76827be46fb626b228603c99a999efae2abddd4af2872fc3"
     },
     {
-      "path": "evidence/m3/citation-hardening/diagrams/not_found.svg",
+      "path": "evidence/rag/citation-hardening/diagrams/not_found.svg",
       "sha256": "c51e8a029944699c33370cf940a90263774c399cd46a0f347fd8d3b7ab168c0b"
     },
     {
-      "path": "evidence/m3/citation-hardening/not_found.jsonl",
+      "path": "evidence/rag/citation-hardening/not_found.jsonl",
       "sha256": "46116d50a06991b4e5b26a6659c48b4c96a02f7279b591722b78b0e19bb8b3f3"
     },
     {
-      "path": "evidence/m3/citation-hardening/results.json",
+      "path": "evidence/rag/citation-hardening/results.json",
       "sha256": "7242573010ee3195c5988c7aad66c9ad362d8d6dd68ff5f929ebf326fa47cca5"
     },
     {
-      "path": "evidence/m3/cited-answer-and-retry.jsonl",
+      "path": "evidence/rag/cited-answer-and-retry.jsonl",
       "sha256": "e0545c18c7455443dc876b5c1045e39a2af6cbc372cb4f93093ac86187174632"
     },
     {
-      "path": "evidence/m3/clarification-live.jsonl",
+      "path": "evidence/rag/clarification-live.jsonl",
       "sha256": "35056e3abbe8ca91552ef1641d7932881fc9f261364295def0399848385ddb2a"
     },
     {
-      "path": "evidence/m3/classification-probes.json",
+      "path": "evidence/rag/classification-probes.json",
       "sha256": "ee7c0869c125eed3601730a94c9a9f0794a2a0d7e58b07ccdcd6c8d5316dfc63"
     },
     {
-      "path": "evidence/m3/content-review.json",
+      "path": "evidence/rag/content-review.json",
       "sha256": "00a6add3b6d4d28066a01cc77dc2b3e210491ec235aea2165b49b4650227bfc2"
     },
     {
-      "path": "evidence/m3/diagrams/abstention-live.mmd",
+      "path": "evidence/rag/diagrams/abstention-live.mmd",
       "sha256": "8214c5af36ca39dd23cb96cac284f31c079d5841ac16ad89ea3614167b16f95d"
     },
     {
-      "path": "evidence/m3/diagrams/abstention-live.svg",
+      "path": "evidence/rag/diagrams/abstention-live.svg",
       "sha256": "65ebdad7a071938be3f82dee237c8778b948fe844d3ecc8ef5ebb9d64e89a94e"
     },
     {
-      "path": "evidence/m3/diagrams/after-finish-bypass.mmd",
+      "path": "evidence/rag/diagrams/after-finish-bypass.mmd",
       "sha256": "086842cc176a3702ffd0399786eec19b147baa05c7a907a8e20b8c2ac380c1f3"
     },
     {
-      "path": "evidence/m3/diagrams/after-finish-bypass.svg",
+      "path": "evidence/rag/diagrams/after-finish-bypass.svg",
       "sha256": "d7172bd5b5e1e5e423793f1f9d559cdf4cb9f4d087a395b3db0c4aa4503be8f0"
     },
     {
-      "path": "evidence/m3/diagrams/before-finish-bypass.mmd",
+      "path": "evidence/rag/diagrams/before-finish-bypass.mmd",
       "sha256": "2b2964c4bec8f8ffb5f009a331488d612eb9d38db94465854ad7c4b8fbd78129"
     },
     {
-      "path": "evidence/m3/diagrams/before-finish-bypass.svg",
+      "path": "evidence/rag/diagrams/before-finish-bypass.svg",
       "sha256": "f9e6ecc8febeaad25ae2d22336b8a07ab0f288a69a191c1d4ba43a890bbc0377"
     },
     {
-      "path": "evidence/m3/diagrams/cited-answer-and-retry.mmd",
+      "path": "evidence/rag/diagrams/cited-answer-and-retry.mmd",
       "sha256": "09f04b12253103b0e7ca97f1ef20fa8a92aedf16022da6f6f84db5f2f5b460f2"
     },
     {
-      "path": "evidence/m3/diagrams/cited-answer-and-retry.svg",
+      "path": "evidence/rag/diagrams/cited-answer-and-retry.svg",
       "sha256": "1eddb45e48615f473fb1976ee1b8be4d8562e0b60ff66a22ef503cbc145998da"
     },
     {
-      "path": "evidence/m3/diagrams/clarification-live.mmd",
+      "path": "evidence/rag/diagrams/clarification-live.mmd",
       "sha256": "da1c6ec1e5bab422944f42e9da648231b6bff464d15f4a3a3d83f49402ac76ca"
     },
     {
-      "path": "evidence/m3/diagrams/clarification-live.svg",
+      "path": "evidence/rag/diagrams/clarification-live.svg",
       "sha256": "36845fa5ed87720abf333ea2b348ac8dae00a241c8edcb237d9d9664dc6a7bd8"
     },
     {
-      "path": "evidence/m3/diagrams/failure-calendar-search.mmd",
+      "path": "evidence/rag/diagrams/failure-calendar-search.mmd",
       "sha256": "f4993790e807f042d6154a594d1f11eafb87ab467d6aedd0d2ee7bd0baf2031e"
     },
     {
-      "path": "evidence/m3/diagrams/failure-calendar-search.svg",
+      "path": "evidence/rag/diagrams/failure-calendar-search.svg",
       "sha256": "f0012c58252a2210d99eaabbc29b725630cafcc6e858fac3811176a72fea674b"
     },
     {
-      "path": "evidence/m3/diagrams/failure-finish-protocol.mmd",
+      "path": "evidence/rag/diagrams/failure-finish-protocol.mmd",
       "sha256": "03119f67c56178ebe70224e6639092de2cd6ec2860666e7dd700b9dc1e16a08c"
     },
     {
-      "path": "evidence/m3/diagrams/failure-finish-protocol.svg",
+      "path": "evidence/rag/diagrams/failure-finish-protocol.svg",
       "sha256": "2c6b1511462e9952f6bb096336663a342042bb1d3ef066a41faa225cd24eee6c"
     },
     {
-      "path": "evidence/m3/diagrams/failure-interval-reasoning.mmd",
+      "path": "evidence/rag/diagrams/failure-interval-reasoning.mmd",
       "sha256": "5ab4c8f75211cea83dbf551b827100e73a1c7dbf60cc5872242498b896cb8a12"
     },
     {
-      "path": "evidence/m3/diagrams/failure-interval-reasoning.svg",
+      "path": "evidence/rag/diagrams/failure-interval-reasoning.svg",
       "sha256": "f106fbac79ac69efa5b235e826886452021b2b13a87d789d53bcc153b4a6f46e"
     },
     {
-      "path": "evidence/m3/evaluation-console.txt",
+      "path": "evidence/rag/evaluation-console.txt",
       "sha256": "4c8bd50cf815c27e4b162c4e7c708daf2e15db538bb48667517d519926cdb984"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/answers.json",
+      "path": "evidence/rag/evaluation-th9olglr/answers.json",
       "sha256": "d73707a99707086ce99414f22d9f79b9fb4dc9f2285a35de0331aef488c63793"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q01_dune_conflict_and_makeup.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q01_dune_conflict_and_makeup.mmd",
       "sha256": "08a805a9d7f13c4190510d8c54ef1a23bb97972e7111527c3fff4f06977eac57"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q01_dune_conflict_and_makeup.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q01_dune_conflict_and_makeup.svg",
       "sha256": "29a6f74736261d13cb4b78263bb9f8c76b1b0f393a247c9e84634c629d520fc3"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q02_crypto_exam_notes.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q02_crypto_exam_notes.mmd",
       "sha256": "4221e85f06cc59abb0c87e7191787797598b746f1ea83b0f27ee1729d82dda91"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q02_crypto_exam_notes.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q02_crypto_exam_notes.svg",
       "sha256": "bbeb791f057f0cac3be680585173c16f94db42e4451d9a280b27ce7c8bc7424f"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q03_os_passing_threshold.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q03_os_passing_threshold.mmd",
       "sha256": "cb7a21b94fce51a10044676347832c5ee14d68f08fd8eb70b151ce6327801e40"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q03_os_passing_threshold.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q03_os_passing_threshold.svg",
       "sha256": "117f7094167163d69ecc6454e8ac29cc9e09a8b1e329fd18e61916906663388f"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q04_physio_cancellation_fee.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q04_physio_cancellation_fee.mmd",
       "sha256": "dcb9dabbc6f21b4e322e4733fff44942c026b919d8755f61f274b18cb369df0c"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q04_physio_cancellation_fee.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q04_physio_cancellation_fee.svg",
       "sha256": "355b4ee5fe04ef9312f1f4e2948aaa12e99f643ef4b86cf42aeb2daf0cb79452"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q05_seminars_november.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q05_seminars_november.mmd",
       "sha256": "e07bdede1f70b3457b9d4a0f229cbcb0286cebf8cdb7dfb89bc4ac9de7879118"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q05_seminars_november.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q05_seminars_november.svg",
       "sha256": "116e883718c62418f96bd65b270841190c737163b82b9f2ab935c7530cad5ea1"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q06_ai_club_hackathon.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q06_ai_club_hackathon.mmd",
       "sha256": "2e51c5704d978be19bf09ebad538abb5d90c7577a05375d242e5a7692faabea1"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q06_ai_club_hackathon.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q06_ai_club_hackathon.svg",
       "sha256": "48e842bf6cd76b7bfba43639665d6b96a1c208052229983cd00ade14e4c201fc"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q07_ambiguous_wednesday_movie.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q07_ambiguous_wednesday_movie.mmd",
       "sha256": "2ebafc7749acb903d9d27d27842afc5a1aac8da13e21e18ffa7daab1e962f75b"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q07_ambiguous_wednesday_movie.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q07_ambiguous_wednesday_movie.svg",
       "sha256": "faca645679d3011eb7be96c6c6e9d7331d11ec21fbc01dce5fd50855a3c65b4f"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q08_unanswerable_cinema_popcorn.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q08_unanswerable_cinema_popcorn.mmd",
       "sha256": "03119f67c56178ebe70224e6639092de2cd6ec2860666e7dd700b9dc1e16a08c"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q08_unanswerable_cinema_popcorn.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q08_unanswerable_cinema_popcorn.svg",
       "sha256": "2c6b1511462e9952f6bb096336663a342042bb1d3ef066a41faa225cd24eee6c"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q09_unanswerable_instructor_phone.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q09_unanswerable_instructor_phone.mmd",
       "sha256": "988a8fb40927311cea2dae89e2459219bc44223650f031567ca0deaaaf2ce66f"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q09_unanswerable_instructor_phone.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q09_unanswerable_instructor_phone.svg",
       "sha256": "a1cd44dae3e270632475eccf59134b2839fb886e57ddd840e2abcecc361ac2d7"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q10_unanswerable_parking_fee.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q10_unanswerable_parking_fee.mmd",
       "sha256": "18992a7be7d7589e68c727dc628d3f5f29030a1ffbefa0cdcf9947bafa143a23"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q10_unanswerable_parking_fee.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/diagrams/q10_unanswerable_parking_fee.svg",
       "sha256": "2bcc83f5646bcec0f07ab95efd3420354ceb1febf5d9e2b7200f09a0ff956af4"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q01_dune_conflict_and_makeup.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/q01_dune_conflict_and_makeup.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q01_dune_conflict_and_makeup.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/q01_dune_conflict_and_makeup.jsonl",
       "sha256": "1c99df32e6d4ec6ba571163018caf3d3ae4e36b30bf616a51a03705edda38e09"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q02_crypto_exam_notes.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/q02_crypto_exam_notes.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q02_crypto_exam_notes.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/q02_crypto_exam_notes.jsonl",
       "sha256": "b5127f038f4c9d61e9b4b6fcefddd429b893c3ac2af7805d96a49ac38bcad589"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q03_os_passing_threshold.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/q03_os_passing_threshold.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q03_os_passing_threshold.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/q03_os_passing_threshold.jsonl",
       "sha256": "7050395b1b6a30878e078c386e96701f43986c6f49649c39c8aa51891d5c6d19"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q04_physio_cancellation_fee.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/q04_physio_cancellation_fee.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q04_physio_cancellation_fee.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/q04_physio_cancellation_fee.jsonl",
       "sha256": "362142e4d003aaf314c6209a82b92b2e106fc8f925bdcbfec6dcf247c4daf6ba"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q05_seminars_november.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/q05_seminars_november.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q05_seminars_november.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/q05_seminars_november.jsonl",
       "sha256": "ef196723a4178e4f7d36b46b4b9001ccad989ed6d65b1b15f3969d7780e8c775"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q06_ai_club_hackathon.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/q06_ai_club_hackathon.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q06_ai_club_hackathon.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/q06_ai_club_hackathon.jsonl",
       "sha256": "f0b2813ff0b6fab38c58fb5502a57ee9b789eab59d94c125180c2b7a1a9a3f94"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q07_ambiguous_wednesday_movie.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/q07_ambiguous_wednesday_movie.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q07_ambiguous_wednesday_movie.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/q07_ambiguous_wednesday_movie.jsonl",
       "sha256": "def42f9dedf607228e4a1ca745da0a781a6c03714a4a3dc1b77b69b8061054c3"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q08_unanswerable_cinema_popcorn.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/q08_unanswerable_cinema_popcorn.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q08_unanswerable_cinema_popcorn.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/q08_unanswerable_cinema_popcorn.jsonl",
       "sha256": "cf482795ddf4a7a8e616ab7a505e53f4d07408b56640bdeece0e7167d65ce492"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q09_unanswerable_instructor_phone.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/q09_unanswerable_instructor_phone.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q09_unanswerable_instructor_phone.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/q09_unanswerable_instructor_phone.jsonl",
       "sha256": "ab651bbac32f2c98f9e87e18fef9a9adb31ed3104d5d8236de04c1b552010aaf"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q10_unanswerable_parking_fee.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/q10_unanswerable_parking_fee.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-1/run-7smvliwx/q10_unanswerable_parking_fee.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-1/run-7smvliwx/q10_unanswerable_parking_fee.jsonl",
       "sha256": "1066997305fa5609169edfd56183c3739b11b805e2ff85512d878b4b9819cfbf"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q01_dune_conflict_and_makeup.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q01_dune_conflict_and_makeup.mmd",
       "sha256": "09f04b12253103b0e7ca97f1ef20fa8a92aedf16022da6f6f84db5f2f5b460f2"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q01_dune_conflict_and_makeup.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q01_dune_conflict_and_makeup.svg",
       "sha256": "1eddb45e48615f473fb1976ee1b8be4d8562e0b60ff66a22ef503cbc145998da"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q02_crypto_exam_notes.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q02_crypto_exam_notes.mmd",
       "sha256": "9aabc71f9af0c8c600c24e4dc02035066ea1819f5aa3a0a2c39cf8788be36697"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q02_crypto_exam_notes.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q02_crypto_exam_notes.svg",
       "sha256": "f96c5e0082b64b45e9a3813a6c42d1cdcc9ac36e6a5144c105df71b1d139fd4c"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q03_os_passing_threshold.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q03_os_passing_threshold.mmd",
       "sha256": "f3d0f1b65436893499fcca6f174792715f7ffa0f89be8a888499ad5ec044166e"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q03_os_passing_threshold.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q03_os_passing_threshold.svg",
       "sha256": "36764c2f84546f6a53d507c16f76717d2ca90ada108fc80bffcf8fb394db05f4"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q04_physio_cancellation_fee.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q04_physio_cancellation_fee.mmd",
       "sha256": "be774524118690aebf82f1f9b62a52f2d9e51db64f77aa788d411a3a746e0b5f"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q04_physio_cancellation_fee.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q04_physio_cancellation_fee.svg",
       "sha256": "664e119a24bd39b400a84665f4db66158facb35b7449a8fdfdd965a24fd7ff5f"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q05_seminars_november.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q05_seminars_november.mmd",
       "sha256": "0f25f8647c63b37d16b16cb53d39f88d970c14a9c63ab1cf1adab22efb24da59"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q05_seminars_november.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q05_seminars_november.svg",
       "sha256": "558a9f9299e716afa0120ab0cf02257a9914b6ea74b85b6fe97a92f31093c36b"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q06_ai_club_hackathon.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q06_ai_club_hackathon.mmd",
       "sha256": "417fa8fb8beb65850e92107f51c68b8be80a21e3771f3bad8be1f27771f1d261"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q06_ai_club_hackathon.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q06_ai_club_hackathon.svg",
       "sha256": "20d1c440882099ab2766aeb5074dece389b0cd94261175cee2fc7a6229978b64"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q07_ambiguous_wednesday_movie.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q07_ambiguous_wednesday_movie.mmd",
       "sha256": "b5c7a847e1c4701d9f52bb78f9ae4323bbb884a9cba9b1feae0b24ed617ab04c"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q07_ambiguous_wednesday_movie.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q07_ambiguous_wednesday_movie.svg",
       "sha256": "1f548b3cebe0a421ca1e300e8740d5b6503c20029ae6bf18f2f2f13721713736"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q08_unanswerable_cinema_popcorn.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q08_unanswerable_cinema_popcorn.mmd",
       "sha256": "8214c5af36ca39dd23cb96cac284f31c079d5841ac16ad89ea3614167b16f95d"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q08_unanswerable_cinema_popcorn.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q08_unanswerable_cinema_popcorn.svg",
       "sha256": "65ebdad7a071938be3f82dee237c8778b948fe844d3ecc8ef5ebb9d64e89a94e"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q09_unanswerable_instructor_phone.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q09_unanswerable_instructor_phone.mmd",
       "sha256": "bc08dc633527531ac04d0191fa18e26e9948095a8ae1705cd4527b1656ef29fe"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q09_unanswerable_instructor_phone.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q09_unanswerable_instructor_phone.svg",
       "sha256": "6a66df1111d5329b6da82e0e860322e91678213c5a53b42a27cd7c55f4f1ef09"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q10_unanswerable_parking_fee.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q10_unanswerable_parking_fee.mmd",
       "sha256": "26030dbf459b005096579cb4763181c110b24dc58dd71af25b16970cca5c6875"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q10_unanswerable_parking_fee.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/diagrams/q10_unanswerable_parking_fee.svg",
       "sha256": "8dc3c52f104711ed930c3cc1250b68f472e338992f43b4243897c4fa61e86047"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q01_dune_conflict_and_makeup.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/q01_dune_conflict_and_makeup.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q01_dune_conflict_and_makeup.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/q01_dune_conflict_and_makeup.jsonl",
       "sha256": "e0545c18c7455443dc876b5c1045e39a2af6cbc372cb4f93093ac86187174632"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q02_crypto_exam_notes.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/q02_crypto_exam_notes.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q02_crypto_exam_notes.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/q02_crypto_exam_notes.jsonl",
       "sha256": "23839e616f3d506aab19a6a7826cfe4ba77dceae41d869bf5bfd5fb57083d0c3"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q03_os_passing_threshold.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/q03_os_passing_threshold.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q03_os_passing_threshold.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/q03_os_passing_threshold.jsonl",
       "sha256": "e1004895cdfc0e45a6045cc87d94ef773d3520f3722606ca0ad1ef8f8109e09a"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q04_physio_cancellation_fee.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/q04_physio_cancellation_fee.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q04_physio_cancellation_fee.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/q04_physio_cancellation_fee.jsonl",
       "sha256": "9a150d86de8059d4d91e68d6930650c0db7fe3ecf8f7f308a8a7644d8f2e3bb2"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q05_seminars_november.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/q05_seminars_november.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q05_seminars_november.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/q05_seminars_november.jsonl",
       "sha256": "5db3a0b900faa757f7b5a8c3e6b71ea23a7c9ef183c83e27768a1bc3a01d2a0b"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q06_ai_club_hackathon.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/q06_ai_club_hackathon.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q06_ai_club_hackathon.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/q06_ai_club_hackathon.jsonl",
       "sha256": "3ff8f23848d5dcba11a09d2bcb5fa5ee95b494093e3f86b290af3b938a536b8c"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q07_ambiguous_wednesday_movie.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/q07_ambiguous_wednesday_movie.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q07_ambiguous_wednesday_movie.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/q07_ambiguous_wednesday_movie.jsonl",
       "sha256": "d8670ee6829d4d795fed7dcc98ef395be874d1532a2cdc191b295b6c0f303213"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q08_unanswerable_cinema_popcorn.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/q08_unanswerable_cinema_popcorn.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q08_unanswerable_cinema_popcorn.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/q08_unanswerable_cinema_popcorn.jsonl",
       "sha256": "d8ce1670250e3397ff0c1f414a6565e27298fcd5b8339b3bd31535ea54a07858"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q09_unanswerable_instructor_phone.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/q09_unanswerable_instructor_phone.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q09_unanswerable_instructor_phone.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/q09_unanswerable_instructor_phone.jsonl",
       "sha256": "c3c53ee8490c57b1a6d4c3ddcb46cff4295ae9d93352939da2600d4714da6a8e"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q10_unanswerable_parking_fee.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/q10_unanswerable_parking_fee.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-2/run-l7av50h1/q10_unanswerable_parking_fee.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-2/run-l7av50h1/q10_unanswerable_parking_fee.jsonl",
       "sha256": "ad6d3e3fe3b88c114020ea48c55bde2d0ac2e85abb4747ba0afa7de7c6d5b4bb"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q01_dune_conflict_and_makeup.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q01_dune_conflict_and_makeup.mmd",
       "sha256": "f4993790e807f042d6154a594d1f11eafb87ab467d6aedd0d2ee7bd0baf2031e"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q01_dune_conflict_and_makeup.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q01_dune_conflict_and_makeup.svg",
       "sha256": "f0012c58252a2210d99eaabbc29b725630cafcc6e858fac3811176a72fea674b"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q02_crypto_exam_notes.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q02_crypto_exam_notes.mmd",
       "sha256": "ebfa456547096d783d7a043ca4a70956492be2bfeb17267bf623429000aff2c9"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q02_crypto_exam_notes.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q02_crypto_exam_notes.svg",
       "sha256": "a17eb8a00d16dadad25477d57be57da91009ce34cd7fe89cdc44ad9508c2933d"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q03_os_passing_threshold.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q03_os_passing_threshold.mmd",
       "sha256": "f955101ad55560916e09bca7c6d4d11bf5f0c30435171838b7fb27d0a9f4081a"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q03_os_passing_threshold.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q03_os_passing_threshold.svg",
       "sha256": "f5b847b8c1af78fae1a69297aa54aa5c23faa6b8a374ad7195429d18bcc6d209"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q04_physio_cancellation_fee.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q04_physio_cancellation_fee.mmd",
       "sha256": "31ed7d45ad4341105d1b025f735d3f680de6ef6c5d66bd605688e713aa33ac0f"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q04_physio_cancellation_fee.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q04_physio_cancellation_fee.svg",
       "sha256": "4bda5cc9579646d68a7f19a9fc63393c65042e6e96c72bf6469da5c98818e3ca"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q05_seminars_november.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q05_seminars_november.mmd",
       "sha256": "3c96885c83f5c0239c43ee7a47463ea8eb235a614adc00cab882a5ba2950bb77"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q05_seminars_november.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q05_seminars_november.svg",
       "sha256": "2c2d476abdea036f0134bac2afde17866fb3be30aa4e3f76eae91a05d823e478"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q06_ai_club_hackathon.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q06_ai_club_hackathon.mmd",
       "sha256": "26b82beb0b2c75b52093aeae0634c54c8fba0effe1c3249128869ae55170a0f4"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q06_ai_club_hackathon.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q06_ai_club_hackathon.svg",
       "sha256": "acc21a69a57741aea939d90711c61ce89a46c408ab7dfa3cc0d97a7b457585e5"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q07_ambiguous_wednesday_movie.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q07_ambiguous_wednesday_movie.mmd",
       "sha256": "5ab4c8f75211cea83dbf551b827100e73a1c7dbf60cc5872242498b896cb8a12"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q07_ambiguous_wednesday_movie.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q07_ambiguous_wednesday_movie.svg",
       "sha256": "f106fbac79ac69efa5b235e826886452021b2b13a87d789d53bcc153b4a6f46e"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q08_unanswerable_cinema_popcorn.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q08_unanswerable_cinema_popcorn.mmd",
       "sha256": "3310304c26b75a26bf1d8962e0a7278179ad1e1546e588707f4ca983a76a9a2c"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q08_unanswerable_cinema_popcorn.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q08_unanswerable_cinema_popcorn.svg",
       "sha256": "cce8801523d90e99959f7e108e8e249cd8b791f66de0f2ce4f2a2e5af8321af5"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q09_unanswerable_instructor_phone.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q09_unanswerable_instructor_phone.mmd",
       "sha256": "d50f8d138867190df12716332c9578f5ce9d8e318e5011d016062c3f70034302"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q09_unanswerable_instructor_phone.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q09_unanswerable_instructor_phone.svg",
       "sha256": "210063ff678548a99f8a7dc0bcba66961a2c8b28fe6f63b56112c4ad510d7418"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q10_unanswerable_parking_fee.mmd",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q10_unanswerable_parking_fee.mmd",
       "sha256": "ca614feed44846e37bdeb3f5c3ae3d98659bb21490eb48b63c176449835c1992"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q10_unanswerable_parking_fee.svg",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/diagrams/q10_unanswerable_parking_fee.svg",
       "sha256": "0cadc8cacd7991bcc144721daa604e55a899e97ca02eef5f95254eeb26003d8c"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q01_dune_conflict_and_makeup.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/q01_dune_conflict_and_makeup.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q01_dune_conflict_and_makeup.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/q01_dune_conflict_and_makeup.jsonl",
       "sha256": "21242a27a2c4ebec4db057f207051e336ad0a14b3d17db57d72e60f86e49ae01"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q02_crypto_exam_notes.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/q02_crypto_exam_notes.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q02_crypto_exam_notes.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/q02_crypto_exam_notes.jsonl",
       "sha256": "0037b64bfa4f2c15b9f8c0d5569009d85295e7f819dbee114365bd0de891f83b"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q03_os_passing_threshold.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/q03_os_passing_threshold.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q03_os_passing_threshold.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/q03_os_passing_threshold.jsonl",
       "sha256": "bfd9c8dadfd8e14d6413303214eb04774762d55624978e15fc3d317b63e29c5c"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q04_physio_cancellation_fee.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/q04_physio_cancellation_fee.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q04_physio_cancellation_fee.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/q04_physio_cancellation_fee.jsonl",
       "sha256": "63d6398d5c54675bcc0924cf1ed7614cf02310f317fb8f602ff716ab2e0d033f"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q05_seminars_november.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/q05_seminars_november.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q05_seminars_november.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/q05_seminars_november.jsonl",
       "sha256": "6db71abf506f82b0e77735dcc3a88bcb550bdae5a9b015b871f9eb869b7ce6ef"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q06_ai_club_hackathon.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/q06_ai_club_hackathon.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q06_ai_club_hackathon.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/q06_ai_club_hackathon.jsonl",
       "sha256": "d0afb312e2a7a8eee7b487c54c167c984617b02a4f66e69baac6b40a20455ba9"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q07_ambiguous_wednesday_movie.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/q07_ambiguous_wednesday_movie.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q07_ambiguous_wednesday_movie.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/q07_ambiguous_wednesday_movie.jsonl",
       "sha256": "ad58416987231872fef90d4950a5b0fccee6120208f4b470f600ad85ab4f3bc6"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q08_unanswerable_cinema_popcorn.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/q08_unanswerable_cinema_popcorn.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q08_unanswerable_cinema_popcorn.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/q08_unanswerable_cinema_popcorn.jsonl",
       "sha256": "5e0ef4e563149f1bed16240557675f553489f7e1289bfc5300cb529cbfa5ed2a"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q09_unanswerable_instructor_phone.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/q09_unanswerable_instructor_phone.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q09_unanswerable_instructor_phone.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/q09_unanswerable_instructor_phone.jsonl",
       "sha256": "7d88c7f4b71348f7aa0836473db05c3ebf72e43a14acead0611e36e028439b03"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q10_unanswerable_parking_fee.ics",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/q10_unanswerable_parking_fee.ics",
       "sha256": "6479d8e3f708a72a390f53918614d33aec5a02ca025b7df03dd4eca580e42acd"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/repeat-3/run-_1_yxzea/q10_unanswerable_parking_fee.jsonl",
+      "path": "evidence/rag/evaluation-th9olglr/repeat-3/run-_1_yxzea/q10_unanswerable_parking_fee.jsonl",
       "sha256": "42829c60ffe47c78a7e90af26d558994ac1fc14dd7cbf18a715d11377fce3bc7"
     },
     {
-      "path": "evidence/m3/evaluation-th9olglr/retrieval.json",
+      "path": "evidence/rag/evaluation-th9olglr/retrieval.json",
       "sha256": "c3fd338983a901db238d611bbb32b18b95e6674b9d7f2d54d42674ca7f228ff8"
     },
     {
-      "path": "evidence/m3/examples.json",
+      "path": "evidence/rag/examples.json",
       "sha256": "a184f28b677848fe43835eea9aa0979aa0256bdb3044415f4c306508879e3b8c"
     },
     {
-      "path": "evidence/m3/failure-analysis.json",
+      "path": "evidence/rag/failure-analysis.json",
       "sha256": "a445fcbb2e868b4aea533b1967a44877531bbe2993d90c9a08223196b851d651"
     },
     {
-      "path": "evidence/m3/failure-calendar-search.jsonl",
+      "path": "evidence/rag/failure-calendar-search.jsonl",
       "sha256": "21242a27a2c4ebec4db057f207051e336ad0a14b3d17db57d72e60f86e49ae01"
     },
     {
-      "path": "evidence/m3/failure-finish-protocol.jsonl",
+      "path": "evidence/rag/failure-finish-protocol.jsonl",
       "sha256": "cf482795ddf4a7a8e616ab7a505e53f4d07408b56640bdeece0e7167d65ce492"
     },
     {
-      "path": "evidence/m3/failure-interval-reasoning.jsonl",
+      "path": "evidence/rag/failure-interval-reasoning.jsonl",
       "sha256": "ad58416987231872fef90d4950a5b0fccee6120208f4b470f600ad85ab4f3bc6"
     },
     {
-      "path": "evidence/m3/report.html",
+      "path": "evidence/rag/report.html",
       "sha256": "40cdf72ed3c51444a90972062855182a72ac644646fb5cb3da34be15c7998853"
     },
     {
-      "path": "evidence/m3/state-graph.mmd",
+      "path": "evidence/rag/state-graph.mmd",
       "sha256": "63bcf86d8cdb9cc22aa9b6910720f1aa3d473f65ff57240be45514e96e95955a"
     },
     {
-      "path": "evidence/m3/validation.txt",
+      "path": "evidence/rag/validation.txt",
       "sha256": "a3e05b88abdf9fbfd932ca8302de51e400d01c9bcc122378605d343804c428e7"
     },
     {
@@ -811,6 +811,6 @@
     "new_regressions": 17,
     "tests_passed": 100,
     "paid_live_evaluation_repeated": false,
-    "evidence": "evidence/m3/citation-hardening/results.json"
+    "evidence": "evidence/rag/citation-hardening/results.json"
   }
 }
