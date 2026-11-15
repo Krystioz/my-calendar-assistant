@@ -1,0 +1,33 @@
+flowchart LR
+    subgraph IN["Wejście (granica zaufania)"]
+        U["Cel użytkownika<br/>(tekst)"]
+        I["Obraz PNG/JPEG/WebP<br/>≤ 5 MB, opcjonalny"]
+    end
+
+    subgraph MODEL["Model (OpenRouter, Gemma 4) — tylko PROPONUJE"]
+        M["Jedna typowana akcja na krok:<br/>tool call = nazwa + argumenty<br/>(np. create_event, delete_event, finish)"]
+    end
+
+    subgraph APP["Aplikacja (Python) — SPRAWDZA i WYKONUJE"]
+        V0["check_image:<br/>typ, base64, rozmiar"]
+        V1["Pydantic: schemat argumentów<br/>(CreateEventArgs, FinishArgs…)"]
+        V2["Kalendarz nazwany w tekście<br/>użytkownika (nie w obrazie)"]
+        V3["Dowód dnia i godziny:<br/>dzień tygodnia, time_source,<br/>koniec z obrazu"]
+        V4["Akcja wrażliwa (delete_*):<br/>potwierdzenie człowieka"]
+        L["Limity: 12 kroków, 0.10 USD,<br/>≤ 5 wywołań na krok"]
+        X["Wykonanie w piaskownicy:<br/>kopia robocza .ics (IcsStore)"]
+    end
+
+    U --> V0
+    I --> V0
+    V0 -->|"wiadomość user: tekst + obraz"| M
+    M -->|"propozycja"| V1
+    V1 -->|"OK"| V2 --> V3 --> V4 --> X
+    V1 -. "invalid_arguments" .-> O
+    V2 -. "calendar_not_specified" .-> O
+    V3 -. "weekday_mismatch / time_unknown /<br/>end_time_required" .-> O
+    V4 -. "declined_by_user" .-> O
+    X -->|"wynik"| O["Obserwacja (JSON)"]
+    O -->|"replan"| M
+    L -. "step_limit / cost_limit" .-> E["Koniec:<br/>success, clarify, not_found,<br/>error, limit"]
+    M -->|"finish"| E

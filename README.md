@@ -33,7 +33,9 @@ Deletions ask `Delete '...'? [y/N]` first. When the agent needs more details it
 asks a question; answer with `--thread <id>`. Every run also writes SVG and
 Mermaid diagrams of its path to `traces/diagrams/`. The agent works on
 `workspace/calendar.ics`, a copy of `data/calendar.ics`; settings live in
-`calendar-agent.toml`.
+`calendar-agent.toml`. Add `--image poster.png` (PNG, JPEG or WebP, up to
+5 MB) to let the agent read a poster or a timetable; in the chat UI use the
+paperclip or Ctrl+V.
 
 More:
 
@@ -41,7 +43,11 @@ More:
   codes, traces, run diagrams;
 - [Integrations](docs/integrations.md) — LangGraph Studio, chat UI (`ui/`), MCP
   server, Google Calendar and Google Tasks;
-- [Evaluation](docs/evaluation.md) — M3 checkpoint, citation checks, design notes.
+- [Evaluation](docs/evaluation.md) — M3 checkpoint, citation checks, design notes;
+- [Vision and safety report](evidence/vision-safety/report.html) — image path,
+  typed action and its checks, eight fixed cases (prompt injection, tool
+  failure, unauthorized delete), runs before and after the fixes; rerun with
+  `uv run python -m agent_project.eval_vision_safety --repeats 3`.
 
 ## Project Brief
 
@@ -128,8 +134,8 @@ flowchart TD
 
 **The run ends** (`src/agent_project/agent.py`) when the model calls `finish`
 with outcome `answered` (status `success`), `not_found`, or `clarify`. A plain
-text reply is sent back with a request to call `finish`; it never silently
-becomes `success`. Technical exits: the model call fails or three tool requests
+text reply is sent back with a request to call `finish`; a second plain reply
+in a row is taken as `finish` with outcome `answered`, through the same checks. Technical exits: the model call fails or three tool requests
 in a row are rejected (`error`), 12 steps (`step_limit`), or more than USD 0.10
 (`cost_limit`).
 
