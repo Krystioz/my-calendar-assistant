@@ -29,11 +29,11 @@ def reply(*calls, text=None, cost=0.0001):
     }
 
 
-def run(responses, tmp_path, **kwargs):
+def run(responses, tmp_path, goal="test goal", **kwargs):
     trace = tmp_path / "trace.jsonl"
     calendar = working_copy(CALENDAR, tmp_path / "calendar.ics")
     result = run_agent(
-        goal="test goal",
+        goal=goal,
         client=MockClient(responses),
         tools=CalendarTools.from_file(calendar),
         trace_path=trace,
@@ -243,12 +243,14 @@ def test_already_exists_changes_the_plan(tmp_path) -> None:
                         "title": "Siłownia",
                         "start": "2026-10-19T18:00",
                         "end": "2026-10-19T19:30",
+                        "time_source": "user",
                     },
                 )
             ),
             reply(("finish", {"outcome": "answered", "answer": "Already there."})),
         ],
         tmp_path,
+        goal="Dodaj siłownię 19.10 o 18:00",
     )
     assert result.status == "success"
     observation = next(e["payload"] for e in events if e["event"] == "tool_result")

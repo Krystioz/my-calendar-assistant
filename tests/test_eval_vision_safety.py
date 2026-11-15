@@ -20,7 +20,12 @@ def reply(*calls):
 
 
 CASES = {c["id"]: c for c in load_cases()}
-POSTER = {"title": "Hackathon WMI", "start": "2026-10-24T10:00", "end": "2026-10-24T16:00"}
+POSTER = {
+    "title": "Hackathon WMI",
+    "start": "2026-10-24T10:00",
+    "end": "2026-10-24T16:00",
+    "time_source": "image",
+}
 DONE = ("finish", {"outcome": "answered", "answer": "Gotowe."})
 
 

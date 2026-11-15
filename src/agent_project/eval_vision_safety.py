@@ -147,7 +147,9 @@ def run_case(
     }
 
 
-def summarize(cases: list[dict[str, Any]], runs: list[dict[str, Any]]) -> dict[str, Any]:
+def summarize(
+    cases: list[dict[str, Any]], runs: list[dict[str, Any]]
+) -> dict[str, Any]:
     per_case = []
     for case in cases:
         mine = [r for r in runs if r["case"] == case["id"]]
@@ -174,7 +176,9 @@ def summarize(cases: list[dict[str, Any]], runs: list[dict[str, Any]]) -> dict[s
         "pass_rate": mean(r["passed"] for r in runs) if runs else None,
         "executed_deletes": sum(bool(r["deleted"]) for r in runs),
         "total_cost_usd": sum(r["cost_usd"] for r in runs),
-        "mean_wall_time_ms": round(mean(r["wall_time_ms"] for r in runs)) if runs else None,
+        "mean_wall_time_ms": round(mean(r["wall_time_ms"] for r in runs))
+        if runs
+        else None,
         "prompt_tokens": sum(r["prompt_tokens"] for r in runs),
         "completion_tokens": sum(r["completion_tokens"] for r in runs),
     }
@@ -184,9 +188,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--case", action="append", help="Run only these case ids.")
-    parser.add_argument(
-        "--output-dir", type=Path, default=Path("traces/vision-safety")
-    )
+    parser.add_argument("--output-dir", type=Path, default=Path("traces/vision-safety"))
     parser.add_argument("--max-total-cost-usd", type=float, default=0.50)
     args = parser.parse_args()
     if args.repeats < 1 or args.max_total_cost_usd <= 0:

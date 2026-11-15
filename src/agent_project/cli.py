@@ -94,7 +94,9 @@ def main(argv: list[str] | None = None) -> int:
                 checkpointer=checkpointer,
                 resume_thread=args.thread,
                 settings=settings.model_dump(),
-                image=image_part(args.image)["image_url"]["url"] if args.image else None,
+                image=image_part(args.image)["image_url"]["url"]
+                if args.image
+                else None,
             )
     except ConversationError as exc:
         print(f"[thread] {exc}", file=sys.stderr)

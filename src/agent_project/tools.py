@@ -7,6 +7,7 @@ All times are local wall-clock times (no time zones).
 
 import json
 import os
+import re
 import shutil
 import time
 import unicodedata
@@ -331,6 +332,12 @@ class CreateEventArgs(BaseModel):
         None,
         description="Optional popup reminder(s) in minutes before start, e.g. 60 or "
         "[1440, 60] for 1 day and 1 hour before (up to 5 reminders).",
+    )
+    time_source: Literal["user", "image", "none"] | None = Field(
+        None,
+        description="Where the start time comes from: 'user' (the user typed it), "
+        "'image' (read from the attached image) or 'none' (nobody gave a time). "
+        "Never invent a time: with 'none' nothing is added, ask the user instead.",
     )
 
     @model_validator(mode="after")
@@ -888,17 +895,92 @@ def tool_schemas(include_docs: bool = False) -> list[dict[str, Any]]:
     return schemas
 
 
+# Folded word forms of each weekday (Monday = 0), Polish and English.
+WEEKDAY_WORDS = [
+    re.compile(rf"\b(?:{forms})\b")
+    for forms in (
+        "poniedzial(?:ek|ku|ki)|monday",
+        "wtor(?:ek|ku|ki)|tuesday",
+        "srod(?:a|e|y|zie)|wednesday",
+        "czwart(?:ek|ku|ki)|thursday",
+        "piat(?:ek|ku|ki)|friday",
+        "sobot(?:a|e|y|ach)|saturday",
+        "niedziel(?:a|e|i|ach)|sunday",
+    )
+]
+WEEKDAY_NAMES = (
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+)
+
+
+def check_event_evidence(
+    args: CreateEventArgs, user_text: str, has_image: bool
+) -> dict[str, Any] | None:
+    """An error if the event's day or time is not backed by what the user gave."""
+    folded = _fold(user_text)
+    named = [day for day, words in enumerate(WEEKDAY_WORDS) if words.search(folded)]
+    actual = args.start.weekday()
+    if len(named) == 1 and named[0] != actual:
+        wanted = named[0]
+        back = (actual - wanted) % 7
+        nearest = args.start - timedelta(days=back if back <= 3 else back - 7)
+        return _error(
+            "weekday_mismatch",
+            f"The user asked for {WEEKDAY_NAMES[wanted]}, but "
+            f"{args.start.date().isoformat()} is a {WEEKDAY_NAMES[actual]}. The "
+            f"nearest {WEEKDAY_NAMES[wanted]} is {nearest.date().isoformat()}. "
+            "Nothing was added.",
+        )
+    if args.time_source is None:
+        return _error(
+            "time_source_required",
+            "Say where the start time comes from in time_source: 'user', "
+            "'image' or 'none'. Nothing was added.",
+        )
+    if args.time_source == "none":
+        return _error(
+            "time_unknown",
+            "Nobody gave a start time, and a guessed time is not allowed. Ask the "
+            "user for the time with finish(outcome='clarify'). Nothing was added.",
+        )
+    if args.time_source == "image" and not has_image:
+        return _error(
+            "no_image",
+            "There is no image in this conversation; the time must come from the "
+            "user. Nothing was added.",
+        )
+    if args.time_source == "user":
+        minute = f"[:.]{args.start.minute:02d}" if args.start.minute else r"(?:[:.]00)?"
+        # shortcut: a date like "19.10" also counts as the hour 10; parse dates
+        # out of user_text first if that ever lets a guessed time through.
+        if not re.search(rf"\b0?{args.start.hour}{minute}\b", user_text):
+            return _error(
+                "time_not_given",
+                f"The user never typed the time {args.start:%H:%M}. Ask the user "
+                "for the time. Nothing was added.",
+            )
+    return None
+
+
 def execute_tool_call(
     tools: CalendarTools,
     name: str,
     raw_arguments: str | dict | None,
     confirm: Confirm | None = None,
     user_text: str | None = None,
+    has_image: bool = False,
 ) -> dict[str, Any]:
     """Check a tool request from the model and run it only if it is allowed.
 
     Checks, in order: the tool exists, the arguments are valid, a calendar to
-    write to was named by the user (when ``user_text`` is given), and a sensitive
+    write to was named by the user and a new event's weekday and start time are
+    backed by the user's words or image (when ``user_text`` is given), and a sensitive
     tool has a real confirmation from a human (``confirm``), never from the model.
     Never raises: every problem becomes an error observation the model can read.
     """
@@ -922,6 +1004,10 @@ def execute_tool_call(
                 "which calendar to use; nothing was added.",
                 calendars=tools.calendars,
             )
+    if spec.name == "create_event" and user_text is not None:
+        refused = check_event_evidence(args, user_text, has_image)
+        if refused:
+            return refused
 
     try:
         if spec.sensitive:

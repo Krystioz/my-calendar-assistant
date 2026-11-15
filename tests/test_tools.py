@@ -260,7 +260,12 @@ def two_calendars(writable) -> CalendarTools:
     return writable
 
 
-EVENT = {"title": "Dentysta", "start": "2026-11-02T10:00", "end": "2026-11-02T11:00"}
+EVENT = {
+    "title": "Dentysta",
+    "start": "2026-11-02T10:00",
+    "end": "2026-11-02T11:00",
+    "time_source": "user",
+}
 
 
 def test_create_event_needs_a_calendar_when_several_exist(two_calendars) -> None:
@@ -280,7 +285,10 @@ def test_calendar_the_user_never_named_is_rejected(two_calendars) -> None:
     )
     assert guessed["error"]["code"] == "calendar_not_specified"
     named = execute_tool_call(
-        two_calendars, "create_event", args, user_text="dodaj w kalendarzu rodzinnym"
+        two_calendars,
+        "create_event",
+        args,
+        user_text="dodaj w kalendarzu rodzinnym o 10",
     )
     assert named["result"]["created"]["calendar"] == "Rodzina"
 
@@ -365,3 +373,36 @@ def test_search_calendar_filter_matches_like_writes_and_rejects_unknown(
     )
     assert unknown["error"]["code"] == "calendar_not_found"
     assert unknown["error"]["calendars"] == ["Krystian Nowak"]
+
+
+@pytest.mark.parametrize(
+    ("user_text", "has_image", "extra", "code"),
+    [
+        # The live failure: "poniedziałek" asked, Tuesday 20.10 proposed.
+        (
+            "Dodaj laborki na najbliższy poniedziałek",
+            True,
+            {"start": "2026-10-20T14:15", "end": "2026-10-20T15:45"},
+            "weekday_mismatch",
+        ),
+        ("Dodaj to", True, {"time_source": None}, "time_source_required"),
+        # The live failure: no time on the poster, the model picked one.
+        ("Dodaj ten koncert", True, {"time_source": "none"}, "time_unknown"),
+        ("Dodaj koncert 29.10", False, {"time_source": "image"}, "no_image"),
+        ("Dodaj koncert 29.10", False, {"time_source": "user"}, "time_not_given"),
+        ("Dodaj laborki w poniedziałek o 14:15", False, {"time_source": "user"}, None),
+        ("Dodaj laborki w poniedziałek", True, {"time_source": "image"}, None),
+    ],
+)
+def test_event_day_and_time_must_be_backed_by_the_user(
+    tmp_path, user_text, has_image, extra, code
+) -> None:
+    tools = CalendarTools.from_file(working_copy(CALENDAR, tmp_path / "c.ics"))
+    args = {"title": "Lab", "start": "2026-10-19T14:15", "end": "2026-10-19T15:45"}
+    args = {**args, "time_source": "image", **extra}
+    result = execute_tool_call(
+        tools, "create_event", args, user_text=user_text, has_image=has_image
+    )
+    assert (result.get("error") or {}).get("code") == code, result
+    if code == "weekday_mismatch":
+        assert "2026-10-19" in result["error"]["message"]

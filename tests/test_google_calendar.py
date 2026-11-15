@@ -128,6 +128,7 @@ def test_create_event_writes_to_the_named_calendar_without_emails() -> None:
             "end": "2026-11-14T20:00",
             "calendar": "rodzina",
             "reminder_minutes": [1440, 30],
+            "time_source": "user",
         },
         user_text="dodaj kino w sobotę o 18 do kalendarza Rodzina",
     )
@@ -240,7 +241,12 @@ def test_primary_calendar_is_the_default_unless_env_names_another(monkeypatch):
     created = execute_tool_call(
         tools,
         "create_event",
-        {"title": "Kino", "start": "2026-11-14T18:00", "end": "2026-11-14T20:00"},
+        {
+            "title": "Kino",
+            "start": "2026-11-14T18:00",
+            "end": "2026-11-14T20:00",
+            "time_source": "user",
+        },
         user_text="dodaj kino w sobotę o 18",
     )
     insert = calendar_api.events.return_value.insert
