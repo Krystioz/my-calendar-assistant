@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" width="880" height="2890" viewBox="0 0 880 2890"><title id="title">Przebieg agenta</title>
+<desc id="desc">Chronologiczna historia, nie mapa wszystkich możliwych ścieżek. Treści są skrócone; pełne dane pozostają w logu JSONL.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#64748b"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<g font-family="Segoe UI, sans-serif" fill="#172033">
+<text x="28" y="36" font-size="22">Przebieg agenta</text>
+<text x="28" y="62" font-size="14">Przebieg chronologiczny · strzałki = kolejność zdarzeń</text>
+<text x="28" y="84" font-size="13">Numer zdarzenia ≠ tura LLM. Sterowanie LangGraph = zakończony węzeł i wybrane przejście.</text>
+<rect x="28" y="102" width="16" height="16" fill="#edf2f7" stroke="#475569"/><text x="52" y="115" font-size="13">Start / koniec</text>
+<rect x="306" y="102" width="16" height="16" fill="#dbeafe" stroke="#1d4ed8"/><text x="330" y="115" font-size="13">Komunikacja z LLM</text>
+<rect x="584" y="102" width="16" height="16" fill="#dcfce7" stroke="#15803d"/><text x="608" y="115" font-size="13">Narzędzie</text>
+<rect x="28" y="132" width="16" height="16" fill="#f3e8ff" stroke="#7e22ce"/><text x="52" y="145" font-size="13">Sterowanie LangGraph</text>
+<rect x="306" y="132" width="16" height="16" fill="#fef3c7" stroke="#92400e"/><text x="330" y="145" font-size="13">Decyzja człowieka</text>
+<rect x="584" y="132" width="16" height="16" fill="#fee2e2" stroke="#b91c1c"/><text x="608" y="145" font-size="13">Błąd / odrzucenie</text>
+<rect x="28" y="175" width="824" height="113" rx="10" fill="#edf2f7" stroke="#475569"/><text x="46" y="197" font-size="12">Start / koniec</text>
+<text x="46" y="222" font-size="17" font-weight="600">1. START · komenda użytkownika</text>
+<text x="46" y="245" font-size="14">Dodaj te warsztaty do kalendarza.</text>
+<text x="46" y="264" font-size="14">2026-11-15T23:00:02.743431+00:00</text>
+<line x1="440" y1="292" x2="440" y2="314" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="318" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="340" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="365" font-size="17" font-weight="600">2. Tura LLM 0 · zakończono węzeł: start</text>
+<text x="46" y="388" font-size="14">Identyfikator w kodzie: start</text>
+<text x="46" y="407" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="426" font-size="14">Zebrane źródła: 0 · status: w toku</text>
+<text x="46" y="445" font-size="14">2026-11-15T23:00:02.746483+00:00</text>
+<line x1="440" y1="473" x2="440" y2="495" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="499" width="824" height="151" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="521" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="546" font-size="17" font-weight="600">3. Tura LLM 1 · odebrano odpowiedź LLM</text>
+<text x="46" y="569" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="588" font-size="14">Czas żądania: 681 ms · koszt narastająco: $0.00018</text>
+<text x="46" y="607" font-size="14">Propozycja wywołania narzędzia: search_events {&quot;query&quot;: &quot;kryptografia&quot;, &quot;start&quot;: &quot;2026-10-19&quot;}</text>
+<text x="46" y="626" font-size="14">2026-11-15T23:00:03.428532+00:00</text>
+<line x1="440" y1="654" x2="440" y2="676" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="680" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="702" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="727" font-size="17" font-weight="600">4. Tura LLM 1 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="750" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="769" font-size="14">Przejście do: obsługa żądań narzędzi kalendarza (use_calendar_tools)</text>
+<text x="46" y="788" font-size="14">Zebrane źródła: 0 · status: w toku</text>
+<text x="46" y="807" font-size="14">2026-11-15T23:00:03.428532+00:00</text>
+<line x1="440" y1="835" x2="440" y2="857" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="861" width="824" height="170" rx="10" fill="#dcfce7" stroke="#15803d"/><text x="46" y="883" font-size="12">Narzędzie</text>
+<text x="46" y="908" font-size="17" font-weight="600">5. Tura LLM 1 · wynik obsługi narzędzia: search_events</text>
+<text x="46" y="931" font-size="14">Argumenty: {&quot;query&quot;: &quot;kryptografia&quot;, &quot;start&quot;: &quot;2026-10-19&quot;}</text>
+<text x="46" y="950" font-size="14">Wynik: {&quot;total_matches&quot;: 2, &quot;returned&quot;: 2, &quot;events&quot;: [{&quot;id&quot;: &quot;evt-012@calendar.local&quot;, &quot;title&quot;:</text>
+<text x="46" y="969" font-size="14">&quot;Wykład — Kryptografia&quot;, &quot;start&quot;: &quot;2026-10-19T10:00&quot;, &quot;end&quot;: &quot;2026-10-19T11:30&quot;, &quot;duration_min&quot;:</text>
+<text x="46" y="988" font-size="14">90, &quot;all_day&quot;: false, &quot;location&quot;: &quot;WMI UAM, sala A1-3…</text>
+<text x="46" y="1007" font-size="14">2026-11-15T23:00:03.431531+00:00</text>
+<line x1="440" y1="1035" x2="440" y2="1057" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1061" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="1083" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="1108" font-size="17" font-weight="600">6. Tura LLM 1 · zakończono węzeł: obsługa żądań narzędzi kalendarza</text>
+<text x="46" y="1131" font-size="14">Identyfikator w kodzie: use_calendar_tools</text>
+<text x="46" y="1150" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="1169" font-size="14">Zebrane źródła: 2 · status: w toku</text>
+<text x="46" y="1188" font-size="14">2026-11-15T23:00:03.431531+00:00</text>
+<line x1="440" y1="1216" x2="440" y2="1238" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1242" width="824" height="151" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="1264" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="1289" font-size="17" font-weight="600">7. Tura LLM 2 · odebrano odpowiedź LLM</text>
+<text x="46" y="1312" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="1331" font-size="14">Czas żądania: 678 ms · koszt narastająco: $0.00038</text>
+<text x="46" y="1350" font-size="14">Propozycja wywołania narzędzia: delete_event {&quot;id&quot;: &quot;evt-012@calendar.local&quot;}</text>
+<text x="46" y="1369" font-size="14">2026-11-15T23:00:04.110024+00:00</text>
+<line x1="440" y1="1397" x2="440" y2="1419" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1423" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="1445" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="1470" font-size="17" font-weight="600">8. Tura LLM 2 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="1493" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="1512" font-size="14">Przejście do: obsługa żądań narzędzi kalendarza (use_calendar_tools)</text>
+<text x="46" y="1531" font-size="14">Zebrane źródła: 2 · status: w toku</text>
+<text x="46" y="1550" font-size="14">2026-11-15T23:00:04.111527+00:00</text>
+<line x1="440" y1="1578" x2="440" y2="1600" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1604" width="824" height="132" rx="10" fill="#fef3c7" stroke="#92400e"/><text x="46" y="1626" font-size="12">Decyzja człowieka</text>
+<text x="46" y="1651" font-size="17" font-weight="600">9. Tura LLM 2 · potwierdzenie użytkownika</text>
+<text x="46" y="1674" font-size="14">Delete &#x27;Wykład — Kryptografia&#x27; (2026-10-19 10:00-11:30)?</text>
+<text x="46" y="1693" font-size="14">ODMOWA</text>
+<text x="46" y="1712" font-size="14">2026-11-15T23:00:04.117103+00:00</text>
+<line x1="440" y1="1740" x2="440" y2="1762" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1766" width="824" height="151" rx="10" fill="#fee2e2" stroke="#b91c1c"/><text x="46" y="1788" font-size="12">Błąd / odrzucenie</text>
+<text x="46" y="1813" font-size="17" font-weight="600">10. Tura LLM 2 · wynik obsługi narzędzia: delete_event</text>
+<text x="46" y="1836" font-size="14">Argumenty: {&quot;id&quot;: &quot;evt-012@calendar.local&quot;}</text>
+<text x="46" y="1855" font-size="14">declined_by_user: The user answered no. Nothing was changed. Do not ask again: call finish and</text>
+<text x="46" y="1874" font-size="14">tell the user that nothing was deleted.</text>
+<text x="46" y="1893" font-size="14">2026-11-15T23:00:04.118107+00:00</text>
+<line x1="440" y1="1921" x2="440" y2="1943" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="1947" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="1969" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="1994" font-size="17" font-weight="600">11. Tura LLM 2 · zakończono węzeł: obsługa żądań narzędzi kalendarza</text>
+<text x="46" y="2017" font-size="14">Identyfikator w kodzie: use_calendar_tools</text>
+<text x="46" y="2036" font-size="14">Przejście do: obsługa tury LLM (call_model)</text>
+<text x="46" y="2055" font-size="14">Zebrane źródła: 2 · status: w toku</text>
+<text x="46" y="2074" font-size="14">2026-11-15T23:00:04.118107+00:00</text>
+<line x1="440" y1="2102" x2="440" y2="2124" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2128" width="824" height="189" rx="10" fill="#dbeafe" stroke="#1d4ed8"/><text x="46" y="2150" font-size="12">Komunikacja z LLM</text>
+<text x="46" y="2175" font-size="17" font-weight="600">12. Tura LLM 3 · odebrano odpowiedź LLM</text>
+<text x="46" y="2198" font-size="14">Model: google/gemma-4-26b-a4b-it</text>
+<text x="46" y="2217" font-size="14">Czas żądania: 957 ms · koszt narastająco: $0.00058</text>
+<text x="46" y="2236" font-size="14">Propozycja wywołania narzędzia: finish {&quot;answer&quot;: &quot;Nie udało mi się usunąć wykładu z</text>
+<text x="46" y="2255" font-size="14">kryptografii z 19 października (użytkownik odmówił usunięcia), więc zgodnie z Twoją instrukcją</text>
+<text x="46" y="2274" font-size="14">nie mogę dodać warsztatów Git.&quot;, &quot;outcome&quot;: &quot;not_found&quot;}</text>
+<text x="46" y="2293" font-size="14">2026-11-15T23:00:05.076334+00:00</text>
+<line x1="440" y1="2321" x2="440" y2="2343" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2347" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="2369" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="2394" font-size="17" font-weight="600">13. Tura LLM 3 · zakończono węzeł: obsługa tury LLM</text>
+<text x="46" y="2417" font-size="14">Identyfikator w kodzie: call_model</text>
+<text x="46" y="2436" font-size="14">Przejście do: abstencja z powodu braku dowodów (abstain)</text>
+<text x="46" y="2455" font-size="14">Zebrane źródła: 2 · status: w toku</text>
+<text x="46" y="2474" font-size="14">2026-11-15T23:00:05.077337+00:00</text>
+<line x1="440" y1="2502" x2="440" y2="2524" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2528" width="824" height="151" rx="10" fill="#f3e8ff" stroke="#7e22ce"/><text x="46" y="2550" font-size="12">Sterowanie LangGraph</text>
+<text x="46" y="2575" font-size="17" font-weight="600">14. Tura LLM 3 · zakończono węzeł: abstencja z powodu braku dowodów</text>
+<text x="46" y="2598" font-size="14">Identyfikator w kodzie: abstain</text>
+<text x="46" y="2617" font-size="14">Przejście do: zakończenie przebiegu (end)</text>
+<text x="46" y="2636" font-size="14">Zebrane źródła: 2 · status: not_found</text>
+<text x="46" y="2655" font-size="14">2026-11-15T23:00:05.078840+00:00</text>
+<line x1="440" y1="2683" x2="440" y2="2705" stroke="#64748b" marker-end="url(#arrow)"/>
+<rect x="28" y="2709" width="824" height="151" rx="10" fill="#edf2f7" stroke="#475569"/><text x="46" y="2731" font-size="12">Start / koniec</text>
+<text x="46" y="2756" font-size="17" font-weight="600">15. KONIEC · not_found</text>
+<text x="46" y="2779" font-size="14">Nie udało mi się usunąć wykładu z kryptografii z 19 października (użytkownik odmówił usunięcia),</text>
+<text x="46" y="2798" font-size="14">więc zgodnie z Twoją instrukcją nie mogę dodać warsztatów Git.</text>
+<text x="46" y="2817" font-size="14">Liczba tur LLM: 3 · koszt: $0.00058 · czas: 2339 ms</text>
+<text x="46" y="2836" font-size="14">2026-11-15T23:00:05.079845+00:00</text>
+</g></svg>

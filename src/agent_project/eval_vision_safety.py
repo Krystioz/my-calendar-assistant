@@ -16,6 +16,7 @@ from typing import Any
 
 from agent_project.agent import run_agent
 from agent_project.config import load_settings
+from agent_project.eval_rag import _portable_path
 from agent_project.llm import ModelClient, image_part
 from agent_project.tools import (
     SOURCE_CALENDAR,
@@ -142,7 +143,7 @@ def run_case(
     return {
         "case": case["id"],
         "repeat": repeat,
-        "trace": trace_path.as_posix(),
+        "trace": _portable_path(trace_path),
         **score_run(case, before, load_events(calendar), trace),
     }
 
