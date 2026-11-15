@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ClipboardEvent,
+  type KeyboardEvent,
+} from "react";
 import type { Thread } from "@langchain/langgraph-sdk";
 import type { GraphShape } from "./GraphMap";
 import { Message } from "./Message";
@@ -67,6 +73,10 @@ export function App() {
   const [runError, setRunError] = useState<string | null>(null);
 
   const [input, setInput] = useState("");
+  // Data URL of the image attached to the next new conversation.
+  const [image, setImage] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [panelOpen, setPanelOpen] = useState(initialPanelOpen);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -200,7 +210,9 @@ export function App() {
     threadId: string,
     runCalendar: CalendarBackend,
     runToday: string,
-    payload: { input: { goal: string } } | { command: { resume: unknown } },
+    payload:
+      | { input: { goal: string; image: string | null } }
+      | { command: { resume: unknown } },
   ) {
     setIsStreaming(true);
     setActiveNode(null);
@@ -295,6 +307,9 @@ export function App() {
     }
 
     if (override === undefined) setInput("");
+    const sentImage = image;
+    setImage(null);
+    setImageError(null);
 
     if (selectedThreadId !== null && interrupt?.kind === "clarify") {
       const targetThreadId = selectedThreadId;
@@ -321,7 +336,18 @@ export function App() {
     const runToday = today;
     setStateValues({
       goal: text,
-      messages: [{ role: "user", content: text }],
+      image: sentImage,
+      messages: [
+        {
+          role: "user",
+          content: sentImage
+            ? [
+                { type: "text", text },
+                { type: "image_url", image_url: { url: sentImage } },
+              ]
+            : text,
+        },
+      ],
     });
     setInterrupt(null);
     setNodeSequence([]);
@@ -345,7 +371,7 @@ export function App() {
         created.thread_id,
         runCalendar,
         runToday,
-        { input: { goal: text } },
+        { input: { goal: text, image: sentImage } },
       );
     } catch (err) {
       setRunError(
@@ -402,6 +428,35 @@ export function App() {
   function pickExample(prompt: string) {
     setInput(prompt);
     textareaRef.current?.focus();
+  }
+
+  // The server checks the image again; this only spares a useless upload.
+  function attachImage(file: File | undefined) {
+    if (!file) return;
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+      setImageError("Only PNG, JPEG or WebP images.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setImageError("The image is larger than 5 MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImage(reader.result as string);
+      setImageError(null);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handlePaste(e: ClipboardEvent<HTMLTextAreaElement>) {
+    const file = Array.from(e.clipboardData.files).find((f) =>
+      f.type.startsWith("image/"),
+    );
+    if (file) {
+      e.preventDefault();
+      attachImage(file);
+    }
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
@@ -755,7 +810,53 @@ export function App() {
         {/* Pinned bottom composer */}
         <footer className="shrink-0 border-t border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950">
           <div className="mx-auto max-w-3xl">
+            {(image || imageError) && (
+              <div className="mb-2 flex items-center gap-2 text-xs">
+                {image && (
+                  <>
+                    <img
+                      src={image}
+                      alt="Image to send"
+                      className="h-14 rounded-md border border-zinc-200 dark:border-zinc-700"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setImage(null)}
+                      className="rounded-md px-2 py-1 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                    >
+                      Remove
+                    </button>
+                  </>
+                )}
+                {imageError && (
+                  <span className="text-red-600 dark:text-red-400">{imageError}</span>
+                )}
+              </div>
+            )}
             <div className="flex items-end gap-2 rounded-2xl border border-zinc-300 bg-white px-3.5 py-2 shadow-xs focus-within:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:focus-within:border-zinc-500">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                className="hidden"
+                onChange={(e) => {
+                  attachImage(e.target.files?.[0]);
+                  e.target.value = "";
+                }}
+              />
+              <button
+                type="button"
+                // An image starts a conversation; a clarify reply cannot carry one.
+                disabled={composerDisabled || isWaitingClarify}
+                onClick={() => fileInputRef.current?.click()}
+                aria-label="Attach image"
+                title="Attach image (or paste with Ctrl+V)"
+                className="shrink-0 rounded-lg px-1.5 py-1 text-zinc-500 hover:bg-zinc-100 disabled:opacity-40 dark:hover:bg-zinc-800"
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                </svg>
+              </button>
               <textarea
                 ref={textareaRef}
                 rows={1}
@@ -763,6 +864,7 @@ export function App() {
                 disabled={composerDisabled}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
+                onPaste={isWaitingClarify ? undefined : handlePaste}
                 placeholder={composerPlaceholder}
                 className="max-h-40 flex-1 resize-none bg-transparent py-1 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none disabled:opacity-50 dark:text-zinc-100 dark:placeholder:text-zinc-500"
               />

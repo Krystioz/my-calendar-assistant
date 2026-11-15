@@ -11,7 +11,7 @@ from pydantic import ValidationError
 
 from agent_project.agent import ConversationError, run_agent
 from agent_project.config import CONFIG_PATH, load_settings
-from agent_project.llm import OpenRouterClient
+from agent_project.llm import OpenRouterClient, image_part
 from agent_project.tools import WORKING_CALENDAR, open_calendar
 
 
@@ -53,7 +53,15 @@ def main(argv: list[str] | None = None) -> int:
         type=Path,
         help="Trace file (default: traces/run-<timestamp>.jsonl).",
     )
+    parser.add_argument(
+        "--image",
+        type=Path,
+        help="A PNG, JPEG or WebP image (poster, timetable, screenshot) sent with "
+        "the goal. Only for a new conversation.",
+    )
     args = parser.parse_args(argv)
+    if args.image and args.thread:
+        parser.error("--image starts a new conversation; it cannot go with --thread.")
 
     try:
         settings = load_settings(CONFIG_PATH)
@@ -86,9 +94,13 @@ def main(argv: list[str] | None = None) -> int:
                 checkpointer=checkpointer,
                 resume_thread=args.thread,
                 settings=settings.model_dump(),
+                image=image_part(args.image)["image_url"]["url"] if args.image else None,
             )
     except ConversationError as exc:
         print(f"[thread] {exc}", file=sys.stderr)
+        return 2
+    except (OSError, ValueError) as exc:
+        print(f"[image] {exc}", file=sys.stderr)
         return 2
 
     print(result.answer)

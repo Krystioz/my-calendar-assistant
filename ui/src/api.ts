@@ -32,9 +32,13 @@ export type RawToolCall = {
   };
 };
 
+export type ContentPart =
+  | { type: "text"; text: string }
+  | { type: "image_url"; image_url: { url: string } };
+
 export type RawMessage = {
   role: "system" | "user" | "assistant" | "tool";
-  content?: string | null;
+  content?: string | ContentPart[] | null;
   tool_calls?: RawToolCall[];
   tool_call_id?: string;
 };
@@ -121,8 +125,22 @@ export function fetchLimits(): Promise<AgentLimits> {
 
 export type AgentInterrupt = ConfirmInterrupt | ClarifyInterrupt;
 
+/** Text of a message; a user message with an image is a list of parts. */
+export function messageText(m: RawMessage): string {
+  const c = m.content ?? "";
+  if (typeof c === "string") return c;
+  return c.map((p) => (p.type === "text" ? p.text : "")).join(" ");
+}
+
+export function messageImage(m: RawMessage): string | null {
+  if (typeof m.content === "string" || !m.content) return null;
+  const part = m.content.find((p) => p.type === "image_url");
+  return part?.type === "image_url" ? part.image_url.url : null;
+}
+
 export type AgentStateValues = {
   goal?: string;
+  image?: string | null;
   messages?: RawMessage[];
   status?: AgentStatus | null;
   answer?: string;
@@ -145,6 +163,7 @@ export type ToolCallStep = {
 export type ConversationTurn = {
   id: string;
   userMessage: string;
+  userImage: string | null;
   assistantAnswer: string | null;
   status: AgentStatus | null;
   citations: string[];
@@ -313,7 +332,7 @@ export function buildTurnsFromState(
     }
 
     if (msg.role === "user") {
-      const content = msg.content ?? "";
+      const content = messageText(msg);
       if (
         prevWasPlainAssistant &&
         content.startsWith("Call `finish` now with the appropriate")
@@ -326,6 +345,7 @@ export function buildTurnsFromState(
       turns.push({
         id: `turn-${idx}`,
         userMessage: content,
+        userImage: messageImage(msg),
         assistantAnswer: null,
         status: null,
         citations: [],
@@ -348,7 +368,7 @@ export function buildTurnsFromState(
       const toolResults = new Map<string, string>();
       for (let j = i + 1; j < messages.length && messages[j].role === "tool"; j++) {
         const id = messages[j].tool_call_id;
-        if (id) toolResults.set(id, messages[j].content ?? "");
+        if (id) toolResults.set(id, messageText(messages[j]));
       }
       const stepId = (callId: string) =>
         `${turns.length}-${current.assistantMsgCount}-${callId}`;
@@ -360,7 +380,7 @@ export function buildTurnsFromState(
           step: current.assistantMsgCount,
           id: `text-${turns.length}-${current.assistantMsgCount}`,
           name: "plain text reply (no tool call)",
-          argumentsRaw: JSON.stringify({ text: msg.content ?? "" }),
+          argumentsRaw: JSON.stringify({ text: messageText(msg) }),
           resultRaw: JSON.stringify(
             "Not accepted as an answer: the app asked the model to call finish.",
           ),
@@ -421,6 +441,7 @@ export function buildTurnsFromState(
     turns.push({
       id: "turn-0",
       userMessage: v.goal,
+      userImage: v.image ?? null,
       assistantAnswer: null,
       status: null,
       citations: [],
@@ -439,6 +460,7 @@ export function buildTurnsFromState(
       return {
         id: t.id,
         userMessage: t.userMessage,
+        userImage: t.userImage,
         assistantAnswer: t.clarifyDelivered?.answer ?? "",
         status: "clarify",
         citations: t.clarifyDelivered?.citations ?? [],
@@ -453,6 +475,7 @@ export function buildTurnsFromState(
       return {
         id: t.id,
         userMessage: t.userMessage,
+        userImage: t.userImage,
         assistantAnswer: interrupt.question,
         status: "clarify",
         citations: interrupt.citations ?? [],
@@ -467,6 +490,7 @@ export function buildTurnsFromState(
       return {
         id: t.id,
         userMessage: t.userMessage,
+        userImage: t.userImage,
         assistantAnswer: null,
         status: null,
         citations: [],
@@ -480,6 +504,7 @@ export function buildTurnsFromState(
     return {
       id: t.id,
       userMessage: t.userMessage,
+      userImage: t.userImage,
       assistantAnswer: v.status ? (v.answer ?? "") : null,
       status: v.status ?? null,
       citations: Array.isArray(v.citations) ? v.citations : [],
@@ -500,11 +525,11 @@ export function extractChangedIds(values: AgentStateValues | null | undefined): 
   const messages = values?.messages ?? [];
   let start = 0;
   messages.forEach((m, i) => {
-    if (m.role === "user" && !(m.content ?? "").startsWith("Call `finish` now")) start = i + 1;
+    if (m.role === "user" && !messageText(m).startsWith("Call `finish` now")) start = i + 1;
   });
   for (const m of messages.slice(start)) {
     if (m.role !== "tool") continue;
-    const result = safeJsonParse(m.content)?.result as Record<string, unknown> | undefined;
+    const result = safeJsonParse(messageText(m))?.result as Record<string, unknown> | undefined;
     for (const key of RESULT_ITEMS) {
       const id = (result?.[key] as { id?: unknown } | undefined)?.id;
       if (typeof id === "string") ids.add(id);

@@ -520,3 +520,66 @@ def test_finish_listed_before_a_confirmed_delete_still_runs_it(tmp_path) -> None
     assert result.status == "success"
     ids = [e.uid for e in CalendarTools.from_file(tmp_path / "calendar.ics").events]
     assert LAB_ID not in ids
+
+
+PNG_URL = "data:image/png;base64," + "iVBORw0KGgo="  # PNG signature bytes
+
+
+class RecordingClient(MockClient):
+    def __init__(self, responses):
+        super().__init__(responses)
+        self.seen = []
+
+    def complete(self, messages, tools=None):
+        self.seen.append(messages)
+        return super().complete(messages, tools)
+
+
+def test_image_goes_to_the_model_but_cannot_choose_a_calendar(tmp_path) -> None:
+    tools = CalendarTools.from_file(working_copy(CALENDAR, tmp_path / "calendar.ics"))
+    tools.store.calendars = ["Prywatne", "Rodzina"]
+    event = {"title": "Koncert", "start": "2026-10-24T18:00", "end": "2026-10-24T20:00"}
+    client = RecordingClient(
+        [
+            # The calendar name could only come from text inside the image.
+            reply(("create_event", {**event, "calendar": "Rodzina"})),
+            reply(("finish", {"outcome": "answered", "answer": "Nie dodano."})),
+        ]
+    )
+    trace = tmp_path / "trace.jsonl"
+    run_agent(
+        goal="Dodaj to wydarzenie",
+        image=PNG_URL,
+        client=client,
+        tools=tools,
+        trace_path=trace,
+        today=TODAY,
+        **LIMITS,
+    )
+    user = client.seen[0][1]
+    assert user["content"][0] == {"type": "text", "text": "Dodaj to wydarzenie"}
+    assert user["content"][1]["image_url"]["url"] == PNG_URL
+    events = [json.loads(line) for line in trace.read_text("utf-8").splitlines()]
+    assert events[0]["payload"]["image"] is True
+    codes = [
+        e["payload"]["error"]["code"]
+        for e in events
+        if e["event"] == "tool_result" and "error" in e["payload"]
+    ]
+    assert codes == ["calendar_not_specified"]
+    assert not any(e.title == "Koncert" for e in tools.events)
+
+
+@pytest.mark.parametrize(
+    ("url", "message"),
+    [
+        ("https://example.com/a.png", "data URL"),
+        ("data:image/gif;base64,R0lGOD==", "not one of"),
+        ("data:image/png;base64,@@@", "not valid base64"),
+        ("data:image/png;base64," + "A" * (7 * 1024 * 1024), "the limit is"),
+    ],
+    ids=["not-data-url", "gif", "bad-base64", "too-big"],
+)
+def test_bad_image_is_refused_before_any_model_call(tmp_path, url, message) -> None:
+    with pytest.raises(ValueError, match=message):
+        run([], tmp_path, image=url)
