@@ -3,5 +3,8 @@
   "graphs": {
     "calendar_agent": "./src/agent_project/studio.py:make_graph"
   },
+  "http": {
+    "app": "./src/agent_project/server_app.py:app"
+  },
   "env": ".env"
 }

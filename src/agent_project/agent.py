@@ -7,14 +7,14 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, date, datetime
 from pathlib import Path
-from typing import Any, Literal, TypedDict
+from typing import Annotated, Any, Literal, TypedDict
 
 from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.runtime import get_runtime
 from langgraph.types import Command, interrupt
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field
 
 from agent_project.llm import ModelClient
 from agent_project.tools import (
@@ -22,6 +22,7 @@ from agent_project.tools import (
     Confirm,
     confirmation_needed,
     execute_tool_call,
+    parse_arguments,
     tool_schemas,
 )
 from agent_project.trace_graph import export_trace
@@ -56,7 +57,7 @@ list every used source ID in `citations` (and inline like [source.md#chunk-1]).
 with a refined query.
   3. User intent is ambiguous (e.g. missing which movie, day, or event when \
 multiple options exist) -> call `finish` with outcome="clarify" and ask a \
-concise clarifying question.
+concise clarifying question; put its choices in `options` when it has them.
   4. The question is clear but the collection lacks the evidence -> call \
 `finish` with outcome="not_found", \
 abstain from guessing, and explicitly name what information is missing.
@@ -106,6 +107,13 @@ class FinishArgs(BaseModel):
         description="Verified source IDs from tool results in this run "
         "(e.g. ['sylabus_systemy_operacyjne.md#chunk-2', 'evt-018@calendar.local']). "
         "Required when outcome is 'answered' after searching documents.",
+    )
+    options: list[Annotated[str, Field(max_length=80)]] = Field(
+        default_factory=list,
+        max_length=6,
+        description="Only with outcome='clarify': the discrete choices the "
+        "question offers (e.g. calendar names, candidate events), each a short "
+        "label the user can pick. Empty when the question is open.",
     )
 
 
@@ -241,9 +249,7 @@ RESULT_LISTS = ("fragments", "events", "busy", "conflicts", "tasks")
 RESULT_ITEMS = ("created", "deleted", "completed", "moved")
 
 
-def _collect_retrieved_ids(
-    tool_name: str, observation: dict[str, Any]
-) -> tuple[set[str], set[str]]:
+def _collect_retrieved_ids(observation: dict[str, Any]) -> tuple[set[str], set[str]]:
     """Extract citable source IDs from a tool result (including already_exists)."""
     if not observation.get("ok"):
         existing = (observation.get("error") or {}).get("existing") or {}
@@ -353,7 +359,9 @@ def build_agent_graph(
             text=reply.get("text"),
             tool_calls=calls,
         )
-        if run_tracker.cost > max_cost_usd:
+        # The state total, not run_tracker: the server rebuilds the graph (and a
+        # new tracker) on every resume, so only the state spans the whole turn.
+        if spent > max_cost_usd:
             return {
                 "steps": step,
                 "cost_usd": spent,
@@ -367,7 +375,7 @@ def build_agent_graph(
             if text:
                 return {
                     "steps": step,
-                "cost_usd": spent,
+                    "cost_usd": spent,
                     "messages": [
                         *state["messages"],
                         {"role": "assistant", "content": text},
@@ -436,7 +444,9 @@ def build_agent_graph(
             "steps": step,
             "cost_usd": spent,
             "messages": new_messages,
-            "pending_calls": calls,
+            # finish last: a finish listed first must not skip the other calls,
+            # such as a delete the user has just confirmed.
+            "pending_calls": sorted(calls, key=lambda c: c["name"] == "finish"),
             "next_node": next_step,
         }
 
@@ -456,10 +466,10 @@ def build_agent_graph(
         # restarts from the top, so nothing above here may change the calendar.
         asked = []
         for call in state["pending_calls"][:MAX_CALLS_PER_STEP] if can_confirm else []:
-            question = confirmation_needed(tools, call["name"], call["arguments"])
-            if question is not None:
-                answer = interrupt({"kind": "confirm", "question": question})
-                asked.append((call["id"], question, answer is True))
+            needed = confirmation_needed(tools, call["name"], call["arguments"])
+            if needed is not None:
+                answer = interrupt({"kind": "confirm", **needed})
+                asked.append((call["id"], needed["question"], answer is True))
         answers = {}
         for call_id, question, approved in asked:
             answers[call_id] = approved
@@ -510,7 +520,7 @@ def build_agent_graph(
                     confirm=None if approved is None else lambda _, a=approved: a,
                     user_text=user_text,
                 )
-                new_all, new_doc = _collect_retrieved_ids(call["name"], observation)
+                new_all, new_doc = _collect_retrieved_ids(observation)
                 retrieved_ids.update(new_all)
                 doc_retrieved_ids.update(new_doc)
 
@@ -593,6 +603,7 @@ def build_agent_graph(
                 "kind": "clarify",
                 "question": finished.answer,
                 "citations": finished.citations,
+                "options": finished.options,
             }
         )
 
@@ -785,18 +796,9 @@ def _parse_finish(
     require_citations: bool = False,
 ) -> FinishArgs | dict[str, Any]:
     """Validate the schema and source membership before any finish can be routed."""
-    try:
-        arguments = (
-            raw_arguments
-            if isinstance(raw_arguments, dict)
-            else json.loads(raw_arguments or "{}")
-        )
-        finished = FinishArgs.model_validate(arguments)
-    except (json.JSONDecodeError, ValidationError) as exc:
-        return {
-            "ok": False,
-            "error": {"code": "invalid_arguments", "message": str(exc)[:500]},
-        }
+    finished = parse_arguments(FinishArgs, raw_arguments)
+    if isinstance(finished, dict):
+        return finished
     ok, cited, error = verify_citations_in_code(
         finished.answer,
         finished.citations,

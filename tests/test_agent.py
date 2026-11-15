@@ -378,6 +378,10 @@ def test_only_true_resumes_a_confirmation_as_yes(tmp_path) -> None:
     ][0]
     assert paused.value["kind"] == "confirm"
     assert paused.value["question"].startswith("Delete 'Laboratorium")
+    assert paused.value["tool"] == "delete_event"
+    assert paused.value["args"] == {"id": LAB_ID}
+    assert paused.value["target"]["id"] == LAB_ID
+    assert paused.value["target"]["title"].startswith("Laboratorium")
 
     final = graph.invoke(Command(resume="tak"), config, context=context)
     assert final["status"] == "success"
@@ -464,3 +468,55 @@ def test_state_keeps_the_cost_of_the_current_turn(tmp_path) -> None:
     )
     assert state["status"] == "success"
     assert state["cost_usd"] == pytest.approx(0.003)
+
+
+def test_cost_limit_spans_a_resume_that_rebuilds_the_graph(tmp_path) -> None:
+    # The LangGraph server builds a new graph (and _Run) for every resume.
+    from langgraph.checkpoint.memory import InMemorySaver
+    from langgraph.types import Command
+
+    from agent_project.agent import (
+        AGENT_TOOL_SCHEMAS,
+        AgentContext,
+        _Run,
+        build_agent_graph,
+    )
+
+    saver = InMemorySaver()
+    calendar = working_copy(CALENDAR, tmp_path / "calendar.ics")
+
+    def graph(*responses):
+        return build_agent_graph(
+            client=MockClient(list(responses)),
+            tools=CalendarTools.from_file(calendar),
+            run_tracker=_Run(tmp_path / "trace.jsonl"),
+            schemas=AGENT_TOOL_SCHEMAS,
+            checkpointer=saver,
+            **LIMITS,
+        )
+
+    config = {"configurable": {"thread_id": "t"}}
+    context = AgentContext(today=TODAY.isoformat())
+    graph(reply(("delete_event", {"id": LAB_ID}), cost=0.06)).invoke(
+        {"goal": "Usuń laborkę"}, config, context=context
+    )
+    final = graph(reply(("search_events", {"query": "silownia"}), cost=0.06)).invoke(
+        Command(resume=False), config, context=context
+    )
+    assert final["status"] == "cost_limit"
+
+
+def test_finish_listed_before_a_confirmed_delete_still_runs_it(tmp_path) -> None:
+    result, events = run(
+        [
+            reply(
+                ("finish", {"outcome": "answered", "answer": "Deleted."}),
+                ("delete_event", {"id": LAB_ID}),
+            )
+        ],
+        tmp_path,
+        confirm=lambda question: True,
+    )
+    assert result.status == "success"
+    ids = [e.uid for e in CalendarTools.from_file(tmp_path / "calendar.ics").events]
+    assert LAB_ID not in ids

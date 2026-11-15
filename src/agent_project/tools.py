@@ -12,7 +12,7 @@ import time
 import unicodedata
 import uuid
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Annotated, Any, Literal, Protocol
@@ -250,6 +250,13 @@ def named_in(name: str, text: str) -> bool:
             continue
         return False
     return True
+
+
+def _match_name(name: str, options: list[str]) -> str | None:
+    """The option the user meant by name: exact (folded) first, then named_in."""
+    return next((o for o in options if _fold(o) == _fold(name)), None) or next(
+        (o for o in options if named_in(o, name) or named_in(name, o)), None
+    )
 
 
 class SearchEventsArgs(BaseModel):
@@ -491,7 +498,7 @@ class IcsStore:
         return task
 
     def complete_task(self, task: Task) -> Task:
-        done = Task(task.uid, task.title, task.due, task.notes, completed=True)
+        done = replace(task, completed=True)
         self.tasks[self.tasks.index(task)] = done
         self._save()
         return done
@@ -534,17 +541,7 @@ class CalendarTools:
         """The task list the user named; "" means the default list."""
         if not name or not self.store.task_lists:
             return ""
-        match = next(
-            (n for n in self.store.task_lists if _fold(n) == _fold(name)), None
-        )
-        match = match or next(
-            (
-                n
-                for n in self.store.task_lists
-                if named_in(n, name) or named_in(name, n)
-            ),
-            None,
-        )
+        match = _match_name(name, self.store.task_lists)
         if match is None:
             raise ToolError(
                 "task_list_not_found",
@@ -577,7 +574,7 @@ class CalendarTools:
                 "checked or changed.",
             )
 
-    def _target_calendar(self, name: str | None) -> str:
+    def target_calendar(self, name: str | None) -> str:
         """The writable calendar the user named; "" when there is only the file."""
         if not self.calendars:
             return ""
@@ -589,12 +586,7 @@ class CalendarTools:
                 "Ask the user which calendar to use; nothing was added.",
                 calendars=self.calendars,
             )
-        match = next((c for c in self.calendars if _fold(c) == _fold(name)), None)
-        if match is None:
-            match = next(
-                (c for c in self.calendars if named_in(c, name) or named_in(name, c)),
-                None,
-            )
+        match = _match_name(name, self.calendars)
         if match is None:
             raise ToolError(
                 "calendar_not_found",
@@ -615,8 +607,28 @@ class CalendarTools:
             return f"Delete task '{self._find_task(args.id).title}'?"
         raise ValueError(f"{name} has no confirmation question")
 
+    def confirmation_target(self, name: str, args: BaseModel) -> Event | Task:
+        """The record a sensitive tool would delete, for the approval prompt."""
+        if name == "delete_event":
+            return self._find(args.id)
+        if name == "delete_task":
+            return self._find_task(args.id)
+        raise ValueError(f"{name} has no confirmation target")
+
     def search_events(self, args: SearchEventsArgs) -> dict[str, Any]:
         self._check_loaded(args.start, args.end)
+        calendar = None
+        if args.calendar:
+            # Same matching as writes: an exact-only filter turned a nickname
+            # into zero events, which reads as "nothing that day".
+            known = sorted({e.calendar for e in self.events if e.calendar})
+            calendar = _match_name(args.calendar, [*self.calendars, *known])
+            if calendar is None:
+                raise ToolError(
+                    "calendar_not_found",
+                    f"No calendar named {args.calendar!r}.",
+                    calendars=known or self.calendars,
+                )
         words = [_fold(word) for word in args.query.split() if len(word) >= 2]
         matches = []
         for event in self.events:
@@ -624,7 +636,7 @@ class CalendarTools:
                 continue
             if args.end and event.start.date() > args.end:
                 continue
-            if args.calendar and _fold(event.calendar) != _fold(args.calendar):
+            if calendar is not None and event.calendar != calendar:
                 continue
             haystack = _fold(f"{event.title} {event.location} {event.description}")
             if all(word in haystack for word in words):
@@ -665,7 +677,7 @@ class CalendarTools:
 
     def create_event(self, args: CreateEventArgs) -> dict[str, Any]:
         self._check_loaded(args.start.date(), args.end.date())
-        calendar = self._target_calendar(args.calendar)
+        calendar = self.target_calendar(args.calendar)
         title = _fold(args.title).strip()
         for event in self.events:
             same_title = _fold(event.title).strip() == title
@@ -900,7 +912,7 @@ def execute_tool_call(
     chosen = getattr(args, "calendar", None)
     if spec.name == "create_event" and tools.calendars and user_text is not None:
         try:
-            target = tools._target_calendar(chosen) if chosen else None
+            target = tools.target_calendar(chosen) if chosen else None
         except ToolError:
             target = None  # create_event reports calendar_not_found itself
         if target and not named_in(target, user_text):
@@ -942,16 +954,23 @@ def execute_tool_call(
 
 def confirmation_needed(
     tools: CalendarTools, name: str, raw_arguments: str | dict | None
-) -> str | None:
-    """The question a human must answer before this call runs, or None.
+) -> dict[str, Any] | None:
+    """What a human must approve before this call runs, or None.
 
+    {"question", "tool", "args", "target"}: target is the record to delete.
     None also when the call is invalid: execute_tool_call reports that error.
     """
     parsed = _parse_call(name, raw_arguments)
     if isinstance(parsed, dict) or not parsed[0].sensitive:
         return None
+    args = parsed[1]
     try:
-        return tools.confirmation_question(name, parsed[1])
+        return {
+            "question": tools.confirmation_question(name, args),
+            "tool": name,
+            "args": args.model_dump(mode="json"),
+            "target": tools.confirmation_target(name, args).to_dict(),
+        }
     except ToolError:
         return None
 
@@ -965,6 +984,14 @@ def _parse_call(
         allowed = ", ".join(s.name for s in ALL_TOOL_SPECS)
         return _error("unknown_tool", f"No tool named {name!r}. Allowed: {allowed}.")
 
+    args = parse_arguments(spec.args_model, raw_arguments)
+    return args if isinstance(args, dict) else (spec, args)
+
+
+def parse_arguments[M: BaseModel](
+    model: type[M], raw_arguments: str | dict | None
+) -> M | dict[str, Any]:
+    """Model-sent arguments (a JSON string or a dict) as `model`, or an error."""
     try:
         arguments = (
             raw_arguments
@@ -977,7 +1004,7 @@ def _parse_call(
         return _error("invalid_json", "Arguments must be a JSON object.")
 
     try:
-        return spec, spec.args_model.model_validate(arguments)
+        return model.model_validate(arguments)
     except ValidationError as exc:
         details = "; ".join(
             f"{'.'.join(map(str, err['loc'])) or 'arguments'}: {err['msg']}"

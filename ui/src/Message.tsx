@@ -2,8 +2,11 @@ import { useState } from "react";
 import Markdown from "react-markdown";
 import { GraphMap, type GraphShape } from "./GraphMap";
 import { Steps } from "./Steps";
+import { CitationChip } from "./CitationChip";
+import { RecordCard } from "./cards";
 import {
   computeGraphStats,
+  type AgentLimits,
   type AgentStatus,
   type ConfirmInterrupt,
   type ConversationTurn,
@@ -14,6 +17,20 @@ function formatCost(cost: number): string {
     return `$${cost.toFixed(5)}`;
   }
   return `$${cost.toFixed(4)}`;
+}
+
+/** "n / max" with a thin bar: amber above 75%, red at the limit. */
+function BudgetMeter({ label, used, max }: { label: string; used: number; max: number }) {
+  const ratio = max > 0 ? used / max : 0;
+  const bar = ratio >= 1 ? "bg-red-500" : ratio > 0.75 ? "bg-amber-500" : "bg-zinc-400 dark:bg-zinc-500";
+  return (
+    <span className="inline-flex flex-col gap-0.5 align-middle">
+      <span>{label}</span>
+      <span className="h-0.5 w-full min-w-12 overflow-hidden rounded bg-zinc-200 dark:bg-zinc-800">
+        <span className={`block h-full ${bar}`} style={{ width: `${Math.min(100, ratio * 100)}%` }} />
+      </span>
+    </span>
+  );
 }
 
 function statusContainerClass(status: AgentStatus | null): string {
@@ -54,6 +71,9 @@ type MessageProps = {
   onConfirm: (approved: boolean) => void;
   disableActions: boolean;
   runError?: string | null;
+  limits?: AgentLimits | null;
+  clarifyOptions?: string[];
+  onPickOption?: (text: string) => void;
 };
 
 export function Message({
@@ -65,6 +85,9 @@ export function Message({
   onConfirm,
   disableActions,
   runError,
+  limits,
+  clarifyOptions,
+  onPickOption,
 }: MessageProps) {
   const [graphOpen, setGraphOpen] = useState(false);
 
@@ -79,6 +102,7 @@ export function Message({
     ...(ended && seq.length > 0 ? ["__end__"] : []),
   ]);
   const showFooter = turn.status !== null;
+  const isDelete = confirmInterrupt?.tool?.startsWith("delete_") ?? false;
   const hasAnswer = turn.assistantAnswer !== null && turn.assistantAnswer !== "";
 
   return (
@@ -149,6 +173,23 @@ export function Message({
           </div>
         )}
 
+        {/* One-click answers to a clarify question */}
+        {turn.status === "clarify" && onPickOption && clarifyOptions && clarifyOptions.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {clarifyOptions.map((opt) => (
+              <button
+                key={opt}
+                type="button"
+                disabled={disableActions}
+                onClick={() => onPickOption(opt)}
+                className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs text-sky-800 hover:bg-sky-100 disabled:opacity-50 dark:border-sky-900/60 dark:bg-sky-950/30 dark:text-sky-200 dark:hover:bg-sky-900/40"
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Unhandled server / run error */}
         {runError && (
           <div className="rounded-xl border border-red-200 bg-red-50/80 px-4 py-3 text-sm text-red-900 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-100">
@@ -165,6 +206,18 @@ export function Message({
             <p className="mb-3 text-sm font-medium text-zinc-900 dark:text-zinc-100">
               {confirmInterrupt.question}
             </p>
+            {confirmInterrupt.target && (
+              <div className="mb-3">
+                <RecordCard
+                  record={confirmInterrupt.target}
+                  tag={
+                    confirmInterrupt.tool?.startsWith("delete_")
+                      ? { label: "will be deleted", tone: "red" }
+                      : undefined
+                  }
+                />
+              </div>
+            )}
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -172,7 +225,7 @@ export function Message({
                 onClick={() => onConfirm(true)}
                 className="rounded-lg bg-zinc-900 px-3.5 py-1.5 text-xs font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
               >
-                Yes
+                {isDelete ? "Delete" : "Yes"}
               </button>
               <button
                 type="button"
@@ -180,7 +233,7 @@ export function Message({
                 onClick={() => onConfirm(false)}
                 className="rounded-lg border border-zinc-300 bg-white px-3.5 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
               >
-                No
+                {isDelete ? "Keep" : "No"}
               </button>
             </div>
           </div>
@@ -190,12 +243,7 @@ export function Message({
         {turn.citations.length > 0 && (
           <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
             {turn.citations.map((cid) => (
-              <span
-                key={cid}
-                className="rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-0.5 font-mono text-[11px] text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
-              >
-                {cid}
-              </span>
+              <CitationChip key={cid} id={cid} />
             ))}
           </div>
         )}
@@ -233,17 +281,44 @@ export function Message({
             <span className={`font-medium ${statusBadgeClass(turn.status)}`}>
               {turn.status}
             </span>
-            {turn.steps !== null && (
-              <span>
-                {" · "}
-                {turn.steps} {turn.steps === 1 ? "step" : "steps"}
-              </span>
-            )}
-            {turn.costUsd !== null && (
-              <span>
-                {" · "}
-                {formatCost(turn.costUsd)}
-              </span>
+            {limits ? (
+              <>
+                {turn.steps !== null && (
+                  <>
+                    {" · "}
+                    <BudgetMeter
+                      label={`${turn.steps} / ${limits.max_steps} steps`}
+                      used={turn.steps}
+                      max={limits.max_steps}
+                    />
+                  </>
+                )}
+                {turn.costUsd !== null && (
+                  <>
+                    {" · "}
+                    <BudgetMeter
+                      label={`${formatCost(turn.costUsd)} / ${limits.max_cost_usd}`}
+                      used={turn.costUsd}
+                      max={limits.max_cost_usd}
+                    />
+                  </>
+                )}
+              </>
+            ) : (
+              <>
+                {turn.steps !== null && (
+                  <span>
+                    {" · "}
+                    {turn.steps} {turn.steps === 1 ? "step" : "steps"}
+                  </span>
+                )}
+                {turn.costUsd !== null && (
+                  <span>
+                    {" · "}
+                    {formatCost(turn.costUsd)}
+                  </span>
+                )}
+              </>
             )}
           </div>
         )}

@@ -2,17 +2,21 @@ import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import type { Thread } from "@langchain/langgraph-sdk";
 import type { GraphShape } from "./GraphMap";
 import { Message } from "./Message";
+import { CalendarPanel } from "./CalendarPanel";
 import {
   ASSISTANT_ID,
   buildTurnsFromState,
   client,
+  extractChangedIds,
   extractInterrupt,
   extractNodeSequenceFromHistory,
   extractTaskError,
   extractTurnTotals,
   fetchGraphShape,
+  fetchLimits,
   getThreadSettings,
   type AgentInterrupt,
+  type AgentLimits,
   type AgentStateValues,
   type CalendarBackend,
   type TurnTotals,
@@ -20,6 +24,27 @@ import {
 
 // Long conversations write many checkpoints; 100 cut the node path short.
 const HISTORY_LIMIT = 1000;
+
+const PANEL_KEY = "calendarPanelOpen";
+
+const EXAMPLE_PROMPTS = [
+  "Kiedy mam najbliższe laboratorium?",
+  "Czy jestem wolny jutro między 14 a 16?",
+  "Dodaj spotkanie z promotorem w piątek o 10 z przypomnieniem godzinę wcześniej",
+  "Jakie zadania mam na dziś?",
+  "Dodaj zadanie: kupić bilet do kina",
+  "Co grają w kinie w ten weekend?",
+];
+
+function initialPanelOpen(): boolean {
+  try {
+    const stored = localStorage.getItem(PANEL_KEY);
+    if (stored !== null) return stored === "1";
+  } catch {
+    // Storage blocked: fall back to the screen width
+  }
+  return window.matchMedia("(min-width: 1024px)").matches;
+}
 
 export function App() {
   const [threads, setThreads] = useState<Thread<AgentStateValues>[]>([]);
@@ -43,6 +68,12 @@ export function App() {
 
   const [input, setInput] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(initialPanelOpen);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [limits, setLimits] = useState<AgentLimits | null>(null);
+  const [threadQuery, setThreadQuery] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
 
   const loadSeqRef = useRef(0);
   const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -73,7 +104,20 @@ export function App() {
       .catch(() => {
         // Graph panel stays hidden if graph metadata cannot be fetched
       });
+    void fetchLimits()
+      .then(setLimits)
+      .catch(() => {
+        // Limits are optional: Message renders without them
+      });
   }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(PANEL_KEY, panelOpen ? "1" : "0");
+    } catch {
+      // Storage blocked: the panel state is just not remembered
+    }
+  }, [panelOpen]);
 
   const turns = buildTurnsFromState(
     stateValues,
@@ -104,6 +148,7 @@ export function App() {
     setLoadingThread(true);
     setRunError(null);
     setTurnTotals({});
+    setRefreshKey((k) => k + 1);
 
     try {
       const [st, hist] = await Promise.all([
@@ -237,17 +282,19 @@ export function App() {
           prev ?? (err instanceof Error ? err.message : "Failed to fetch final state"),
         );
       }
+      setRefreshKey((k) => k + 1);
       void refreshThreads();
     }
   }
 
-  async function handleSend() {
-    const text = input.trim();
+  // `override` sends a picked clarify option and leaves the typed draft alone.
+  async function handleSend(override?: string) {
+    const text = (override ?? input).trim();
     if (!text || isStreaming || loadingThread || interrupt?.kind === "confirm") {
       return;
     }
 
-    setInput("");
+    if (override === undefined) setInput("");
 
     if (selectedThreadId !== null && interrupt?.kind === "clarify") {
       const targetThreadId = selectedThreadId;
@@ -322,6 +369,41 @@ export function App() {
     );
   }
 
+  function startRename(thread: Thread<AgentStateValues>) {
+    if (isStreaming) return;
+    setEditingId(thread.thread_id);
+    setEditTitle(getThreadSettings(thread).title);
+  }
+
+  async function saveRename(thread: Thread<AgentStateValues>) {
+    const title = editTitle.trim();
+    setEditingId(null);
+    if (!title || title === getThreadSettings(thread).title) return;
+    try {
+      const meta = (thread.metadata ?? {}) as Record<string, unknown>;
+      await client.threads.update(thread.thread_id, { metadata: { ...meta, title } });
+      await refreshThreads();
+    } catch (err) {
+      setThreadsError(err instanceof Error ? err.message : "Failed to rename conversation");
+    }
+  }
+
+  async function deleteThread(threadId: string) {
+    if (isStreaming || !window.confirm("Delete this conversation?")) return;
+    try {
+      await client.threads.delete(threadId);
+      if (threadId === selectedThreadId) handleNewChat();
+      setThreads((prev) => prev.filter((t) => t.thread_id !== threadId));
+    } catch (err) {
+      setThreadsError(err instanceof Error ? err.message : "Failed to delete conversation");
+    }
+  }
+
+  function pickExample(prompt: string) {
+    setInput(prompt);
+    textareaRef.current?.focus();
+  }
+
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault();
@@ -352,6 +434,12 @@ export function App() {
     ? getThreadSettings(selectedThread).title
     : stateValues?.goal || "New chat";
 
+  const changedIds = extractChangedIds(stateValues);
+  const query = threadQuery.trim().toLowerCase();
+  const visibleThreads = query
+    ? threads.filter((t) => getThreadSettings(t).title.toLowerCase().includes(query))
+    : threads;
+
   return (
     <div className="flex h-full bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
       {/* Mobile sidebar backdrop */}
@@ -377,6 +465,14 @@ export function App() {
           >
             <span>+ New chat</span>
           </button>
+          <input
+            type="search"
+            value={threadQuery}
+            onChange={(e) => setThreadQuery(e.target.value)}
+            placeholder="Search conversations..."
+            aria-label="Search conversations"
+            className="mt-2 w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500"
+          />
         </div>
 
         <div className="flex-1 overflow-y-auto px-2 pb-4">
@@ -392,34 +488,97 @@ export function App() {
             <div className="px-3 py-2 text-xs text-zinc-400">
               No conversations yet
             </div>
+          ) : visibleThreads.length === 0 ? (
+            <div className="px-3 py-2 text-xs text-zinc-400">
+              No matching conversations
+            </div>
           ) : (
             <ul className="space-y-0.5">
-              {threads.map((thread) => {
+              {visibleThreads.map((thread) => {
                 const settings = getThreadSettings(thread);
                 const active = thread.thread_id === selectedThreadId;
+                const failed =
+                  thread.status === "error" ||
+                  (thread.values as AgentStateValues | undefined)?.status === "error";
+                if (editingId === thread.thread_id) {
+                  return (
+                    <li key={thread.thread_id} className="px-1 py-1">
+                      <input
+                        autoFocus
+                        value={editTitle}
+                        aria-label="Conversation title"
+                        onChange={(e) => setEditTitle(e.target.value)}
+                        onBlur={() => void saveRename(thread)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") e.currentTarget.blur();
+                          if (e.key === "Escape") setEditingId(null);
+                        }}
+                        className="w-full rounded-md border border-zinc-400 bg-white px-2 py-1 text-sm text-zinc-900 focus:outline-none dark:border-zinc-500 dark:bg-zinc-950 dark:text-zinc-100"
+                      />
+                    </li>
+                  );
+                }
                 return (
-                  <li key={thread.thread_id}>
+                  <li
+                    key={thread.thread_id}
+                    className={`group flex items-center rounded-lg transition-colors ${
+                      active
+                        ? "bg-zinc-200/80 dark:bg-zinc-800"
+                        : "hover:bg-zinc-200/50 dark:hover:bg-zinc-800/60"
+                    }`}
+                  >
                     <button
                       type="button"
                       disabled={isStreaming}
                       onClick={() => void selectThread(thread)}
+                      onDoubleClick={() => startRename(thread)}
                       title={settings.title}
-                      className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors disabled:opacity-60 ${
+                      className={`flex min-w-0 flex-1 items-center gap-2 px-3 py-2 text-left text-sm disabled:opacity-60 ${
                         active
-                          ? "bg-zinc-200/80 font-medium text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50"
-                          : "text-zinc-700 hover:bg-zinc-200/50 dark:text-zinc-300 dark:hover:bg-zinc-800/60"
+                          ? "font-medium text-zinc-900 dark:text-zinc-50"
+                          : "text-zinc-700 dark:text-zinc-300"
                       }`}
                     >
                       <span className="min-w-0 flex-1 truncate">
                         {settings.title}
                       </span>
-                      {thread.status === "interrupted" && (
+                      <span className="shrink-0 rounded border border-zinc-200 px-1 text-[10px] font-normal text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
+                        {settings.calendar === "google" ? "google" : "local"}
+                      </span>
+                      {thread.status === "interrupted" ? (
                         <span
                           className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500"
                           title="Waiting for input"
                         />
-                      )}
+                      ) : failed ? (
+                        <span
+                          className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500"
+                          title="Ended with an error"
+                        />
+                      ) : null}
                     </button>
+                    <div className="flex shrink-0 items-center pr-1 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
+                      <button
+                        type="button"
+                        disabled={isStreaming}
+                        onClick={() => startRename(thread)}
+                        aria-label={`Rename conversation ${settings.title}`}
+                        title="Rename"
+                        className="rounded p-1 text-xs text-zinc-500 hover:bg-zinc-300/60 hover:text-zinc-900 disabled:opacity-40 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-zinc-100"
+                      >
+                        ✎
+                      </button>
+                      <button
+                        type="button"
+                        disabled={isStreaming}
+                        onClick={() => void deleteThread(thread.thread_id)}
+                        aria-label={`Delete conversation ${settings.title}`}
+                        title="Delete"
+                        className="rounded p-1 text-xs text-zinc-500 hover:bg-red-100 hover:text-red-700 disabled:opacity-40 dark:text-zinc-400 dark:hover:bg-red-950 dark:hover:text-red-300"
+                      >
+                        🗑
+                      </button>
+                    </div>
                   </li>
                 );
               })}
@@ -446,8 +605,9 @@ export function App() {
             </h1>
           </div>
 
-          {selectedThreadId !== null && (
-            <div className="flex shrink-0 items-center gap-1.5">
+          <div className="flex shrink-0 items-center gap-1.5">
+            {selectedThreadId !== null && (
+              <>
               <span className="rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-0.5 text-xs text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
                 Calendar: <strong className="font-medium">{calendar}</strong>
               </span>
@@ -457,8 +617,21 @@ export function App() {
                   {today || "real date"}
                 </strong>
               </span>
-            </div>
-          )}
+              </>
+            )}
+            <button
+              type="button"
+              onClick={() => setPanelOpen((prev) => !prev)}
+              aria-label={panelOpen ? "Hide calendar panel" : "Show calendar panel"}
+              aria-pressed={panelOpen}
+              title="Calendar panel"
+              className={`rounded-md p-1.5 text-sm text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 ${
+                panelOpen ? "bg-zinc-100 dark:bg-zinc-800" : ""
+              }`}
+            >
+              📅
+            </button>
+          </div>
         </header>
 
         {/* Scrollable chat column */}
@@ -525,6 +698,19 @@ export function App() {
                     </div>
                   </div>
                 </div>
+
+                <div className="mt-4 grid w-full max-w-md grid-cols-1 gap-2 sm:grid-cols-2">
+                  {EXAMPLE_PROMPTS.map((prompt) => (
+                    <button
+                      key={prompt}
+                      type="button"
+                      onClick={() => pickExample(prompt)}
+                      className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-left text-xs text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-300 dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
               </div>
             ) : loadingThread ? (
               <div className="py-12 text-center text-sm text-zinc-400">
@@ -547,6 +733,11 @@ export function App() {
                       onConfirm={(approved) => void handleConfirm(approved)}
                       disableActions={isStreaming}
                       runError={isLast ? runError : null}
+                      limits={limits}
+                      clarifyOptions={
+                        isLast && interrupt?.kind === "clarify" ? interrupt.options : undefined
+                      }
+                      onPickOption={(text: string) => void handleSend(text)}
                     />
                   );
                 })}
@@ -587,6 +778,27 @@ export function App() {
           </div>
         </footer>
       </div>
+
+      {/* Right calendar panel: overlay below lg, column from lg up */}
+      {panelOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-20 bg-black/40 lg:hidden"
+            onClick={() => setPanelOpen(false)}
+          />
+          <aside
+            aria-label="Calendar"
+            className="fixed inset-y-0 right-0 z-30 w-80 max-w-[85vw] shrink-0 border-l border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 lg:static lg:z-auto"
+          >
+            <CalendarPanel
+              calendar={calendar}
+              anchorDate={today}
+              refreshKey={refreshKey}
+              changedIds={changedIds}
+            />
+          </aside>
+        </>
+      )}
     </div>
   );
 }

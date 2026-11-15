@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { ToolCallStep } from "./api";
+import { ToolResult, argsSummary } from "./ToolResult";
 
 function formatJson(raw: string): string {
   try {
@@ -110,27 +111,64 @@ export function Steps({ nodeSequence, toolCalls, defaultOpen = false }: StepsPro
                       {tc.name}
                     </span>
                   </div>
-                  <div className="space-y-1.5">
-                    <div>
-                      <div className="mb-0.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400">
-                        Arguments
-                      </div>
-                      <pre className="overflow-x-auto rounded bg-zinc-100 p-2 text-xs text-zinc-800 dark:bg-zinc-900 dark:text-zinc-200">
-                        {formatJson(tc.argumentsRaw)}
-                      </pre>
-                    </div>
-                    <div>
-                      <div className="mb-0.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400">
-                        Result
-                      </div>
-                      <ToolResultView raw={tc.resultRaw} />
-                    </div>
-                  </div>
+                  <ToolCallBody tc={tc} />
                 </div>
               ))}
             </div>
           )}
         </div>
+      )}
+    </div>
+  );
+}
+
+/** Domain view of the result when ToolResult has one, raw JSON behind a toggle. */
+function ToolCallBody({ tc }: { tc: ToolCallStep }) {
+  const [rawOpen, setRawOpen] = useState(false);
+  // A plain call, not <ToolResult/>: we need to know whether it rendered anything.
+  const view = ToolResult(tc);
+  const summary = argsSummary(tc.argumentsRaw);
+
+  return (
+    <div className="space-y-1.5">
+      {view !== null && (
+        <>
+          {summary && (
+            <div
+              className="truncate font-mono text-[11px] text-zinc-500 dark:text-zinc-400"
+              title={summary}
+            >
+              {summary}
+            </div>
+          )}
+          {view}
+          <button
+            type="button"
+            onClick={() => setRawOpen((prev) => !prev)}
+            aria-expanded={rawOpen}
+            className="text-[11px] font-medium text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+          >
+            {rawOpen ? "Hide raw JSON" : "raw JSON"}
+          </button>
+        </>
+      )}
+      {(view === null || rawOpen) && (
+        <>
+          <div>
+            <div className="mb-0.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400">
+              Arguments
+            </div>
+            <pre className="overflow-x-auto rounded bg-zinc-100 p-2 text-xs text-zinc-800 dark:bg-zinc-900 dark:text-zinc-200">
+              {formatJson(tc.argumentsRaw)}
+            </pre>
+          </div>
+          <div>
+            <div className="mb-0.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400">
+              Result
+            </div>
+            <ToolResultView raw={tc.resultRaw} />
+          </div>
+        </>
       )}
     </div>
   );

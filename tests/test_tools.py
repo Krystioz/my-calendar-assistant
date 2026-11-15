@@ -346,3 +346,22 @@ def test_far_future_start_is_a_validation_error_not_a_crash(writable) -> None:
         writable, "create_event", {"title": "X", "start": "9999-12-31T23:59"}
     )
     assert result["error"]["code"] == "invalid_arguments"
+
+
+def test_search_calendar_filter_matches_like_writes_and_rejects_unknown(
+    writable,
+) -> None:
+    from dataclasses import replace
+
+    writable.store.events[:] = [
+        replace(e, calendar="Krystian Nowak") for e in writable.store.events
+    ]
+    nickname = execute_tool_call(
+        writable, "search_events", {"query": "dentysta", "calendar": "krystian"}
+    )
+    assert nickname["result"]["total_matches"] > 0
+    unknown = execute_tool_call(
+        writable, "search_events", {"query": "dentysta", "calendar": "Praca"}
+    )
+    assert unknown["error"]["code"] == "calendar_not_found"
+    assert unknown["error"]["calendars"] == ["Krystian Nowak"]

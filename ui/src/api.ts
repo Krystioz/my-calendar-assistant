@@ -39,16 +39,85 @@ export type RawMessage = {
   tool_call_id?: string;
 };
 
+/** Event.to_dict() in tools.py. */
+export type CalendarEvent = {
+  id: string;
+  calendar?: string;
+  title: string;
+  start: string; // YYYY-MM-DDTHH:MM, local wall clock
+  end: string;
+  duration_min: number;
+  all_day: boolean;
+  location: string;
+  description: string;
+  reminder_minutes?: number[];
+};
+
+/** Task.to_dict() in tools.py. */
+export type CalendarTask = {
+  id: string;
+  task_list?: string;
+  title: string;
+  due: string | null; // YYYY-MM-DD
+  notes: string;
+  completed: boolean;
+};
+
 export type ConfirmInterrupt = {
   kind: "confirm";
   question: string;
+  // Older checkpoints have only kind + question.
+  tool?: string;
+  args?: Record<string, unknown>;
+  target?: CalendarEvent | CalendarTask;
 };
 
 export type ClarifyInterrupt = {
   kind: "clarify";
   question: string;
   citations?: string[];
+  options?: string[];
 };
+
+/** GET /calendar on the LangGraph server. */
+export type CalendarSnapshot = {
+  events: CalendarEvent[];
+  tasks: CalendarTask[];
+  calendars: string[];
+};
+
+/** GET /docs?id=<chunk id>. */
+export type DocChunk = { id: string; source: string; heading: string; text: string };
+
+/** GET /limits: calendar-agent.toml [limits]. */
+export type AgentLimits = {
+  max_steps: number;
+  max_cost_usd: number;
+  max_clarifications: number;
+};
+
+async function getJson<T>(path: string): Promise<T> {
+  const res = await fetch(`${API_URL}${path}`);
+  if (!res.ok) throw new Error(`${path}: HTTP ${res.status}`);
+  return (await res.json()) as T;
+}
+
+export function fetchCalendar(
+  calendar: CalendarBackend,
+  start: string,
+  end: string,
+): Promise<CalendarSnapshot> {
+  const q = new URLSearchParams({ calendar, start, end });
+  return getJson(`/calendar?${q}`);
+}
+
+export function fetchDocChunk(id: string): Promise<DocChunk> {
+  return getJson(`/docs?${new URLSearchParams({ id })}`);
+}
+
+export function fetchLimits(): Promise<AgentLimits> {
+  return getJson("/limits");
+}
 
 export type AgentInterrupt = ConfirmInterrupt | ClarifyInterrupt;
 
@@ -420,4 +489,26 @@ export function buildTurnsFromState(
       nodeSequence: t.nodeSequence,
     };
   });
+}
+
+const RESULT_ITEMS = ["created", "deleted", "completed", "moved"] as const;
+
+/** Ids of events and tasks the latest turn's tool calls wrote; the "call finish"
+ * nudge is a user message too, so it does not start a new turn. */
+export function extractChangedIds(values: AgentStateValues | null | undefined): Set<string> {
+  const ids = new Set<string>();
+  const messages = values?.messages ?? [];
+  let start = 0;
+  messages.forEach((m, i) => {
+    if (m.role === "user" && !(m.content ?? "").startsWith("Call `finish` now")) start = i + 1;
+  });
+  for (const m of messages.slice(start)) {
+    if (m.role !== "tool") continue;
+    const result = safeJsonParse(m.content)?.result as Record<string, unknown> | undefined;
+    for (const key of RESULT_ITEMS) {
+      const id = (result?.[key] as { id?: unknown } | undefined)?.id;
+      if (typeof id === "string") ids.add(id);
+    }
+  }
+  return ids;
 }
