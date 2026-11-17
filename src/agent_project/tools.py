@@ -12,7 +12,7 @@ import shutil
 import time
 import unicodedata
 import uuid
-from collections.abc import Callable
+from collections.abc import Callable, Collection
 from dataclasses import dataclass, replace
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
@@ -336,10 +336,11 @@ class CreateEventArgs(BaseModel):
     )
     time_source: Literal["user", "image", "none"] | None = Field(
         None,
-        description="Where the start time comes from: 'user' (the user typed it), "
-        "'image' (read from the attached image) or 'none' (nobody gave a time). "
-        "Never invent a time: with 'none' nothing is added, ask the user instead. "
-        "With 'image', also give the end time shown in the image.",
+        description="Where the start time comes from: 'user' (typed by the user "
+        "or kept from an event returned by a tool), 'image' (read from the "
+        "attached image) or 'none' (nobody gave a time). Never invent a time: "
+        "with 'none' nothing is added, ask the user instead. With 'image', "
+        "also give the end time shown in the image.",
     )
     _end_given: bool = PrivateAttr(False)  # False when end is the 15 min default
 
@@ -384,19 +385,33 @@ class DeleteEventArgs(BaseModel):
 
 
 class ListTasksArgs(BaseModel):
-    """List to-do tasks, optionally only those matching keywords or due by a day."""
+    """List to-do tasks, optionally only those matching keywords or due in a range."""
 
     query: str | None = Field(
         None, max_length=100, description="Keywords the title or notes must contain."
     )
-    due_by: date | None = Field(
-        None, description="Only tasks due on or before this day (overdue included)."
+    due_from: date | None = Field(
+        None, description="Only tasks due on or after this day, YYYY-MM-DD."
     )
+    due_by: date | None = Field(
+        None,
+        description=(
+            "Only tasks due on or before this day "
+            "(overdue included when due_from is omitted)."
+        ),
+    )
+    order: Literal["oldest_first", "newest_first"] = "oldest_first"
     include_completed: bool = False
     limit: int = Field(MAX_RESULTS, ge=1, le=MAX_RESULTS)
     task_list: str | None = Field(
         None, max_length=100, description="Only tasks of this task list (by name)."
     )
+
+    @model_validator(mode="after")
+    def _check_range(self) -> "ListTasksArgs":
+        if self.due_from and self.due_by and self.due_from > self.due_by:
+            raise ValueError("due_from must not be after due_by")
+        return self
 
 
 class CreateTaskArgs(BaseModel):
@@ -731,10 +746,23 @@ class CalendarTools:
             for task in self.tasks
             if (args.include_completed or not task.completed)
             and (not task_list or task.task_list == task_list)
+            and (args.due_from is None or (task.due and task.due >= args.due_from))
             and (args.due_by is None or (task.due and task.due <= args.due_by))
             and all(word in _fold(f"{task.title} {task.notes}") for word in words)
         ]
-        matches.sort(key=lambda t: (t.due is None, t.due or date.max, t.title))
+        matches.sort(
+            key=lambda t: (
+                t.due is None,
+                (
+                    -t.due.toordinal()
+                    if args.order == "newest_first"
+                    else t.due.toordinal()
+                )
+                if t.due
+                else 0,
+                t.title,
+            )
+        )
         return {
             "total_matches": len(matches),
             "returned": min(len(matches), args.limit),
@@ -832,7 +860,8 @@ TOOL_SPECS = (
         "list_tasks",
         ListTasksArgs,
         "List open to-do tasks (Google Tasks or the local task list), sorted by "
-        "due day, with each task's list and the names of all task lists. For "
+        "due day, with each task's list and the names of all task lists. Pass "
+        "both due_from and due_by for tasks due on a specific day or range; for "
         "'what do I have today' use due_by=today together with free_busy for today.",
     ),
     ToolSpec(
@@ -924,7 +953,10 @@ WEEKDAY_NAMES = (
 
 
 def check_event_evidence(
-    args: CreateEventArgs, user_text: str, has_image: bool
+    args: CreateEventArgs,
+    user_text: str,
+    has_image: bool,
+    known_times: Collection[str] = (),
 ) -> dict[str, Any] | None:
     """An error if the event's day or time is not backed by what the user gave."""
     folded = _fold(user_text)
@@ -965,17 +997,21 @@ def check_event_evidence(
         return _error(
             "end_time_required",
             "An event read from an image needs the end time shown in the image. "
-            "If the image shows no time range, ask the user. Nothing was added.",
+            "If the image shows no time range, ask the user with "
+            "finish(outcome='clarify'). Nothing was added.",
         )
     if args.time_source == "user":
         minute = f"[:.]{args.start.minute:02d}" if args.start.minute else r"(?:[:.]00)?"
         # shortcut: a date like "19.10" also counts as the hour 10; parse dates
         # out of user_text first if that ever lets a guessed time through.
-        if not re.search(rf"\b0?{args.start.hour}{minute}\b", user_text):
+        if (
+            not re.search(rf"\b0?{args.start.hour}{minute}\b", user_text)
+            and f"{args.start:%H:%M}" not in known_times
+        ):
             return _error(
                 "time_not_given",
                 f"The user never typed the time {args.start:%H:%M}. Ask the user "
-                "for the time. Nothing was added.",
+                "for the time with finish(outcome='clarify'). Nothing was added.",
             )
     return None
 
@@ -987,14 +1023,18 @@ def execute_tool_call(
     confirm: Confirm | None = None,
     user_text: str | None = None,
     has_image: bool = False,
+    known_times: Collection[str] = (),
+    known_calendars: Collection[str] = (),
 ) -> dict[str, Any]:
     """Check a tool request from the model and run it only if it is allowed.
 
     Checks, in order: the tool exists, the arguments are valid, a calendar to
-    write to was named by the user and a new event's weekday and start time are
-    backed by the user's words or image (when ``user_text`` is given), and a sensitive
-    tool has a real confirmation from a human (``confirm``), never from the model.
-    Never raises: every problem becomes an error observation the model can read.
+    write to was named by the user (or is the default / deleted event's calendar)
+    and a new event's weekday and start time are backed by the user's words,
+    image, or tool-returned event times (when ``user_text`` is given), and a
+    sensitive tool has a real confirmation from a human (``confirm``), never
+    from the model. Never raises: every problem becomes an error observation the
+    model can read.
     """
     started = time.perf_counter()
     parsed = _parse_call(name, raw_arguments)
@@ -1009,15 +1049,23 @@ def execute_tool_call(
             target = tools.target_calendar(chosen) if chosen else None
         except ToolError:
             target = None  # create_event reports calendar_not_found itself
-        if target and not named_in(target, user_text):
+        if (
+            target
+            and target != tools.store.default_calendar
+            and target not in known_calendars
+            and not named_in(target, user_text)
+        ):
             return _error(
                 "calendar_not_specified",
                 f"The user never named the calendar {target!r}. Ask the user "
-                "which calendar to use; nothing was added.",
+                "which calendar to use with finish(outcome='clarify'); nothing "
+                "was added.",
                 calendars=tools.calendars,
             )
     if spec.name == "create_event" and user_text is not None:
-        refused = check_event_evidence(args, user_text, has_image)
+        refused = check_event_evidence(
+            args, user_text, has_image, known_times=known_times
+        )
         if refused:
             return refused
 

@@ -133,7 +133,6 @@ def test_plain_text_requires_explicit_finish(tmp_path, text, outcome) -> None:
     assert result.steps == 2
 
 
-
 def test_plain_text_retry_retains_tool_context(tmp_path, monkeypatch) -> None:
     original_complete = MockClient.complete
     history = []
@@ -590,3 +589,82 @@ def test_second_plain_text_answer_is_taken_as_the_answer(tmp_path) -> None:
     assert result.status == "success"
     assert result.answer == "Masz dwa wydarzenia."
     assert result.steps == 2
+
+
+@pytest.mark.parametrize("outcome", ["answered", "not_found"])
+def test_non_clarify_ending_with_question_is_rejected_until_clarify(
+    tmp_path, outcome
+) -> None:
+    question = "Dodałem zadania. O której godzinie mam Ci przypomnieć?"
+    result, events = run(
+        [
+            reply(("finish", {"outcome": outcome, "answer": question})),
+            reply(("finish", {"outcome": "clarify", "answer": question})),
+        ],
+        tmp_path,
+    )
+    assert result.status == "clarify"
+    assert result.answer == question
+    assert result.steps == 2
+    err = next(e["payload"] for e in events if e["event"] == "tool_result")
+    assert err["error"]["code"] == "question_needs_clarify"
+
+
+def test_second_plain_text_question_becomes_clarify(tmp_path) -> None:
+    result, _ = run(
+        [reply(text="O której godzinie?"), reply(text="O której godzinie?")],
+        tmp_path,
+    )
+    assert result.status == "clarify"
+    assert result.answer == "O której godzinie?"
+
+
+def test_reschedule_event_allows_default_calendar_and_tool_time(tmp_path) -> None:
+    from dataclasses import replace
+
+    tools = CalendarTools.from_file(working_copy(CALENDAR, tmp_path / "calendar.ics"))
+    tools.store.calendars = ["Krysitan", "Rodzina"]
+    tools.store.default_calendar = "Krysitan"
+    tools.store.events[:] = [
+        replace(e, calendar="Krysitan") for e in tools.store.events
+    ]
+    target_id = "evt-013@calendar.local"  # Siłownia 2026-10-19T18:00..19:30
+
+    trace = tmp_path / "trace.jsonl"
+    result = run_agent(
+        goal="Przenieś wydarzenie na dzisiaj, ta sama godzina",
+        client=MockClient(
+            [
+                reply(
+                    (
+                        "free_busy",
+                        {"start": "2026-10-19T00:00", "end": "2026-10-19T23:59"},
+                    )
+                ),
+                reply(("delete_event", {"id": target_id})),
+                reply(
+                    (
+                        "create_event",
+                        {
+                            "title": "Siłownia",
+                            "start": "2026-10-16T18:00",
+                            "end": "2026-10-16T19:30",
+                            "calendar": "Krysitan",
+                            "time_source": "user",
+                        },
+                    )
+                ),
+                reply(("finish", {"outcome": "answered", "answer": "Przeniesiono."})),
+            ]
+        ),
+        tools=tools,
+        trace_path=trace,
+        today=TODAY,
+        confirm=lambda _q: True,
+        **LIMITS,
+    )
+    assert result.status == "success"
+    assert any(
+        e.title == "Siłownia" and e.start.isoformat() == "2026-10-16T18:00:00"
+        for e in tools.events
+    )

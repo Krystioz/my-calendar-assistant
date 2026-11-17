@@ -408,3 +408,76 @@ def test_event_day_and_time_must_be_backed_by_the_user(
     assert (result.get("error") or {}).get("code") == code, result
     if code == "weekday_mismatch":
         assert "2026-10-19" in result["error"]["message"]
+
+
+def test_list_tasks_filters_due_from_and_orders_newest_first(writable) -> None:
+    execute_tool_call(writable, "create_task", {"title": "Stare", "due": "2026-10-18"})
+    execute_tool_call(writable, "create_task", {"title": "Jutro", "due": "2026-10-20"})
+    execute_tool_call(writable, "create_task", {"title": "Bez daty"})
+
+    exact = execute_tool_call(
+        writable, "list_tasks", {"due_from": "2026-10-20", "due_by": "2026-10-20"}
+    )
+    assert [t["title"] for t in exact["result"]["tasks"]] == ["Jutro"]
+
+    newest = execute_tool_call(writable, "list_tasks", {"order": "newest_first"})
+    assert [t["title"] for t in newest["result"]["tasks"]] == [
+        "Jutro",
+        "Stare",
+        "Bez daty",
+    ]
+
+    bad = execute_tool_call(
+        writable, "list_tasks", {"due_from": "2026-10-21", "due_by": "2026-10-20"}
+    )
+    assert bad["error"]["code"] == "invalid_arguments"
+
+
+def test_create_event_allows_default_calendar_and_known_evidence(
+    two_calendars,
+) -> None:
+    two_calendars.store.default_calendar = "Prywatne"
+    ok_default = execute_tool_call(
+        two_calendars,
+        "create_event",
+        {
+            **EVENT,
+            "start": "2026-11-02T16:00",
+            "end": "2026-11-02T17:00",
+            "calendar": "Prywatne",
+        },
+        user_text="przenieś wydarzenie na poniedziałek, ten sam czas",
+        known_times={"16:00"},
+    )
+    assert ok_default["ok"]
+
+    still_rejected = execute_tool_call(
+        two_calendars,
+        "create_event",
+        {
+            **EVENT,
+            "title": "Zakupy",
+            "start": "2026-11-02T16:00",
+            "end": "2026-11-02T17:00",
+            "calendar": "Rodzina",
+        },
+        user_text="przenieś wydarzenie na poniedziałek, ten sam czas",
+        known_times={"16:00"},
+    )
+    assert still_rejected["error"]["code"] == "calendar_not_specified"
+
+    ok_deleted = execute_tool_call(
+        two_calendars,
+        "create_event",
+        {
+            **EVENT,
+            "title": "Zakupy",
+            "start": "2026-11-02T18:00",
+            "end": "2026-11-02T19:00",
+            "calendar": "Rodzina",
+        },
+        user_text="przenieś wydarzenie na poniedziałek, ten sam czas",
+        known_times={"18:00"},
+        known_calendars={"Rodzina"},
+    )
+    assert ok_deleted["ok"]

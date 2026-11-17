@@ -60,7 +60,9 @@ def build_server(tools: CalendarTools) -> MCPServer:
 
     def list_tasks(
         query: str | None = None,
+        due_from: str | None = None,
         due_by: str | None = None,
+        order: str | None = None,
         include_completed: bool | None = None,
         limit: int | None = None,
         task_list: str | None = None,
