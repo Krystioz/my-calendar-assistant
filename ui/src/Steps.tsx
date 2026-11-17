@@ -15,7 +15,7 @@ function ToolResultView({ raw }: { raw: string | null }) {
 
   if (raw === null) {
     return (
-      <div className="text-xs italic text-zinc-400 dark:text-zinc-500">
+      <div className="text-xs italic text-zinc-500">
         Pending result...
       </div>
     );
@@ -35,6 +35,7 @@ function ToolResultView({ raw }: { raw: string | null }) {
         <button
           type="button"
           onClick={() => setExpanded((prev) => !prev)}
+          aria-expanded={expanded}
           className="mt-1 text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
         >
           {expanded ? "Show less" : `Show full (${formatted.length} chars)`}
@@ -64,11 +65,12 @@ export function Steps({ nodeSequence, toolCalls, defaultOpen = false }: StepsPro
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
+        aria-expanded={open}
         className="flex w-full items-center justify-between px-3 py-2 text-left text-xs font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
       >
         <span>
           Steps
-          <span className="ml-2 font-normal text-zinc-400 dark:text-zinc-500">
+          <span className="ml-2 font-normal text-zinc-500">
             {nodeSequence.length > 0 ? `${nodeSequence.length} nodes` : ""}
             {nodeSequence.length > 0 && modelSteps > 0 ? " · " : ""}
             {modelSteps > 0
@@ -76,7 +78,7 @@ export function Steps({ nodeSequence, toolCalls, defaultOpen = false }: StepsPro
               : ""}
           </span>
         </span>
-        <span className="text-[11px]">{open ? "▲" : "▼"}</span>
+        <span aria-hidden="true" className="text-[11px]">{open ? "▲" : "▼"}</span>
       </button>
 
       {open && (
@@ -146,7 +148,7 @@ function ToolCallBody({ tc }: { tc: ToolCallStep }) {
             type="button"
             onClick={() => setRawOpen((prev) => !prev)}
             aria-expanded={rawOpen}
-            className="text-[11px] font-medium text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+            className="text-[11px] font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
           >
             {rawOpen ? "Hide raw JSON" : "raw JSON"}
           </button>
@@ -155,7 +157,7 @@ function ToolCallBody({ tc }: { tc: ToolCallStep }) {
       {(view === null || rawOpen) && (
         <>
           <div>
-            <div className="mb-0.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400">
+            <div className="mb-0.5 text-[11px] font-medium uppercase tracking-wide text-zinc-500">
               Arguments
             </div>
             <pre className="overflow-x-auto rounded bg-zinc-100 p-2 text-xs text-zinc-800 dark:bg-zinc-900 dark:text-zinc-200">
@@ -163,7 +165,7 @@ function ToolCallBody({ tc }: { tc: ToolCallStep }) {
             </pre>
           </div>
           <div>
-            <div className="mb-0.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400">
+            <div className="mb-0.5 text-[11px] font-medium uppercase tracking-wide text-zinc-500">
               Result
             </div>
             <ToolResultView raw={tc.resultRaw} />

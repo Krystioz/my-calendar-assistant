@@ -81,8 +81,9 @@ export function CalendarPanel({ calendar, anchorDate, refreshKey, changedIds }: 
       .filter((e) => e.start.slice(0, 10) === day)
       .sort((a, b) => Number(b.all_day) - Number(a.all_day) || a.start.localeCompare(b.start));
   const tasks = (data?.tasks ?? [])
-    .filter((t) => !t.completed && t.due !== null && t.due < end)
-    .sort((a, b) => (a.due ?? "").localeCompare(b.due ?? ""));
+    .filter((t) => !t.completed && (t.due === null || t.due < end))
+    // Undated tasks go last: "~" sorts after any ISO date.
+    .sort((a, b) => (a.due ?? "~").localeCompare(b.due ?? "~"));
   const realToday = formatDay(new Date());
 
   const navBtn =
@@ -102,13 +103,17 @@ export function CalendarPanel({ calendar, anchorDate, refreshKey, changedIds }: 
         </button>
       </div>
 
-      <div className="flex-1 space-y-4 overflow-y-auto px-3 py-3 text-sm">
+      {/* Old data stays up while the next fetch runs: dim it so it does not pass for current */}
+      <div
+        aria-busy={loading}
+        className={`flex-1 space-y-4 overflow-y-auto px-3 py-3 text-sm transition-opacity ${loading && data ? "opacity-50" : ""}`}
+      >
         {error ? (
-          <div className="rounded-lg border border-red-200 bg-red-50/80 px-3 py-2 text-xs text-red-900 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-100">
+          <div role="alert" className="rounded-lg border border-red-200 bg-red-50/80 px-3 py-2 text-xs text-red-900 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-100">
             The /calendar endpoint is unavailable: {error}
           </div>
         ) : !data && loading ? (
-          <div className="text-xs text-zinc-400">Loading calendar...</div>
+          <div className="text-xs text-zinc-500">Loading calendar...</div>
         ) : (
           <>
             {days.map((day) => {
@@ -119,7 +124,7 @@ export function CalendarPanel({ calendar, anchorDate, refreshKey, changedIds }: 
                     {dayLabel(day)}
                   </h3>
                   {events.length === 0 ? (
-                    <div className="text-xs text-zinc-400 dark:text-zinc-500">No events</div>
+                    <div className="text-xs text-zinc-500">No events</div>
                   ) : (
                     <ul className="space-y-1">
                       {events.map((e) => {
@@ -154,12 +159,12 @@ export function CalendarPanel({ calendar, anchorDate, refreshKey, changedIds }: 
                 Open tasks
               </h3>
               {tasks.length === 0 ? (
-                <div className="text-xs text-zinc-400 dark:text-zinc-500">No open tasks due</div>
+                <div className="text-xs text-zinc-500">No open tasks</div>
               ) : (
                 <ul className="space-y-1">
                   {tasks.map((t) => {
                     const changed = changedIds.has(t.id);
-                    const overdue = (t.due ?? "") < (anchorDate || realToday);
+                    const overdue = t.due !== null && t.due < (anchorDate || realToday);
                     return (
                       <li
                         key={t.id}
@@ -171,7 +176,7 @@ export function CalendarPanel({ calendar, anchorDate, refreshKey, changedIds }: 
                             overdue ? "font-medium text-red-600 dark:text-red-400" : "text-zinc-500 dark:text-zinc-400"
                           }`}
                         >
-                          {t.due}
+                          {t.due ?? "no date"}
                         </span>
                         <span className="min-w-0 flex-1 truncate text-zinc-800 dark:text-zinc-100">{t.title}</span>
                         {changed && <ChangedTag />}

@@ -109,7 +109,7 @@ export function Message({
     <div className="space-y-4">
       {/* User bubble (right) */}
       <div className="flex justify-end">
-        <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl bg-zinc-100 px-4 py-2.5 text-sm leading-relaxed text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100">
+        <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl bg-zinc-100 px-4 py-2.5 text-sm leading-relaxed text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100">
           {turn.userImage && (
             <img
               src={turn.userImage}
@@ -127,8 +127,8 @@ export function Message({
         {isStreamingTurn && (
           <div className="rounded-lg border border-zinc-200 bg-zinc-50/80 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900/60">
             <div className="mb-1.5 flex items-center gap-2 text-xs font-medium text-zinc-600 dark:text-zinc-300">
-              <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-blue-500" />
-              <span>
+              <span className="inline-block h-2 w-2 rounded-full bg-blue-500 motion-safe:animate-pulse" />
+              <span role="status">
                 {activeNode ? `Running: ${activeNode}` : "Starting run..."}
               </span>
             </div>
@@ -175,7 +175,14 @@ export function Message({
                 </div>
               )}
             <div className="markdown-body text-sm leading-relaxed">
-              <Markdown>{turn.assistantAnswer}</Markdown>
+              <Markdown
+                components={{
+                  // Open links outside the app so the conversation is not lost.
+                  a: ({ node: _node, ...props }) => <a {...props} target="_blank" rel="noreferrer" />,
+                }}
+              >
+                {turn.assistantAnswer}
+              </Markdown>
             </div>
           </div>
         )}
@@ -199,7 +206,7 @@ export function Message({
 
         {/* Unhandled server / run error */}
         {runError && (
-          <div className="rounded-xl border border-red-200 bg-red-50/80 px-4 py-3 text-sm text-red-900 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-100">
+          <div role="alert" className="rounded-xl border border-red-200 bg-red-50/80 px-4 py-3 text-sm text-red-900 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-100">
             <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-red-700 dark:text-red-400">
               Error
             </div>
@@ -230,12 +237,18 @@ export function Message({
                 type="button"
                 disabled={disableActions}
                 onClick={() => onConfirm(true)}
-                className="rounded-lg bg-zinc-900 px-3.5 py-1.5 text-xs font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+                className={`rounded-lg px-3.5 py-1.5 text-xs font-medium text-white disabled:opacity-50 ${
+                  isDelete
+                    ? "bg-red-600 hover:bg-red-700"
+                    : "bg-zinc-900 hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+                }`}
               >
                 {isDelete ? "Delete" : "Yes"}
               </button>
+              {/* Focus lands on the safe choice, never on Delete */}
               <button
                 type="button"
+                autoFocus
                 disabled={disableActions}
                 onClick={() => onConfirm(false)}
                 className="rounded-lg border border-zinc-300 bg-white px-3.5 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
@@ -264,10 +277,11 @@ export function Message({
             <button
               type="button"
               onClick={() => setGraphOpen((prev) => !prev)}
+              aria-expanded={graphOpen}
               className="flex w-full items-center justify-between px-3 py-2 text-left text-xs font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
             >
               <span>Graph</span>
-              <span className="text-[11px]">{graphOpen ? "▲" : "▼"}</span>
+              <span aria-hidden="true" className="text-[11px]">{graphOpen ? "▲" : "▼"}</span>
             </button>
             {graphOpen && (
               <div className="border-t border-zinc-200 p-3 dark:border-zinc-800">
@@ -304,7 +318,7 @@ export function Message({
                   <>
                     {" · "}
                     <BudgetMeter
-                      label={`${formatCost(turn.costUsd)} / ${limits.max_cost_usd}`}
+                      label={`${formatCost(turn.costUsd)} / $${limits.max_cost_usd}`}
                       used={turn.costUsd}
                       max={limits.max_cost_usd}
                     />

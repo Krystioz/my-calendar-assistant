@@ -1,4 +1,8 @@
+import { createContext, useContext } from "react";
 import type { CalendarEvent, CalendarTask } from "./api";
+
+/** The conversation's "Today" override ("" = real date), so task urgency matches the calendar panel. */
+export const TodayContext = createContext("");
 
 /** Naive local ISO -> Date. `new Date("YYYY-MM-DD")` is UTC midnight, so build date-only values by hand. */
 export function parseLocal(s: string): Date {
@@ -62,7 +66,7 @@ function todayIso(): string {
 }
 
 export function TaskRow({ task, tag }: { task: CalendarTask; tag?: CardTag }) {
-  const today = todayIso();
+  const today = useContext(TodayContext) || todayIso();
   // ISO dates compare correctly as strings.
   const dueClass =
     task.completed || !task.due
@@ -87,7 +91,7 @@ export function TaskRow({ task, tag }: { task: CalendarTask; tag?: CardTag }) {
       {tag && <Badge {...tag} />}
       <span
         className={`min-w-0 flex-1 truncate ${
-          task.completed ? "text-zinc-400 line-through" : "text-zinc-900 dark:text-zinc-100"
+          task.completed ? "text-zinc-500 line-through dark:text-zinc-400" : "text-zinc-900 dark:text-zinc-100"
         }`}
       >
         {task.title}

@@ -9,6 +9,7 @@ import type { Thread } from "@langchain/langgraph-sdk";
 import type { GraphShape } from "./GraphMap";
 import { Message } from "./Message";
 import { CalendarPanel } from "./CalendarPanel";
+import { TodayContext } from "./cards";
 import {
   ASSISTANT_ID,
   buildTurnsFromState,
@@ -87,6 +88,8 @@ export function App() {
 
   const loadSeqRef = useRef(0);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  // Follow new output only while the user is at the bottom of the chat.
+  const stickToBottomRef = useRef(true);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   async function refreshThreads() {
@@ -137,8 +140,28 @@ export function App() {
   );
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [turns.length, activeNode, interrupt, runError]);
+    if (!stickToBottomRef.current) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    bottomRef.current?.scrollIntoView({ behavior: reduce ? "auto" : "smooth" });
+  }, [turns.length, stateValues, activeNode, interrupt, runError]);
+
+  // Give the composer focus back after a run; a confirm prompt focuses its own button.
+  // Only with a fine pointer, so phones do not pop the keyboard after every answer.
+  useEffect(() => {
+    if (isStreaming || loadingThread || interrupt?.kind === "confirm") return;
+    if (window.matchMedia("(pointer: fine)").matches) textareaRef.current?.focus();
+  }, [isStreaming, loadingThread, interrupt]);
+
+  // Escape closes the overlay drawers; from lg up the calendar is a column, not an overlay.
+  useEffect(() => {
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setSidebarOpen(false);
+      if (!window.matchMedia("(min-width: 1024px)").matches) setPanelOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   useEffect(() => {
     const el = textareaRef.current;
@@ -156,9 +179,14 @@ export function App() {
     setToday(settings.today);
     setSidebarOpen(false);
     setLoadingThread(true);
+    // Drop the previous conversation so its confirm buttons cannot act on this one.
+    setStateValues(null);
+    setInterrupt(null);
+    setNodeSequence([]);
     setRunError(null);
     setTurnTotals({});
     setRefreshKey((k) => k + 1);
+    stickToBottomRef.current = true;
 
     try {
       const [st, hist] = await Promise.all([
@@ -202,6 +230,7 @@ export function App() {
     setTurnTotals({});
     setRunError(null);
     setActiveNode(null);
+    setLoadingThread(false);
     setSidebarOpen(false);
     textareaRef.current?.focus();
   }
@@ -217,6 +246,7 @@ export function App() {
     setIsStreaming(true);
     setActiveNode(null);
     setRunError(null);
+    stickToBottomRef.current = true;
     // A resume re-runs the paused node from its start; history already lists
     // it once, so its first update must not add it a second time.
     let skipResumedNode = "command" in payload;
@@ -270,7 +300,7 @@ export function App() {
       setRunError(err instanceof Error ? err.message : "Run failed");
     } finally {
       setActiveNode(null);
-      setIsStreaming(false);
+      // Stay busy until the final state lands, so a thread switch cannot be overwritten by it.
       try {
         const [freshState, hist] = await Promise.all([
           client.threads.getState<AgentStateValues>(threadId),
@@ -294,6 +324,7 @@ export function App() {
           prev ?? (err instanceof Error ? err.message : "Failed to fetch final state"),
         );
       }
+      setIsStreaming(false);
       setRefreshKey((k) => k + 1);
       void refreshThreads();
     }
@@ -307,9 +338,6 @@ export function App() {
     }
 
     if (override === undefined) setInput("");
-    const sentImage = image;
-    setImage(null);
-    setImageError(null);
 
     if (selectedThreadId !== null && interrupt?.kind === "clarify") {
       const targetThreadId = selectedThreadId;
@@ -331,7 +359,13 @@ export function App() {
       return;
     }
 
-    // New thread (either from New chat screen or after a finished thread)
+    // New thread (either from New chat screen or after a finished thread).
+    // Only a new thread takes the image; a clarify reply keeps it for later.
+    const sentImage = image;
+    setImage(null);
+    setImageError(null);
+    // Busy from here, so a slow create cannot be sent twice.
+    setIsStreaming(true);
     const runCalendar = calendar;
     const runToday = today;
     setStateValues({
@@ -377,6 +411,9 @@ export function App() {
       setRunError(
         err instanceof Error ? err.message : "Failed to start conversation",
       );
+      // Give the draft back so the user can retry.
+      if (override === undefined) setInput(text);
+      setImage(sentImage);
       setIsStreaming(false);
     }
   }
@@ -507,8 +544,9 @@ export function App() {
 
       {/* Left sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-30 flex w-64 shrink-0 flex-col border-r border-zinc-200 bg-zinc-50 transition-transform duration-150 dark:border-zinc-800 dark:bg-zinc-900 md:static md:translate-x-0 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed inset-y-0 left-0 z-30 flex w-64 shrink-0 flex-col border-r border-zinc-200 bg-zinc-50 transition-[translate,visibility] duration-150 dark:border-zinc-800 dark:bg-zinc-900 md:visible md:static md:translate-x-0 ${
+          // invisible, not just off screen, so its buttons leave the Tab order
+          sidebarOpen ? "translate-x-0" : "invisible -translate-x-full"
         }`}
       >
         <div className="p-3">
@@ -532,7 +570,7 @@ export function App() {
 
         <div className="flex-1 overflow-y-auto px-2 pb-4">
           {threadsLoading ? (
-            <div className="px-3 py-2 text-xs text-zinc-400">
+            <div className="px-3 py-2 text-xs text-zinc-500">
               Loading conversations...
             </div>
           ) : threadsError ? (
@@ -540,11 +578,11 @@ export function App() {
               {threadsError}
             </div>
           ) : threads.length === 0 ? (
-            <div className="px-3 py-2 text-xs text-zinc-400">
+            <div className="px-3 py-2 text-xs text-zinc-500">
               No conversations yet
             </div>
           ) : visibleThreads.length === 0 ? (
-            <div className="px-3 py-2 text-xs text-zinc-400">
+            <div className="px-3 py-2 text-xs text-zinc-500">
               No matching conversations
             </div>
           ) : (
@@ -568,7 +606,7 @@ export function App() {
                           if (e.key === "Enter") e.currentTarget.blur();
                           if (e.key === "Escape") setEditingId(null);
                         }}
-                        className="w-full rounded-md border border-zinc-400 bg-white px-2 py-1 text-sm text-zinc-900 focus:outline-none dark:border-zinc-500 dark:bg-zinc-950 dark:text-zinc-100"
+                        className="w-full rounded-md border border-zinc-400 bg-white px-2 py-1 text-sm text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 dark:border-zinc-500 dark:bg-zinc-950 dark:text-zinc-100"
                       />
                     </li>
                   );
@@ -604,15 +642,20 @@ export function App() {
                         <span
                           className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500"
                           title="Waiting for input"
-                        />
+                        >
+                          <span className="sr-only">Waiting for input</span>
+                        </span>
                       ) : failed ? (
                         <span
                           className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500"
                           title="Ended with an error"
-                        />
+                        >
+                          <span className="sr-only">Ended with an error</span>
+                        </span>
                       ) : null}
                     </button>
-                    <div className="flex shrink-0 items-center pr-1 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
+                    {/* Always visible on touch widths, where hover does not exist */}
+                    <div className="flex shrink-0 items-center pr-1 transition-opacity md:opacity-0 md:group-focus-within:opacity-100 md:group-hover:opacity-100">
                       <button
                         type="button"
                         disabled={isStreaming}
@@ -652,6 +695,7 @@ export function App() {
               onClick={() => setSidebarOpen((prev) => !prev)}
               className="rounded-md p-1.5 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 md:hidden"
               aria-label="Toggle sidebar"
+              aria-expanded={sidebarOpen}
             >
               ☰
             </button>
@@ -663,10 +707,10 @@ export function App() {
           <div className="flex shrink-0 items-center gap-1.5">
             {selectedThreadId !== null && (
               <>
-              <span className="rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-0.5 text-xs text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
+              <span className="hidden rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-0.5 text-xs text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 sm:inline">
                 Calendar: <strong className="font-medium">{calendar}</strong>
               </span>
-              <span className="rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-0.5 text-xs text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
+              <span className="hidden rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-0.5 text-xs text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 sm:inline">
                 Today:{" "}
                 <strong className="font-medium">
                   {today || "real date"}
@@ -690,9 +734,16 @@ export function App() {
         </header>
 
         {/* Scrollable chat column */}
-        <main className="flex-1 overflow-y-auto px-4 py-6">
+        <main
+          onScroll={(e) => {
+            const el = e.currentTarget;
+            stickToBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+          }}
+          className="flex-1 overflow-y-auto px-4 py-6"
+        >
           <div className="mx-auto max-w-3xl">
-            {selectedThreadId === null ? (
+            {/* stateValues is set before the thread exists, so a first send shows its turn and errors */}
+            {selectedThreadId === null && stateValues === null ? (
               <div className="flex min-h-[55vh] flex-col items-center justify-center text-center">
                 <h2 className="mb-2 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
                   Calendar Assistant
@@ -704,14 +755,22 @@ export function App() {
                 <div className="w-full max-w-md rounded-2xl border border-zinc-200 bg-zinc-50/70 p-4 text-left dark:border-zinc-800 dark:bg-zinc-900/60">
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="mb-1.5 block text-xs font-medium text-zinc-600 dark:text-zinc-300">
+                      <span
+                        id="calendar-label"
+                        className="mb-1.5 block text-xs font-medium text-zinc-600 dark:text-zinc-300"
+                      >
                         Calendar
-                      </label>
-                      <div className="grid grid-cols-2 gap-1.5 rounded-lg border border-zinc-200 bg-white p-1 dark:border-zinc-700 dark:bg-zinc-950">
+                      </span>
+                      <div
+                        role="group"
+                        aria-labelledby="calendar-label"
+                        className="grid grid-cols-2 gap-1.5 rounded-lg border border-zinc-200 bg-white p-1 dark:border-zinc-700 dark:bg-zinc-950"
+                      >
                         {(["local", "google"] as const).map((option) => (
                           <button
                             key={option}
                             type="button"
+                            aria-pressed={calendar === option}
                             onClick={() => setCalendar(option)}
                             className={`rounded-md px-2.5 py-1.5 text-xs font-medium capitalize transition-colors ${
                               calendar === option
@@ -768,10 +827,11 @@ export function App() {
                 </div>
               </div>
             ) : loadingThread ? (
-              <div className="py-12 text-center text-sm text-zinc-400">
+              <div role="status" className="py-12 text-center text-sm text-zinc-500">
                 Loading conversation...
               </div>
             ) : (
+              <TodayContext.Provider value={today}>
               <div className="space-y-8">
                 {turns.map((turn, idx) => {
                   const isLast = idx === turns.length - 1;
@@ -797,12 +857,13 @@ export function App() {
                   );
                 })}
                 {turns.length === 0 && runError && (
-                  <div className="rounded-xl border border-red-200 bg-red-50/80 px-4 py-3 text-sm text-red-900 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-100">
+                  <div role="alert" className="rounded-xl border border-red-200 bg-red-50/80 px-4 py-3 text-sm text-red-900 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-100">
                     {runError}
                   </div>
                 )}
                 <div ref={bottomRef} />
               </div>
+              </TodayContext.Provider>
             )}
           </div>
         </main>
@@ -866,6 +927,7 @@ export function App() {
                 onKeyDown={handleKeyDown}
                 onPaste={isWaitingClarify ? undefined : handlePaste}
                 placeholder={composerPlaceholder}
+                aria-label="Message"
                 className="max-h-40 flex-1 resize-none bg-transparent py-1 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none disabled:opacity-50 dark:text-zinc-100 dark:placeholder:text-zinc-500"
               />
               <button

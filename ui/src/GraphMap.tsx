@@ -147,18 +147,19 @@ export function GraphMap({ graph, visits, transitions, current }: GraphMapProps)
 
   return (
     <div className="w-full overflow-x-auto">
+      {/* The Mermaid theme and class colours are light-only: keep a light card under them in dark mode */}
       <div
         ref={containerRef}
         className={
           unavailable
             ? "hidden"
-            : "flex justify-center [&_svg]:max-w-full [&_svg]:h-auto"
+            : "flex justify-center rounded-md bg-white p-2 [&_svg]:max-w-full [&_svg]:h-auto"
         }
       />
       {unavailable && (
-        <p className="py-4 text-center text-xs text-slate-500">Graph unavailable</p>
+        <p className="py-4 text-center text-xs text-slate-500 dark:text-slate-400">Graph unavailable</p>
       )}
-      <div className="mt-2 flex flex-wrap items-center gap-4 text-xs text-slate-600">
+      <div className="mt-2 flex flex-wrap items-center gap-4 text-xs text-slate-600 dark:text-slate-300">
         <span className="inline-flex items-center gap-1.5">
           <span className="inline-block h-3 w-3 rounded border border-slate-300 bg-slate-100" />
           not visited
