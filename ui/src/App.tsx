@@ -90,6 +90,7 @@ export function App() {
   const bottomRef = useRef<HTMLDivElement | null>(null);
   // Follow new output only while the user is at the bottom of the chat.
   const stickToBottomRef = useRef(true);
+  const lastScrollTopRef = useRef(0);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   async function refreshThreads() {
@@ -149,6 +150,9 @@ export function App() {
   // Only with a fine pointer, so phones do not pop the keyboard after every answer.
   useEffect(() => {
     if (isStreaming || loadingThread || interrupt?.kind === "confirm") return;
+    // Leave focus alone if the user moved it elsewhere, e.g. into thread search.
+    const active = document.activeElement;
+    if (active && active !== document.body && active !== textareaRef.current) return;
     if (window.matchMedia("(pointer: fine)").matches) textareaRef.current?.focus();
   }, [isStreaming, loadingThread, interrupt]);
 
@@ -368,6 +372,8 @@ export function App() {
     setIsStreaming(true);
     const runCalendar = calendar;
     const runToday = today;
+    // Leave the old thread now, so a failed create does not show under its title.
+    setSelectedThreadId(null);
     setStateValues({
       goal: text,
       image: sentImage,
@@ -604,7 +610,11 @@ export function App() {
                         onBlur={() => void saveRename(thread)}
                         onKeyDown={(e) => {
                           if (e.key === "Enter") e.currentTarget.blur();
-                          if (e.key === "Escape") setEditingId(null);
+                          if (e.key === "Escape") {
+                            // Cancel the rename only; do not close the mobile sidebar too.
+                            e.stopPropagation();
+                            setEditingId(null);
+                          }
                         }}
                         className="w-full rounded-md border border-zinc-400 bg-white px-2 py-1 text-sm text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 dark:border-zinc-500 dark:bg-zinc-950 dark:text-zinc-100"
                       />
@@ -736,8 +746,13 @@ export function App() {
         {/* Scrollable chat column */}
         <main
           onScroll={(e) => {
+            // Only an upward scroll stops following: our own smooth scroll moves down
+            // and fires scroll events while still far from the bottom.
             const el = e.currentTarget;
-            stickToBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+            const near = el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+            if (near) stickToBottomRef.current = true;
+            else if (el.scrollTop < lastScrollTopRef.current) stickToBottomRef.current = false;
+            lastScrollTopRef.current = el.scrollTop;
           }}
           className="flex-1 overflow-y-auto px-4 py-6"
         >

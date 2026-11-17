@@ -82,8 +82,10 @@ export function CalendarPanel({ calendar, anchorDate, refreshKey, changedIds }: 
       .sort((a, b) => Number(b.all_day) - Number(a.all_day) || a.start.localeCompare(b.start));
   const tasks = (data?.tasks ?? [])
     .filter((t) => !t.completed && (t.due === null || t.due < end))
-    // Undated tasks go last: "~" sorts after any ISO date.
-    .sort((a, b) => (a.due ?? "~").localeCompare(b.due ?? "~"));
+    // Undated tasks go last; ISO dates compare correctly as plain strings.
+    .sort((a, b) =>
+      a.due === b.due ? 0 : a.due === null ? 1 : b.due === null ? -1 : a.due < b.due ? -1 : 1,
+    );
   const realToday = formatDay(new Date());
 
   const navBtn =
