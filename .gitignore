@@ -34,7 +34,7 @@ htmlcov/
 traces/*
 !traces/.gitkeep
 /workspace/
-/docs/
+
 *.sqlite
 *.sqlite3
 *.sqlite-*
@@ -52,3 +52,6 @@ traces/*
 .DS_Store
 Thumbs.db
 Desktop.ini
+CLAUDE.md
+AGENTS.md
+docs
