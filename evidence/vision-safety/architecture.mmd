@@ -1,33 +1,30 @@
 flowchart LR
-    subgraph IN["Wejście (granica zaufania)"]
-        U["Cel użytkownika<br/>(tekst)"]
-        I["Obraz PNG/JPEG/WebP<br/>≤ 5 MB, opcjonalny"]
+    subgraph IN["Input (trust boundary)"]
+        U["User goal<br/>(text)"]
+        I["PNG/JPEG/WebP image<br/>≤ 5 MB, optional"]
     end
-
-    subgraph MODEL["Model (OpenRouter, Gemma 4) — tylko PROPONUJE"]
-        M["Jedna typowana akcja na krok:<br/>tool call = nazwa + argumenty<br/>(np. create_event, delete_event, finish)"]
+    subgraph MODEL["Model (OpenRouter, Gemma 4) — only PROPOSES"]
+        M["One typed action per step:<br/>tool call = name + arguments<br/>(e.g. create_event, delete_event, finish)"]
     end
-
-    subgraph APP["Aplikacja (Python) — SPRAWDZA i WYKONUJE"]
-        V0["check_image:<br/>typ, base64, rozmiar"]
-        V1["Pydantic: schemat argumentów<br/>(CreateEventArgs, FinishArgs…)"]
-        V2["Kalendarz nazwany w tekście<br/>użytkownika (nie w obrazie)"]
-        V3["Dowód dnia i godziny:<br/>dzień tygodnia, time_source,<br/>koniec z obrazu"]
-        V4["Akcja wrażliwa (delete_*):<br/>potwierdzenie człowieka"]
-        L["Limity: 12 kroków, 0.10 USD,<br/>≤ 5 wywołań na krok"]
-        X["Wykonanie w piaskownicy:<br/>kopia robocza .ics (IcsStore)"]
+    subgraph APP["Application (Python) — VALIDATES and EXECUTES"]
+        V0["check_image:<br/>type, base64, size"]
+        V1["Pydantic: argument schema<br/>(CreateEventArgs, FinishArgs…)"]
+        V2["Calendar named in user text<br/>(not in the image)"]
+        V3["Day and time evidence:<br/>weekday, time_source,<br/>end time from image"]
+        V4["Sensitive action (delete_*):<br/>human confirmation"]
+        L["Limits: 12 steps, USD 0.10,<br/>≤ 5 calls per step"]
+        X["Sandbox execution:<br/>working .ics copy (IcsStore)"]
     end
-
     U --> V0
     I --> V0
-    V0 -->|"wiadomość user: tekst + obraz"| M
-    M -->|"propozycja"| V1
+    V0 -->|"user message: text + image"| M
+    M -->|"proposal"| V1
     V1 -->|"OK"| V2 --> V3 --> V4 --> X
     V1 -. "invalid_arguments" .-> O
     V2 -. "calendar_not_specified" .-> O
     V3 -. "weekday_mismatch / time_unknown /<br/>end_time_required" .-> O
     V4 -. "declined_by_user" .-> O
-    X -->|"wynik"| O["Obserwacja (JSON)"]
+    X -->|"result"| O["Observation (JSON)"]
     O -->|"replan"| M
-    L -. "step_limit / cost_limit" .-> E["Koniec:<br/>success, clarify, not_found,<br/>error, limit"]
+    L -. "step_limit / cost_limit" .-> E["End:<br/>success, clarify, not_found,<br/>error, limit"]
     M -->|"finish"| E

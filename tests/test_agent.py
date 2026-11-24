@@ -668,3 +668,89 @@ def test_reschedule_event_allows_default_calendar_and_tool_time(tmp_path) -> Non
         e.title == "Siłownia" and e.start.isoformat() == "2026-10-16T18:00:00"
         for e in tools.events
     )
+
+
+def test_leaked_finish_text_after_nudge_is_not_auto_answered(tmp_path) -> None:
+    leaked = (
+        "Czy chcesz, abym dodał brakujące zadania?\n\n"
+        'finish(outcome="clarify", answer="Czy chcesz?")'
+    )
+    result, _ = run(
+        [
+            reply(text="Czy chcesz, abym dodał brakujące zadania?"),
+            reply(text=leaked),
+            reply(
+                (
+                    "finish",
+                    {
+                        "outcome": "clarify",
+                        "answer": "Czy chcesz, abym dodał brakujące zadania?",
+                    },
+                )
+            ),
+        ],
+        tmp_path,
+    )
+    assert result.status == "clarify"
+    assert result.answer == "Czy chcesz, abym dodał brakujące zadania?"
+
+
+def test_answered_with_leaked_finish_or_question_and_citation_is_rejected(
+    tmp_path,
+) -> None:
+    md_question = f"Czy to to samo? [{LAB_ID}](#source)"
+    result, events = run(
+        [
+            reply(("search_events", {"query": "lab"})),
+            reply(
+                (
+                    "finish",
+                    {
+                        "outcome": "answered",
+                        "answer": 'Czy to to? finish(outcome="clarify", answer="x")',
+                    },
+                )
+            ),
+            reply(
+                (
+                    "finish",
+                    {
+                        "outcome": "answered",
+                        "answer": md_question,
+                        "citations": [LAB_ID],
+                    },
+                )
+            ),
+            reply(
+                (
+                    "finish",
+                    {
+                        "outcome": "clarify",
+                        "answer": md_question,
+                        "citations": [LAB_ID],
+                    },
+                )
+            ),
+        ],
+        tmp_path,
+    )
+    assert result.status == "clarify"
+    codes = [
+        e["payload"]["error"]["code"]
+        for e in events
+        if e["event"] == "tool_result" and "error" in e["payload"]
+    ]
+    assert codes == ["leaked_finish_call", "question_needs_clarify"]
+
+    auto_dir = tmp_path / "auto"
+    auto_dir.mkdir()
+    auto, _ = run(
+        [
+            reply(("search_events", {"query": "lab"})),
+            reply(text=md_question),
+            reply(text=md_question),
+        ],
+        auto_dir,
+    )
+    assert auto.status == "clarify"
+    assert auto.answer == md_question

@@ -432,6 +432,14 @@ def test_list_tasks_filters_due_from_and_orders_newest_first(writable) -> None:
     )
     assert bad["error"]["code"] == "invalid_arguments"
 
+    for i in range(25):
+        execute_tool_call(
+            writable, "create_task", {"title": f"Stare {i:02d}", "due": "2020-01-01"}
+        )
+    by_today = execute_tool_call(writable, "list_tasks", {"due_by": "2026-10-20"})
+    titles = [t["title"] for t in by_today["result"]["tasks"]]
+    assert titles[:2] == ["Jutro", "Stare"]
+
 
 def test_create_event_allows_default_calendar_and_known_evidence(
     two_calendars,

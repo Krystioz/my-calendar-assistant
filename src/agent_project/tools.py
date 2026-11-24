@@ -400,7 +400,13 @@ class ListTasksArgs(BaseModel):
             "(overdue included when due_from is omitted)."
         ),
     )
-    order: Literal["oldest_first", "newest_first"] = "oldest_first"
+    order: Literal["oldest_first", "newest_first"] | None = Field(
+        None,
+        description=(
+            "Sort order; defaults to newest_first when due_by is set without "
+            "due_from, otherwise oldest_first."
+        ),
+    )
     include_completed: bool = False
     limit: int = Field(MAX_RESULTS, ge=1, le=MAX_RESULTS)
     task_list: str | None = Field(
@@ -750,14 +756,13 @@ class CalendarTools:
             and (args.due_by is None or (task.due and task.due <= args.due_by))
             and all(word in _fold(f"{task.title} {task.notes}") for word in words)
         ]
+        order = args.order or (
+            "newest_first" if args.due_by and not args.due_from else "oldest_first"
+        )
         matches.sort(
             key=lambda t: (
                 t.due is None,
-                (
-                    -t.due.toordinal()
-                    if args.order == "newest_first"
-                    else t.due.toordinal()
-                )
+                (-t.due.toordinal() if order == "newest_first" else t.due.toordinal())
                 if t.due
                 else 0,
                 t.title,
@@ -861,8 +866,9 @@ TOOL_SPECS = (
         ListTasksArgs,
         "List open to-do tasks (Google Tasks or the local task list), sorted by "
         "due day, with each task's list and the names of all task lists. Pass "
-        "both due_from and due_by for tasks due on a specific day or range; for "
-        "'what do I have today' use due_by=today together with free_busy for today.",
+        "both due_from and due_by for tasks due on a specific day or range; "
+        "when due_by is given without due_from, tasks are sorted newest_first "
+        "so today and recent overdue tasks come before older ones.",
     ),
     ToolSpec(
         "create_task",

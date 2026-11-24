@@ -40,9 +40,11 @@ def image_part(path: str | Path) -> dict[str, Any]:
 
 def is_broken_reply(text: str | None, tool_calls: list | None) -> bool:
     """An empty reply or leaked template tokens is a provider failure."""
+    if text and any(m in text for m in _TEMPLATE_MARKERS):
+        return True
     if tool_calls:
         return False
-    return not (text or "").strip() or any(m in text for m in _TEMPLATE_MARKERS)
+    return not (text or "").strip()
 
 
 class OpenRouterClient:

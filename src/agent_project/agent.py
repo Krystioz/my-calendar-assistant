@@ -37,6 +37,14 @@ INLINE_CITATION_RE = re.compile(
     r"\[([^\[\]]*(?:#chunk-|@calendar\.local|gcal:|gtask:)[^\[\]]*)\]",
     re.IGNORECASE,
 )
+_LEAKED_FINISH_RE = re.compile(r"\bfinish\s*\(")
+
+
+def _ends_with_question(text: str) -> bool:
+    """Whether `text` ends with a question mark, ignoring trailing citations/markup."""
+    cleaned = re.sub(r"(?:\s|\[[^\[\]]+\](?:\([^()\s]+\))?|[*_`\"'])+$", "", text)
+    return cleaned.endswith("?")
+
 
 SYSTEM_PROMPT = """\
 You are a calendar and study assistant. You answer questions about the user's \
@@ -91,7 +99,9 @@ with `finish(outcome="clarify")`.
 `calendar` out: the application uses the default calendar. Never pick another \
 calendar yourself.
 - For "what do I have today", use `free_busy` for today and `list_tasks` with \
-due_by=today, and answer with both.
+due_by=today (or due_from=today, due_by=today when checking only today's \
+tasks), and answer with both; if `total_matches > returned`, narrow with \
+`due_from` or `query` before saying a task is missing.
 - To delete an event, find its id with `search_events`, then call \
 `delete_event`. Tasks are deleted the same way with `list_tasks` and \
 `delete_task`. The application asks the user to confirm; you never confirm on \
@@ -455,6 +465,7 @@ def build_agent_graph(
         if (
             not calls
             and (reply.get("text") or "").strip()
+            and not _LEAKED_FINISH_RE.search(reply["text"])
             and last["role"] == "user"
             and message_text(last).startswith("Call `finish` now")
         ):
@@ -467,7 +478,9 @@ def build_agent_graph(
                     "name": "finish",
                     "arguments": json.dumps(
                         {
-                            "outcome": "clarify" if text.endswith("?") else "answered",
+                            "outcome": (
+                                "clarify" if _ends_with_question(text) else "answered"
+                            ),
                             "answer": text,
                         }
                     ),
@@ -477,6 +490,14 @@ def build_agent_graph(
         if not calls:
             text = (reply.get("text") or "").strip()
             if text:
+                leaked = bool(_LEAKED_FINISH_RE.search(text))
+                extra = (
+                    " Invoke the `finish` tool via tool calling; do not write "
+                    "`finish(...)` in message text."
+                    if leaked
+                    else " Use outcome='clarify' if you ask a question, and do not "
+                    "write `finish(...)` in message text."
+                )
                 return {
                     "steps": step,
                     "cost_usd": spent,
@@ -489,7 +510,7 @@ def build_agent_graph(
                                 "Call `finish` now with the appropriate "
                                 "`outcome` ('answered', 'not_found', 'clarify'), "
                                 "your `answer`, and verified `citations` from: "
-                                f"{sorted(state['retrieved_ids'])}."
+                                f"{sorted(state['retrieved_ids'])}.{extra}"
                             ),
                         },
                     ],
@@ -927,7 +948,18 @@ def _parse_finish(
     finished = parse_arguments(FinishArgs, raw_arguments)
     if isinstance(finished, dict):
         return finished
-    if finished.outcome != "clarify" and finished.answer.rstrip().endswith("?"):
+    if _LEAKED_FINISH_RE.search(finished.answer):
+        return {
+            "ok": False,
+            "error": {
+                "code": "leaked_finish_call",
+                "message": (
+                    "Do not include `finish(...)` text inside `answer`; pass "
+                    "`outcome`, `answer`, and `options` as tool arguments."
+                ),
+            },
+        }
+    if finished.outcome != "clarify" and _ends_with_question(finished.answer):
         return {
             "ok": False,
             "error": {

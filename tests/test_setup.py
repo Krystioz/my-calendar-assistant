@@ -21,6 +21,7 @@ def test_broken_reply_detection() -> None:
     assert is_broken_reply(None, [])
     assert is_broken_reply("   ", None)
     assert is_broken_reply("<|channel>thought<tool_call|>", [])
+    assert is_broken_reply("<|tool_call>call:search_events{}<tool_call|>", [object()])
     assert not is_broken_reply("A normal answer.", [])
     assert not is_broken_reply(None, [object()])
 
